@@ -206,8 +206,8 @@ class CarModel extends PersistenceModel {
   const ORM = 'Car';
   protected static $instance;
   
-  public function get($id) {
-    return $this->retrieveByPrimaryKey(array($id));
+  public function findByColor($color) {
+    return $this->find('color = ?', array($color));
   }
 }
 ```
@@ -218,4 +218,5 @@ require_once 'model/CarModel.class.php';
 $model = CarModel::instance();
 $cars = $model->find();
 $actual_cars = $model->find('num_wheels = 4');
+$yellow_cars = $model->findByColor('yellow');
 ```
