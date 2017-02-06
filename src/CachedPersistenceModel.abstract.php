@@ -1,6 +1,7 @@
 <?php
 namespace CsrDelft\Orm;
 
+use CsrDelft\Orm\DataBase\OrmMemcache;
 use CsrDelft\Orm\Entity\PersistentEntity;
 use PDOStatement;
 
@@ -41,10 +42,10 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	protected function isCached($key, $memcache = false) {
 		if (isset($this->runtime_cache[$key])) {
 			return true;
-		} elseif ($memcache AND CsrMemcache::isAvailable()) {
+		} elseif ($memcache AND OrmMemcache::isAvailable()) {
 			// exists without retrieval
-			if (CsrMemcache::instance()->add($key, '')) {
-				CsrMemcache::instance()->delete($key);
+			if (OrmMemcache::instance()->add($key, '')) {
+				OrmMemcache::instance()->delete($key);
 				return false;
 			}
 			return true;
@@ -55,8 +56,8 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	protected function getCached($key, $memcache = false) {
 		if (array_key_exists($key, $this->runtime_cache)) {
 			return $this->runtime_cache[$key];
-		} elseif ($memcache AND CsrMemcache::isAvailable()) {
-			$cache = CsrMemcache::instance()->get($key);
+		} elseif ($memcache AND OrmMemcache::isAvailable()) {
+			$cache = OrmMemcache::instance()->get($key);
 			if ($cache !== false) {
 				$value = unserialize($cache);
 				// unserialize once 
@@ -68,15 +69,15 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 
 	protected function setCache($key, $value, $memcache = false) {
 		$this->runtime_cache[$key] = $value;
-		if ($memcache AND CsrMemcache::isAvailable()) {
-			CsrMemcache::instance()->set($key, serialize($value));
+		if ($memcache AND OrmMemcache::isAvailable()) {
+			OrmMemcache::instance()->set($key, serialize($value));
 		}
 	}
 
 	protected function unsetCache($key, $memcache = false) {
 		unset($this->runtime_cache[$key]);
-		if ($memcache AND CsrMemcache::isAvailable()) {
-			CsrMemcache::instance()->delete($key);
+		if ($memcache AND OrmMemcache::isAvailable()) {
+			OrmMemcache::instance()->delete($key);
 		}
 	}
 
@@ -86,8 +87,8 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	 * @param boolean $memcache This can be used to partially clear memcache.
 	 */
 	protected function flushCache($memcache = false) {
-		if ($memcache AND CsrMemcache::isAvailable()) {
-			CsrMemcache::instance()->flush();
+		if ($memcache AND OrmMemcache::isAvailable()) {
+			OrmMemcache::instance()->flush();
 		}
 		$this->runtime_cache = array();
 	}

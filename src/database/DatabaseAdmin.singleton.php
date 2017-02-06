@@ -92,7 +92,7 @@ class DatabaseAdmin extends Database {
 		self::instance()->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER); // Force column names to lower case.
 		$query->execute();
 		self::instance()->setAttribute(PDO::ATTR_CASE, PDO::CASE_NATURAL); // Leave column names as returned by the database driver.
-		$query->setFetchMode(PDO::FETCH_CLASS, 'PersistentAttribute');
+		$query->setFetchMode(PDO::FETCH_CLASS, 'CsrDelft\Orm\Entity\PersistentAttribute');
 		return $query;
 	}
 
