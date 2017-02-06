@@ -1,9 +1,8 @@
 <?php
 namespace CsrDelft\Orm\Entity;
-use function CsrDelft\Orm\debugprint;
-use function CsrDelft\Orm\group_by_distinct;
+
 use CsrDelft\Orm\DataBase\DatabaseAdmin;
-use function CsrDelft\Orm\werkomheen_pdo_bool;
+use CsrDelft\Orm\Util;
 use Exception;
 
 /**
@@ -165,7 +164,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 			}
 			if (DB_CHECK AND $definition[0] === T::Enumeration AND ! in_array($this->$attribute, $definition[2]::getTypeOptions())) {
 				$msg = static::$table_name . '.' . $attribute . ' invalid ' . $definition[2] . '.enum value: "' . $this->$attribute . '"';
-				debugprint($msg);
+				Util::debugprint($msg);
 			}
 		}
 	}
@@ -187,9 +186,9 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 			}
 		}
 		try {
-			$database_attributes = group_by_distinct('field', DatabaseAdmin::instance()->sqlDescribeTable(static::$table_name));
+			$database_attributes = Util::group_by_distinct('field', DatabaseAdmin::instance()->sqlDescribeTable(static::$table_name));
 		} catch (Exception $e) {
-			if (endsWith($e->getMessage(), static::$table_name . "' doesn't exist")) {
+			if (Util::endsWith($e->getMessage(), static::$table_name . "' doesn't exist")) {
 				DatabaseAdmin::instance()->sqlCreateTable(static::$table_name, $attributes, static::$primary_key);
 				return;
 			} else {

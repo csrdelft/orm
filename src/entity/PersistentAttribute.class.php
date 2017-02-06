@@ -99,7 +99,7 @@ class PersistentAttribute {
 	 */
 	public static function makeDefinition(PersistentAttribute $attribute) {
 		$definition = array();
-		if (startsWith($attribute->type, 'enum')) {
+		if (Util::startsWith($attribute->type, 'enum')) {
 			$start = strpos($attribute->type, '(');
 			$length = strpos($attribute->type, ')') - $start;
 			$values = explode(',', substr($attribute->type, $start, $length));
