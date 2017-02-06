@@ -1,13 +1,16 @@
 <?php
 namespace CsrDelft\Orm\Entity;
 
+use CsrDelft\Orm\Util;
+use Exception;
+
 /**
  * PersistentAttribute.class.php
- * 
+ *
  * @author P.W.G. Brussee <brussee@live.nl>
- * 
+ *
  * Translation of persistent attribute definitions to and from MySQL table structure.
- * 
+ *
  */
 class PersistentAttribute {
 
@@ -63,9 +66,9 @@ class PersistentAttribute {
 
 	/**
 	 * To compare table description of MySQL.
-	 * 
+	 *
 	 * @unsupported keys
-	 * 
+	 *
 	 * @param string $name
 	 * @param array $definition
 	 * @return PersistentAttribute
@@ -91,11 +94,12 @@ class PersistentAttribute {
 
 	/**
 	 * To compare table description of MySQL.
-	 * 
+	 *
 	 * @unsupported keys
-	 * 
+	 *
 	 * @param PersistentAttribute $attribute
-	 * @reaturn array $definition
+	 * @return array $definition
+	 * @throws Exception
 	 */
 	public static function makeDefinition(PersistentAttribute $attribute) {
 		$definition = array();
@@ -108,7 +112,7 @@ class PersistentAttribute {
 			}
 			$definition[] = array(T::Enumeration, false, $values);
 		} else {
-			if (DB_CHECK AND ! in_array($attribute->type, T::getTypeOptions())) {
+			if (DB_CHECK AND !in_array($attribute->type, T::getTypeOptions())) {
 				throw new Exception('Unknown persistent attribute type: ' . $attribute->type);
 			}
 			$definition[] = $attribute->type;

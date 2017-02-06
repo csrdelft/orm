@@ -3,11 +3,11 @@ namespace CsrDelft\Orm\Entity;
 
 /**
  * PersistentAttributeType.enum.php
- * 
+ *
  * @author P.W.G. Brussee <brussee@live.nl>
- * 
+ *
  * De mogelijke datatypes.
- * 
+ *
  */
 abstract class T implements PersistentEnum {
 
@@ -31,39 +31,67 @@ abstract class T implements PersistentEnum {
 
 	public static function getDescription($option) {
 		switch ($option) {
-			case self::String: return 'Tekst (1 zin)';
-			case self::Char: return 'Karakter (1 teken)';
-			case self::Boolean: return 'Ja/Nee-waarde';
-			case self::Integer: return 'Geheel getal';
-			case self::Float: return 'Kommagetal';
-			case self::Date: return 'Datum';
-			case self::Time: return 'Tijd';
-			case self::DateTime: return 'Datum & tijd';
-			case self::Timestamp: return 'Tijd (getal)';
-			case self::Text: return 'Tekst';
-			case self::LongText: return 'Tekst (lang)';
-			case self::Enumeration: return 'Voorgedefinieerde waarden';
-			case self::UID: 'Lidnummer';
-			default: throw new \Exception('T onbekend');
+			case self::String:
+				return 'Tekst (1 zin)';
+			case self::Char:
+				return 'Karakter (1 teken)';
+			case self::Boolean:
+				return 'Ja/Nee-waarde';
+			case self::Integer:
+				return 'Geheel getal';
+			case self::Float:
+				return 'Kommagetal';
+			case self::Date:
+				return 'Datum';
+			case self::Time:
+				return 'Tijd';
+			case self::DateTime:
+				return 'Datum & tijd';
+			case self::Timestamp:
+				return 'Tijd (getal)';
+			case self::Text:
+				return 'Tekst';
+			case self::LongText:
+				return 'Tekst (lang)';
+			case self::Enumeration:
+				return 'Voorgedefinieerde waarden';
+			case self::UID:
+				return 'Lidnummer';
+			default:
+				throw new \Exception('T onbekend');
 		}
 	}
 
 	public static function getChar($option) {
 		switch ($option) {
-			case self::String: return 's';
-			case self::Char: return 'c';
-			case self::Boolean: return 'b';
-			case self::Integer: return 'i';
-			case self::Float: return 'f';
-			case self::Date: return 'd';
-			case self::Time: return 't';
-			case self::DateTime: return 'dt';
-			case self::Timestamp: return 'ts';
-			case self::Text: return 't';
-			case self::LongText: return 'lt';
-			case self::Enumeration: return 'e';
-			case self::UID: 'u';
-			default: throw new \Exception('T onbekend');
+			case self::String:
+				return 's';
+			case self::Char:
+				return 'c';
+			case self::Boolean:
+				return 'b';
+			case self::Integer:
+				return 'i';
+			case self::Float:
+				return 'f';
+			case self::Date:
+				return 'd';
+			case self::Time:
+				return 't';
+			case self::DateTime:
+				return 'dt';
+			case self::Timestamp:
+				return 'ts';
+			case self::Text:
+				return 't';
+			case self::LongText:
+				return 'lt';
+			case self::Enumeration:
+				return 'e';
+			case self::UID:
+				return 'u';
+			default:
+				throw new \Exception('T onbekend');
 		}
 	}
 

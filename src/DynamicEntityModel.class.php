@@ -1,6 +1,12 @@
 <?php
 namespace CsrDelft\Orm;
 
+use CsrDelft\Orm\DataBase\DatabaseAdmin;
+use CsrDelft\Orm\Entity\DynamicEntityDefinition;
+use CsrDelft\Orm\Entity\PersistentAttribute;
+use Exception;
+use PDO;
+
 /**
  * DynamicEntityModel.class.php
  *

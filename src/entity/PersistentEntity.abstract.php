@@ -72,6 +72,10 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 		return array_keys(static::$persistent_attributes);
 	}
 
+	/**
+	 * @param $attribute_name
+	 * @return array
+	 */
 	public function getAttributeDefinition($attribute_name) {
 		return static::$persistent_attributes[$attribute_name];
 	}
@@ -134,7 +138,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 			$attributes = array_intersect($attributes, $this->attributes_retrieved);
 		}
 		foreach ($attributes as $attribute) {
-			$values[$attribute] = werkomheen_pdo_bool($this->$attribute);
+			$values[$attribute] = Util::werkomheen_pdo_bool($this->$attribute);
 		}
 		if ($primary_key_only) {
 			return array_values($values);
@@ -154,15 +158,15 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 			if (isset($definition[1]) AND $definition[1] AND $this->$attribute === null) {
 				// Do not cast allowed null fields
 			} elseif ($definition[0] === T::Boolean) {
-				$this->$attribute = (boolean) $this->$attribute;
+				$this->$attribute = (boolean)$this->$attribute;
 			} elseif ($definition[0] === T::Integer) {
-				$this->$attribute = (int) $this->$attribute;
+				$this->$attribute = (int)$this->$attribute;
 			} elseif ($definition[0] === T::Float) {
-				$this->$attribute = (float) $this->$attribute;
+				$this->$attribute = (float)$this->$attribute;
 			} else {
-				$this->$attribute = (string) $this->$attribute;
+				$this->$attribute = (string)$this->$attribute;
 			}
-			if (DB_CHECK AND $definition[0] === T::Enumeration AND ! in_array($this->$attribute, $definition[2]::getTypeOptions())) {
+			if (DB_CHECK AND $definition[0] === T::Enumeration AND !in_array($this->$attribute, $definition[2]::getTypeOptions())) {
 				$msg = static::$table_name . '.' . $attribute . ' invalid ' . $definition[2] . '.enum value: "' . $this->$attribute . '"';
 				Util::debugprint($msg);
 			}
@@ -218,6 +222,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 				$diff = false;
 				if ($attributes[$name]->type !== $database_attributes[$name]->type) {
 					if ($definition[0] === T::Enumeration) {
+						/** @var PersistentEnum $enum */
 						$enum = $definition[2];
 						if ($database_attributes[$name]->type !== "enum('" . implode("','", $enum::getTypeOptions()) . "')") {
 							$diff = true;
@@ -232,11 +237,11 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 				// Cast database value if default value is defined
 				if ($attributes[$name]->default !== null) {
 					if ($definition[0] === T::Boolean) {
-						$database_attributes[$name]->default = (boolean) $database_attributes[$name]->default;
+						$database_attributes[$name]->default = (boolean)$database_attributes[$name]->default;
 					} elseif ($definition[0] === T::Integer) {
-						$database_attributes[$name]->default = (int) $database_attributes[$name]->default;
+						$database_attributes[$name]->default = (int)$database_attributes[$name]->default;
 					} elseif ($definition[0] === T::Float) {
-						$database_attributes[$name]->default = (float) $database_attributes[$name]->default;
+						$database_attributes[$name]->default = (float)$database_attributes[$name]->default;
 					}
 				}
 				if ($attributes[$name]->default !== $database_attributes[$name]->default) {
@@ -246,7 +251,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 					$diff = true;
 				}
 				// TODO: support other key types: MUL, UNI, etc.
-				if ($attributes[$name]->key !== $database_attributes[$name]->key AND ( $attributes[$name]->key === 'PRI' OR $database_attributes[$name]->key === 'PRI' )) {
+				if ($attributes[$name]->key !== $database_attributes[$name]->key AND ($attributes[$name]->key === 'PRI' OR $database_attributes[$name]->key === 'PRI')) {
 					$diff = true;
 				}
 				if ($diff) {
@@ -257,7 +262,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 		}
 		// Remove non-persistent attributes
 		foreach ($database_attributes as $name => $attribute) {
-			if (!isset(static::$persistent_attributes[$name]) AND ! isset($rename[$name])) {
+			if (!isset(static::$persistent_attributes[$name]) AND !isset($rename[$name])) {
 				DatabaseAdmin::instance()->sqlDeleteAttribute(static::$table_name, $attribute);
 			}
 		}

@@ -1,5 +1,7 @@
 <?php
 namespace CsrDelft\Orm;
+use CsrDelft\Orm\DataBase\Database;
+use Exception;
 
 /**
  * TransactionWrapper.class.php

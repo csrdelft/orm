@@ -20,6 +20,7 @@ use PDOStatement;
 abstract class PersistenceModel implements Persistence {
 
 	public static function __static() {
+		/** @var PersistentEntity $orm */
 		$orm = static::ORM;
 		if (defined('static::DIR')) {
 			$dir = static::DIR;
