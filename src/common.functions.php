@@ -1,11 +1,5 @@
 <?php
 namespace CsrDelft\Orm;
-/**
- * Created by PhpStorm.
- * User: gerbe
- * Date: 06/02/2017
- * Time: 12:47
- */
 
 class Util {
 	/**
@@ -14,7 +8,7 @@ class Util {
 	 * @param string $needle
 	 * @return boolean
 	 */
-	public static function startsWith($haystack, $needle) {
+	public static function starts_with($haystack, $needle) {
 		return $needle === "" || strpos($haystack, $needle) === 0;
 	}
 
@@ -24,26 +18,28 @@ class Util {
 	 * @param string $needle
 	 * @return boolean
 	 */
-	public static function endsWith($haystack, $needle) {
+	public static function ends_with($haystack, $needle) {
 		return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
 	}
 
 	/**
-	 * print_r een variabele met <pre>-tags eromheen.
+	 * Print a variable with <pre>-tags around it.
 	 *
 	 * @param string $sString
 	 * @param string $cssID
 	 */
-	public static function debugprint($sString, $cssID = 'pubcie_debug') {
+	public static function debug_print($sString, $cssID = 'pubcie_debug') {
 //	if (DEBUG OR LoginModel::mag('P_ADMIN') OR LoginModel::instance()->isSued()) {
 //		echo '<pre class="' . $cssID . '">' . print_r($sString, true) . '</pre>';
 //	}
 	}
 
 	/**
-	 * PDO does a stringcast (false = '') and MySql uses tinyint for booleans so expects 0/1
+	 * PDO does a string cast (false = '') and MySql uses tinyint for booleans so expects 0/1
+	 * @param $value bool|bool-like
+	 * @return int
 	 */
-	public static function werkomheen_pdo_bool($value) {
+	public static function pdo_bool($value) {
 		if (is_bool($value)) {
 			$value = (int)$value;
 		}

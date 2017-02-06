@@ -6,7 +6,7 @@ namespace CsrDelft\Orm\Entity;
  *
  * @author P.W.G. Brussee <brussee@live.nl>
  *
- * Een enumeration heeft type-opties.
+ * An enumeration has type-options.
  *
  */
 interface PersistentEnum {

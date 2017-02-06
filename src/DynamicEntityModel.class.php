@@ -84,16 +84,16 @@ class DynamicEntityModel extends PersistenceModel {
 		return $entity;
 	}
 
-	public function find($criteria = null, array $criteria_params = array(), $groupby = null, $orderby = null, $limit = null, $start = 0) {
-		$result = parent::find($criteria, $criteria_params, $groupby, $orderby, $limit, $start);
+	public function find($criteria = null, array $criteria_params = array(), $group_by = null, $order_by = null, $limit = null, $start = 0) {
+		$result = parent::find($criteria, $criteria_params, $group_by, $order_by, $limit, $start);
 		if ($result) {
 			$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, array($cast = true, null, $this->definition));
 		}
 		return $result;
 	}
 
-	public function findSparse(array $attributes, $criteria = null, array $criteria_params = array(), $groupby = null, $orderby = null, $limit = null, $start = 0) {
-		$result = parent::findSparse($attributes, $criteria, $criteria_params, $groupby, $orderby, $limit, $start);
+	public function findSparse(array $attributes, $criteria = null, array $criteria_params = array(), $group_by = null, $order_by = null, $limit = null, $start = 0) {
+		$result = parent::findSparse($attributes, $criteria, $criteria_params, $group_by, $order_by, $limit, $start);
 		if ($result) {
 			$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, array($cast = true, $attributes, $this->definition));
 		}

@@ -3,6 +3,7 @@ namespace CsrDelft\Orm;
 
 use CsrDelft\Orm\Entity\PersistentEntity;
 use CsrDelft\Orm\Persistence\OrmMemcache;
+use Exception;
 use PDOStatement;
 
 /**
@@ -24,7 +25,7 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 
 	private $runtime_cache = array();
 	/**
-	 * Store prefetch resultset as a whole in memcache
+	 * Store prefetch result set as a whole in memcache
 	 * @var boolean
 	 */
 	protected $memcache_prefetch = false;
@@ -65,6 +66,8 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 				return $value;
 			}
 		}
+
+		throw new Exception("Memcache not initialized");
 	}
 
 	protected function setCache($key, $value, $memcache = false) {
@@ -100,6 +103,7 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	 * @param PersistentEntity $entity
 	 * @param boolean $memcache
 	 * @param boolean $overwrite
+	 * @return PersistentEntity|mixed
 	 */
 	protected function cache(PersistentEntity $entity, $memcache = false, $overwrite = false) {
 		$key = $this->cacheKey($entity->getValues(true));
@@ -112,16 +116,16 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	}
 
 	/**
-	 * Cache entire resultset from a PDOStatement.
+	 * Cache entire result set from a PDOStatement.
 	 * Optional: put in memcache.
 	 *
-	 * @param PDOStatement|array $resultset
+	 * @param PDOStatement|array $result_set
 	 * @param boolean $memcache
-	 * @return array resultset of PDOStatement
+	 * @return array result set of PDOStatement
 	 */
-	protected function cacheResult($resultset, $memcache = false) {
+	protected function cacheResult($result_set, $memcache = false) {
 		$cached = array();
-		foreach ($resultset as $entity) {
+		foreach ($result_set as $entity) {
 			$cached[] = $this->cache($entity, $memcache);
 		}
 		return $cached;
@@ -130,22 +134,22 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	/**
 	 * Find and cache existing entities with optional search criteria.
 	 * Retrieves all attributes.
-	 * Optional: store resultset as a whole in memcache.
+	 * Optional: store result set as a whole in memcache.
 	 *
 	 * @param string $criteria WHERE
 	 * @param array $criteria_params optional named parameters
-	 * @param string $groupby GROUP BY
-	 * @param string $orderby ORDER BY
+	 * @param string $group_by GROUP BY
+	 * @param string $order_by ORDER BY
 	 * @param int $limit max amount of results
 	 * @param int $start results from index
 	 * @return array
 	 */
-	public function prefetch($criteria = null, array $criteria_params = array(), $groupby = null, $orderby = null, $limit = null, $start = 0) {
-		$key = $this->prefetchKey($criteria, $criteria_params, $groupby, $orderby, $limit, $start);
+	public function prefetch($criteria = null, array $criteria_params = array(), $group_by = null, $order_by = null, $limit = null, $start = 0) {
+		$key = $this->prefetchKey($criteria, $criteria_params, $group_by, $order_by, $limit, $start);
 		if ($this->isCached($key, $this->memcache_prefetch)) {
 			$result = $this->getCached($key, $this->memcache_prefetch);
 		} else {
-			$result = $this->find($criteria, $criteria_params, $groupby, $orderby, $limit, $start);
+			$result = $this->find($criteria, $criteria_params, $group_by, $order_by, $limit, $start);
 		}
 		$cached = $this->cacheResult($result, false);
 		if ($result instanceof PDOStatement) {
@@ -155,18 +159,24 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	}
 
 	/**
-	 * Calculate key for caching prefetch resultset.
+	 * Calculate key for caching prefetch result set.
 	 *
-	 * @param array $params
+	 * @param $criteria
+	 * @param array $criteria_params
+	 * @param $group_by
+	 * @param $order_by
+	 * @param $limit
+	 * @param $start
 	 * @return string
+	 * @internal param array $params
 	 */
-	private function prefetchKey($criteria, array $criteria_params, $groupby, $orderby, $limit, $start) {
-		$params = array($criteria, implode('+', $criteria_params), $groupby, $orderby, $limit, $start);
+	private function prefetchKey($criteria, array $criteria_params, $group_by, $order_by, $limit, $start) {
+		$params = array($criteria, implode('+', $criteria_params), $group_by, $order_by, $limit, $start);
 		return get_class($this) . crc32(implode('-', $params));
 	}
 
 	/**
-	 * Check if enitity with primary key exists.
+	 * Check if entity with primary key exists.
 	 *
 	 * @param array $primary_key_values
 	 * @return boolean primary key exists

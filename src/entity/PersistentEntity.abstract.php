@@ -14,7 +14,7 @@ use Exception;
  *
  * @see PersistenceModel->retrieveAttributes for a usage example of sparse and foreign keys.
  *
- * Optional: static $rename_attributes = array('oldname' => 'newname');
+ * Optional: static $rename_attributes = array('old_name' => 'new_name');
  */
 abstract class PersistentEntity implements Sparse, \JsonSerializable {
 
@@ -138,7 +138,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 			$attributes = array_intersect($attributes, $this->attributes_retrieved);
 		}
 		foreach ($attributes as $attribute) {
-			$values[$attribute] = Util::werkomheen_pdo_bool($this->$attribute);
+			$values[$attribute] = Util::pdo_bool($this->$attribute);
 		}
 		if ($primary_key_only) {
 			return array_values($values);
@@ -150,7 +150,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 	 * Cast values to defined type.
 	 * PDO does not cast values automatically (yet).
 	 *
-	 * @param boolean $attributes Attributes to cast
+	 * @param array $attributes Attributes to cast
 	 */
 	private function castValues(array $attributes) {
 		foreach ($attributes as $attribute) {
@@ -168,7 +168,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 			}
 			if (DB_CHECK AND $definition[0] === T::Enumeration AND !in_array($this->$attribute, $definition[2]::getTypeOptions())) {
 				$msg = static::$table_name . '.' . $attribute . ' invalid ' . $definition[2] . '.enum value: "' . $this->$attribute . '"';
-				Util::debugprint($msg);
+				Util::debug_print($msg);
 			}
 		}
 	}
@@ -192,7 +192,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 		try {
 			$database_attributes = Util::group_by_distinct('field', DatabaseAdmin::instance()->sqlDescribeTable(static::$table_name));
 		} catch (Exception $e) {
-			if (Util::endsWith($e->getMessage(), static::$table_name . "' doesn't exist")) {
+			if (Util::ends_with($e->getMessage(), static::$table_name . "' doesn't exist")) {
 				DatabaseAdmin::instance()->sqlCreateTable(static::$table_name, $attributes, static::$primary_key);
 				return;
 			} else {
@@ -202,9 +202,9 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 		// Rename attributes
 		if (property_exists($class, 'rename_attributes')) {
 			$rename = static::$rename_attributes;
-			foreach ($rename as $oldname => $newname) {
-				if (property_exists($class, $newname)) {
-					DatabaseAdmin::instance()->sqlChangeAttribute(static::$table_name, $attributes[$newname], $oldname);
+			foreach ($rename as $old_name => $new_name) {
+				if (property_exists($class, $new_name)) {
+					DatabaseAdmin::instance()->sqlChangeAttribute(static::$table_name, $attributes[$new_name], $old_name);
 				}
 			}
 		} else {
@@ -218,7 +218,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 					DatabaseAdmin::instance()->sqlAddAttribute(static::$table_name, $attributes[$name], $previous_attribute);
 				}
 			} else {
-				// Check exisiting persistent attributes for differences
+				// Check existing persistent attributes for differences
 				$diff = false;
 				if ($attributes[$name]->type !== $database_attributes[$name]->type) {
 					if ($definition[0] === T::Enumeration) {

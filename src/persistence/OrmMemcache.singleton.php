@@ -9,13 +9,13 @@ use Memcache;
  * @author Jan Pieter Waagmeester <jieter@jpwaag.com>
  * @author P.W.G. Brussee <brussee@live.nl>
  *
- * Wrapper voor Memchache if available; DummyCache otherwise.
+ * Wrapper for Memcache if available; DummyCache otherwise.
  */
 class OrmMemcache {
 
 	/**
 	 * Singleton instance
-	 * @var OrmMemcache
+	 * @var Memcache|DummyCache
 	 */
 	private static $instance;
 	/**

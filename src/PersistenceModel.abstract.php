@@ -104,22 +104,22 @@ abstract class PersistenceModel implements Persistence {
 	 *
 	 * @param string $criteria WHERE
 	 * @param array $criteria_params optional named parameters
-	 * @param string $groupby GROUP BY
-	 * @param string $orderby ORDER BY
+	 * @param string $group_by GROUP BY
+	 * @param string $order_by ORDER BY
 	 * @param int $limit max amount of results
 	 * @param int $start results from index
 	 * @return PDOStatement implements Traversable using foreach does NOT require ->fetchAll()
 	 */
-	public function find($criteria = null, array $criteria_params = array(), $groupby = null, $orderby = null, $limit = null, $start = 0) {
-		if ($orderby == null) {
-			$orderby = $this->default_order;
+	public function find($criteria = null, array $criteria_params = array(), $group_by = null, $order_by = null, $limit = null, $start = 0) {
+		if ($order_by == null) {
+			$order_by = $this->default_order;
 		}
 		try {
-			$result = Database::sqlSelect(array('*'), $this->getTableName(), $criteria, $criteria_params, $groupby, $orderby, $limit, $start);
+			$result = Database::sqlSelect(array('*'), $this->getTableName(), $criteria, $criteria_params, $group_by, $order_by, $limit, $start);
 			$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, array($cast = true));
 			return $result;
 		} catch (PDOException $ex) {
-			fatal_handler($ex);
+			throw $ex;
 		}
 	}
 
@@ -130,18 +130,18 @@ abstract class PersistenceModel implements Persistence {
 	 * @param array $attributes to retrieve
 	 * @param string $criteria WHERE
 	 * @param array $criteria_params optional named parameters
-	 * @param string $groupby GROUP BY
-	 * @param string $orderby ORDER BY
+	 * @param string $group_by GROUP BY
+	 * @param string $order_by ORDER BY
 	 * @param int $limit max amount of results
 	 * @param int $start results from index
 	 * @return PDOStatement implements Traversable using foreach does NOT require ->fetchAll()
 	 */
-	public function findSparse(array $attributes, $criteria = null, array $criteria_params = array(), $groupby = null, $orderby = null, $limit = null, $start = 0) {
-		if ($orderby == null) {
-			$orderby = $this->default_order;
+	public function findSparse(array $attributes, $criteria = null, array $criteria_params = array(), $group_by = null, $order_by = null, $limit = null, $start = 0) {
+		if ($order_by == null) {
+			$order_by = $this->default_order;
 		}
 		$attributes = array_merge($this->getPrimaryKey(), $attributes);
-		$result = Database::sqlSelect($attributes, $this->getTableName(), $criteria, $criteria_params, $groupby, $orderby, $limit, $start);
+		$result = Database::sqlSelect($attributes, $this->getTableName(), $criteria, $criteria_params, $group_by, $order_by, $limit, $start);
 		$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, array($cast = true, $attributes));
 		return $result;
 	}
@@ -173,7 +173,7 @@ abstract class PersistenceModel implements Persistence {
 	}
 
 	/**
-	 * Check if enitity exists.
+	 * Check if entity exists.
 	 *
 	 * @param PersistentEntity $entity
 	 * @return boolean entity exists
@@ -183,7 +183,7 @@ abstract class PersistenceModel implements Persistence {
 	}
 
 	/**
-	 * Check if enitity with primary key exists.
+	 * Check if entity with primary key exists.
 	 *
 	 * @param array $primary_key_values
 	 * @return boolean primary key exists
@@ -207,7 +207,7 @@ abstract class PersistenceModel implements Persistence {
 	}
 
 	/**
-	 * Load saved enitity data and replace current entity object values.
+	 * Load saved entity data and replace current entity object values.
 	 *
 	 * @see retrieveAttributes
 	 *
@@ -251,14 +251,14 @@ abstract class PersistenceModel implements Persistence {
 	 * Usage example:
 	 *
 	 * $model = UserModel::instance();
-	 * $users = $model->findSparse(array('naam'), ...); // retrieves only naam attribute
+	 * $users = $model->findSparse(array('name'), ...); // retrieves only name attribute
 	 * foreach ($users as $user) {
 	 *   echo $user->getAddress(); // address is sparse: retrieve address
 	 * }
 	 *
-	 * class User extends PersitentEntity {
+	 * class User extends PersistentEntity {
 	 *   public function getAddress() {
-	 *     $attributes = array('city' 'street', 'number', 'postalcode');
+	 *     $attributes = array('city' 'street', 'number', 'postal_code');
 	 *     UserModel::instance()->retrieveAttributes($this, $attributes);
 	 *   }
 	 * }
@@ -267,7 +267,7 @@ abstract class PersistenceModel implements Persistence {
 	 *
 	 * $user->getAddress();
 	 *
-	 * class User extends PersitentEntity {
+	 * class User extends PersistentEntity {
 	 *   public $address_uuid; // foreign key
 	 *   public $address;
 	 *   public function getAddress() {
