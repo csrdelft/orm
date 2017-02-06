@@ -1,0 +1,9 @@
+/*.iml
+/*.sln
+/*.suo
+/.idea
+/.project
+/.settings
+/.sonar
+/C.S.R.[!!-~]Delft.phpproj
+/vendor/
