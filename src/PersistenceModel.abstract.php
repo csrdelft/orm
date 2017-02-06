@@ -1,6 +1,6 @@
 <?php
 namespace CsrDelft\Orm;
-use CsrDelft\Orm\DataBase\Database;
+use CsrDelft\Orm\Persistence\Database;
 use CsrDelft\Orm\Entity\PersistentEntity;
 use PDO;
 use PDOException;

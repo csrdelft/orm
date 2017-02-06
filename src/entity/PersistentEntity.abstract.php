@@ -1,7 +1,7 @@
 <?php
 namespace CsrDelft\Orm\Entity;
 
-use CsrDelft\Orm\DataBase\DatabaseAdmin;
+use CsrDelft\Orm\Persistence\DatabaseAdmin;
 use CsrDelft\Orm\Util;
 use Exception;
 

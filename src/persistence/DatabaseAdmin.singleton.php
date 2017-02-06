@@ -1,5 +1,5 @@
 <?php
-namespace CsrDelft\Orm\DataBase;
+namespace CsrDelft\Orm\Persistence;
 
 use CsrDelft\Orm\Entity\PersistentAttribute;
 use PDO;

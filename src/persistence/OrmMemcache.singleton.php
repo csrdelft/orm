@@ -1,10 +1,11 @@
 <?php
-namespace CsrDelft\Orm\DataBase;
+namespace CsrDelft\Orm\Persistence;
+
 use Memcache;
 
 /**
  * CsrMemcache.singleton.php
- * 
+ *
  * @author Jan Pieter Waagmeester <jieter@jpwaag.com>
  * @author P.W.G. Brussee <brussee@live.nl>
  *
@@ -35,7 +36,7 @@ class OrmMemcache {
 
 	/**
 	 * Get singleton CsrMemcache instance.
-	 * 
+	 *
 	 * @return Memcache
 	 */
 	public static function instance() {
