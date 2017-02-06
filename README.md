@@ -90,7 +90,9 @@ protected static $primary_key = array('id');
 ```
 
 #### Example
-##### `model/entities/Car.class.php`
+
+**`model/entities/Car.class.php`**
+
 ```php
 class Car extends PersistentEntity {
   public $id;
@@ -198,8 +200,9 @@ Delete an entity from the database.
 
 #### Example
 
-##### `model/CarModel.class.php`
-```PHP
+**`model/CarModel.class.php`**
+
+```php
 require_once 'model/entity/Car.class.php';
 
 class CarModel extends PersistenceModel {
@@ -211,7 +214,9 @@ class CarModel extends PersistenceModel {
   }
 }
 ```
-##### `index.php`
+
+**`index.php`**
+
 ```php
 require_once 'model/CarModel.class.php';
 
