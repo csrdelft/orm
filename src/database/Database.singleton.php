@@ -17,29 +17,23 @@ class Database extends PDO {
 	 */
 	private static $instance;
 
+	public static function init($host, $db, $user, $pass) {
+		assert('!isset(self::$instance)');
+		$dsn = 'mysql:host=' . $host . ';dbname=' . $db;
+		$options = array(
+			PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8'",
+			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+		);
+		self::$instance = new Database($dsn, $user, $pass, $options);
+	}
+
 	/**
 	 * Get singleton Database instance.
 	 * 
 	 * @return Database
 	 */
 	public static function instance() {
-		if (!isset(self::$instance)) {
-			$cred = parse_ini_file(ETC_PATH . 'mysql.ini');
-			if ($cred === false) {
-				$cred = array(
-					'host'	 => 'localhost',
-					'user'	 => 'username',
-					'pass'	 => 'password',
-					'db'	 => 'csrdelft'
-				);
-			}
-			$dsn = 'mysql:host=' . $cred['host'] . ';dbname=' . $cred['db'];
-			$options = array(
-				PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8'",
-				PDO::ATTR_ERRMODE			 => PDO::ERRMODE_EXCEPTION
-			);
-			self::$instance = new Database($dsn, $cred['user'], $cred['pass'], $options);
-		}
+		assert('isset(self::$instance)');
 		return self::$instance;
 	}
 
