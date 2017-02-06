@@ -16,13 +16,15 @@ a writable path and the database and database admin need a host, database, usern
 password. After this any model has access to the database.
 
 ```php
-use CsrDelft\Orm\DataBase\Database;
-use CsrDelft\Orm\DataBase\DatabaseAdmin;
-use CsrDelft\Orm\DataBase\OrmMemcache;
-
-OrmMemcache::init(DATA_PATH);
-Database::init($host, $db, $user, $pass);
-DatabaseAdmin::init($host, $db, $user, $pass);
+CsrDelft\Orm\Configuration::load(array(
+  'path' => '/path/to/data/dir',
+  'db' => array(
+    'host' => 'localhost',
+    'db' => 'myDatabase',
+    'user' => 'myUser',
+    'pass' => 'myPass'
+  )
+));
 ```
 
 ## Usage
