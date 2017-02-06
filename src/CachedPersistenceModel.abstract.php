@@ -1,8 +1,8 @@
 <?php
 namespace CsrDelft\Orm;
 
-use CsrDelft\Orm\Persistence\OrmMemcache;
 use CsrDelft\Orm\Entity\PersistentEntity;
+use CsrDelft\Orm\Persistence\OrmMemcache;
 use PDOStatement;
 
 /**

@@ -1,6 +1,7 @@
 <?php
 namespace CsrDelft\Orm;
-use CsrDelft\Orm\DataBase\Database;
+
+use CsrDelft\Orm\Persistence\Database;
 use Exception;
 
 /**

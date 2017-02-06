@@ -3,11 +3,11 @@ namespace CsrDelft\Orm\Entity;
 
 /**
  * PersistentEnum.interface.php
- * 
+ *
  * @author P.W.G. Brussee <brussee@live.nl>
- * 
+ *
  * Een enumeration heeft type-opties.
- * 
+ *
  */
 interface PersistentEnum {
 

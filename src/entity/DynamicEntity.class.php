@@ -3,12 +3,12 @@ namespace CsrDelft\Orm\Entity;
 
 /**
  * DynamicEntity.class.php
- * 
+ *
  * @author P.W.G. Brussee <brussee@live.nl>
- * 
- * Dynamic entities are defined by the table structure instead of the other way around. 
+ *
+ * Dynamic entities are defined by the table structure instead of the other way around.
  * Conversion: only define the new class and dynamicly load the old class definition.
- * 
+ *
  */
 class DynamicEntity extends PersistentEntity {
 
@@ -29,7 +29,7 @@ class DynamicEntity extends PersistentEntity {
 
 	/**
 	 * Get all attribute names.
-	 * 
+	 *
 	 * @return array
 	 */
 	public function getAttributes() {

@@ -1,7 +1,8 @@
 <?php
 namespace CsrDelft\Orm;
-use CsrDelft\Orm\Persistence\Database;
+
 use CsrDelft\Orm\Entity\PersistentEntity;
+use CsrDelft\Orm\Persistence\Database;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -12,7 +13,7 @@ use PDOStatement;
  * @author P.W.G. Brussee <brussee@live.nl>
  *
  * Uses the database to provide persistence.
- * Requires an ORM class constant to be defined in superclass. 
+ * Requires an ORM class constant to be defined in superclass.
  * Requires a static property $instance in superclass.
  * Optional DIR class constant for location of ORM class.
  *
@@ -154,22 +155,22 @@ abstract class PersistenceModel implements Persistence {
 	 */
 	public function count($criteria = null, array $criteria_params = array()) {
 		$result = Database::sqlSelect(array('COUNT(*)'), $this->getTableName(), $criteria, $criteria_params);
-		return (int) $result->fetchColumn();
+		return (int)$result->fetchColumn();
 	}
 
-    /**
-     * Select existing entities with optional criteria.
-     *
-     * Allows for selecting specific sums, averages and counts
-     *
-     * @param array $columns SELECT
-     * @param string $criteria WHERE
-     * @param array $criteria_params optional named parameters
-     * @return PDOStatement
-     */
-    public function select(array $columns, $criteria = null, array $criteria_params = array()) {
-        return Database::sqlSelect($columns, $this->getTableName(), $criteria, $criteria_params);
-    }
+	/**
+	 * Select existing entities with optional criteria.
+	 *
+	 * Allows for selecting specific sums, averages and counts
+	 *
+	 * @param array $columns SELECT
+	 * @param string $criteria WHERE
+	 * @param array $criteria_params optional named parameters
+	 * @return PDOStatement
+	 */
+	public function select(array $columns, $criteria = null, array $criteria_params = array()) {
+		return Database::sqlSelect($columns, $this->getTableName(), $criteria, $criteria_params);
+	}
 
 	/**
 	 * Check if enitity exists.
@@ -254,7 +255,7 @@ abstract class PersistenceModel implements Persistence {
 	 * foreach ($users as $user) {
 	 *   echo $user->getAddress(); // address is sparse: retrieve address
 	 * }
-	 * 
+	 *
 	 * class User extends PersitentEntity {
 	 *   public function getAddress() {
 	 *     $attributes = array('city' 'street', 'number', 'postalcode');

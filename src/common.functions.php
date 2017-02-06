@@ -17,6 +17,7 @@ class Util {
 	public static function startsWith($haystack, $needle) {
 		return $needle === "" || strpos($haystack, $needle) === 0;
 	}
+
 	/**
 	 * @source http://stackoverflow.com/questions/834303/php-startswith-and-endswith-functions
 	 * @param string $haystack
@@ -26,6 +27,7 @@ class Util {
 	public static function endsWith($haystack, $needle) {
 		return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
 	}
+
 	/**
 	 * print_r een variabele met <pre>-tags eromheen.
 	 *

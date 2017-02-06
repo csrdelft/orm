@@ -1,13 +1,14 @@
 <?php
 namespace CsrDelft\Orm\Persistence;
+
 use Exception;
-use \PDO;
+use PDO;
 
 /**
  * Database.singleton.php
- * 
+ *
  * @author P.W.G. Brussee <brussee@live.nl>
- * 
+ *
  */
 class Database extends PDO {
 
@@ -29,7 +30,7 @@ class Database extends PDO {
 
 	/**
 	 * Get singleton Database instance.
-	 * 
+	 *
 	 * @return Database
 	 */
 	public static function instance() {
@@ -88,9 +89,9 @@ class Database extends PDO {
 
 	/**
 	 * @source http://stackoverflow.com/a/1376838
-	 * 
+	 *
 	 * Replaces any parameter placeholders in a query with the value of that
-	 * parameter. Useful for debugging. Assumes anonymous parameters from 
+	 * parameter. Useful for debugging. Assumes anonymous parameters from
 	 * $params are are in the same order as specified in $query
 	 *
 	 * @param string $query The sql query with parameter placeholders
@@ -108,7 +109,7 @@ class Database extends PDO {
 			}
 			if (is_string($value)) {
 				$params[$attribute] = '"' . $value . '"'; // quotes
-			} elseif (is_bool($value) AND ( $value === true OR $value === false )) {
+			} elseif (is_bool($value) AND ($value === true OR $value === false)) {
 				$params[$attribute] = $value ? 'TRUE' : 'FALSE';
 			} else {
 				$params[$attribute] = $value;
@@ -119,8 +120,8 @@ class Database extends PDO {
 
 	/**
 	 * Optional named parameters.
-	 * 
-	 * 
+	 *
+	 *
 	 * @param array $attributes
 	 * @param string $from
 	 * @param string $where
@@ -142,8 +143,8 @@ class Database extends PDO {
 		if ($orderby !== null) {
 			$sql .= ' ORDER BY ' . $orderby;
 		}
-		if ((int) $limit > 0) {
-			$sql .= ' LIMIT ' . (int) $start . ', ' . (int) $limit;
+		if ((int)$limit > 0) {
+			$sql .= ' LIMIT ' . (int)$start . ', ' . (int)$limit;
 		}
 		$query = self::instance()->prepare($sql);
 		$query->execute($params);
@@ -153,7 +154,7 @@ class Database extends PDO {
 
 	/**
 	 * Optional named parameters.
-	 * 
+	 *
 	 * @param string $from
 	 * @param string $where
 	 * @param array $params
@@ -168,13 +169,13 @@ class Database extends PDO {
 		$query = self::instance()->prepare($sql);
 		$query->execute($params);
 		self::addQuery($query->queryString, $params);
-		return (boolean) $query->fetchColumn();
+		return (boolean)$query->fetchColumn();
 	}
 
 	/**
 	 * Requires named parameters.
 	 * Optional REPLACE (DELETE & INSERT) if primary key already exists.
-	 * 
+	 *
 	 * @param string $into
 	 * @param array $properties
 	 * @param boolean $replace
@@ -205,7 +206,7 @@ class Database extends PDO {
 
 	/**
 	 * Requires positional parameters.
-	 * 
+	 *
 	 * @param string $into
 	 * @param array $properties = array( array("attr_name1", "attr_name2", ...), array("entry1value1", "entry1value2", ...), array("entry2value1", "entry2value2", ...), ...)
 	 * @param boolean $replace DELETE & INSERT if primary key already exists
@@ -248,7 +249,7 @@ class Database extends PDO {
 
 	/**
 	 * Requires named parameters.
-	 * 
+	 *
 	 * @param string $table
 	 * @param array $properties
 	 * @param string $where
@@ -269,8 +270,8 @@ class Database extends PDO {
 		}
 		$sql .= implode(', ', $attributes);
 		$sql .= ' WHERE ' . $where;
-		if ((int) $limit > 0) {
-			$sql .= ' LIMIT ' . (int) $limit;
+		if ((int)$limit > 0) {
+			$sql .= ' LIMIT ' . (int)$limit;
 		}
 		$query = self::instance()->prepare($sql);
 		$query->execute($where_params);
@@ -280,7 +281,7 @@ class Database extends PDO {
 
 	/**
 	 * Optional named parameters.
-	 * 
+	 *
 	 * @param string $from
 	 * @param string $where
 	 * @param array $where_params
@@ -290,8 +291,8 @@ class Database extends PDO {
 	public static function sqlDelete($from, $where, array $where_params, $limit = null) {
 		$sql = 'DELETE FROM ' . $from;
 		$sql .= ' WHERE ' . $where;
-		if ((int) $limit > 0) {
-			$sql .= ' LIMIT ' . (int) $limit;
+		if ((int)$limit > 0) {
+			$sql .= ' LIMIT ' . (int)$limit;
 		}
 		$query = self::instance()->prepare($sql);
 		$query->execute($where_params);
