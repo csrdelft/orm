@@ -18,8 +18,7 @@ use PDO;
  */
 class DynamicEntityModel extends PersistenceModel {
 
-	const ORM = 'DynamicEntity';
-	const DIR = 'framework/';
+	const ORM = 'CsrDelft\Orm\Entity\DynamicEntity';
 
 	/**
 	 * Factory pattern instead of singleton.

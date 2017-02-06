@@ -53,7 +53,7 @@ class OrmMemcache {
 
 }
 
-class DummyCache extends Memcache {
+class DummyCache {
 
 	public function __call($name, $arguments) {
 		return false;

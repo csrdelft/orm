@@ -27,7 +27,9 @@ abstract class PersistenceModel implements Persistence {
 		} else {
 			$dir = '';
 		}
-		require_once 'model/entity/' . $dir . $orm . '.class.php';
+		if (!class_exists(static::ORM)) {
+			require_once 'model/entity/' . $dir . $orm . '.class.php';
+		}
 		$orm::__static(); // Extend the persistent attributes
 		if (DB_CHECK) {
 			$orm::checkTable();
