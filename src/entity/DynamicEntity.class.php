@@ -33,6 +33,9 @@ class DynamicEntity extends PersistentEntity {
 	 * @return array
 	 */
 	public function getAttributes() {
+		if (!isset($this->definition)) {
+			return array();
+		}
 		return array_keys($this->definition->persistent_attributes);
 	}
 

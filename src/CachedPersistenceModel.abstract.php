@@ -31,7 +31,7 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	 */
 	protected $memcache_prefetch = false;
 
-	public function __construct() {
+	protected function __construct() {
 		parent::__construct();
 
 		$this->memcache = OrmMemcache::instance();
