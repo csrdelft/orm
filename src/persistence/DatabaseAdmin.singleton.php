@@ -50,7 +50,7 @@ class DatabaseAdmin extends Database {
 	 * Get array of SQL statements for file.sql
 	 * @return array
 	 */
-	public static function getQueries() {
+	public function getQueries() {
 		return self::$queries;
 	}
 
@@ -59,7 +59,7 @@ class DatabaseAdmin extends Database {
 	 *
 	 * @param string $name
 	 */
-	public static function sqlBackupTable($name) {
+	public function sqlBackupTable($name) {
 		$filename = 'backup-' . $name . '_' . date('d-m-Y_H-i-s') . '.sql.gz';
 		header('Content-Type: application/x-gzip');
 		header('Content-Disposition: attachment; filename="' . $filename . '"');
@@ -73,9 +73,9 @@ class DatabaseAdmin extends Database {
 	 *
 	 * @return PDOStatement
 	 */
-	public static function sqlShowTables() {
+	public function sqlShowTables() {
 		$sql = 'SHOW TABLES';
-		$query = self::instance()->prepare($sql);
+		$query = $this->prepare($sql);
 		$query->execute();
 		return $query;
 	}
@@ -86,12 +86,12 @@ class DatabaseAdmin extends Database {
 	 * @param string $name
 	 * @return PDOStatement
 	 */
-	public static function sqlDescribeTable($name) {
+	public function sqlDescribeTable($name) {
 		$sql = 'DESCRIBE ' . $name;
-		$query = self::instance()->prepare($sql);
-		self::instance()->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER); // Force column names to lower case.
+		$query = $this->prepare($sql);
+		$this->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER); // Force column names to lower case.
 		$query->execute();
-		self::instance()->setAttribute(PDO::ATTR_CASE, PDO::CASE_NATURAL); // Leave column names as returned by the database driver.
+		$this->setAttribute(PDO::ATTR_CASE, PDO::CASE_NATURAL); // Leave column names as returned by the database driver.
 		$query->setFetchMode(PDO::FETCH_CLASS, 'CsrDelft\Orm\Entity\PersistentAttribute');
 		return $query;
 	}
@@ -102,14 +102,14 @@ class DatabaseAdmin extends Database {
 	 * @param string $name
 	 * @return string SQL query
 	 */
-	public static function sqlShowCreateTable($name) {
+	public function sqlShowCreateTable($name) {
 		$sql = 'SHOW CREATE TABLE ' . $name;
-		$query = self::instance()->prepare($sql);
+		$query = $this->prepare($sql);
 		$query->execute();
 		return $query->fetchColumn(1);
 	}
 
-	public static function sqlCreateTable($name, array $attributes, array $primary_key) {
+	public function sqlCreateTable($name, array $attributes, array $primary_key) {
 		$sql = 'CREATE TABLE ' . $name . ' (';
 		foreach ($attributes as $name => $attribute) {
 			$sql .= $attribute->toSQL() . ', ';
@@ -120,16 +120,16 @@ class DatabaseAdmin extends Database {
 			$sql .= 'PRIMARY KEY (' . implode(', ', $primary_key) . ')';
 		}
 		$sql .= ') ENGINE=InnoDB DEFAULT CHARSET=utf8 auto_increment=1';
-		$query = self::instance()->prepare($sql);
+		$query = $this->prepare($sql);
 		if (DB_MODIFY) {
 			$query->execute();
 		}
 		self::$queries[] = $query->queryString;
 	}
 
-	public static function sqlDropTable($name) {
+	public function sqlDropTable($name) {
 		$sql = 'DROP TABLE ' . $name;
-		$query = self::instance()->prepare($sql);
+		$query = $this->prepare($sql);
 		$esc = '-- ';
 		if (DB_MODIFY AND DB_DROP === true) {
 			$query->execute();
@@ -138,28 +138,28 @@ class DatabaseAdmin extends Database {
 		self::$queries[] = $esc . $query->queryString;
 	}
 
-	public static function sqlAddAttribute($table, PersistentAttribute $attribute, $after_attribute = null) {
+	public function sqlAddAttribute($table, PersistentAttribute $attribute, $after_attribute = null) {
 		$sql = 'ALTER TABLE ' . $table . ' ADD ' . $attribute->toSQL();
 		$sql .= ($after_attribute === null ? ' FIRST' : ' AFTER ' . $after_attribute);
-		$query = self::instance()->prepare($sql);
+		$query = $this->prepare($sql);
 		if (DB_MODIFY) {
 			$query->execute();
 		}
 		self::$queries[] = $query->queryString;
 	}
 
-	public static function sqlChangeAttribute($table, PersistentAttribute $attribute, $old_name = null) {
+	public function sqlChangeAttribute($table, PersistentAttribute $attribute, $old_name = null) {
 		$sql = 'ALTER TABLE ' . $table . ' CHANGE ' . ($old_name === null ? $attribute->field : $old_name) . ' ' . $attribute->toSQL();
-		$query = self::instance()->prepare($sql);
+		$query = $this->prepare($sql);
 		if (DB_MODIFY) {
 			$query->execute();
 		}
 		self::$queries[] = $query->queryString;
 	}
 
-	public static function sqlDeleteAttribute($table, PersistentAttribute $attribute) {
+	public function sqlDeleteAttribute($table, PersistentAttribute $attribute) {
 		$sql = 'ALTER TABLE ' . $table . ' DROP ' . $attribute->field;
-		$query = self::instance()->prepare($sql);
+		$query = $this->prepare($sql);
 		$esc = '-- ';
 		if (DB_MODIFY AND DB_DROP === true) {
 			$query->execute();

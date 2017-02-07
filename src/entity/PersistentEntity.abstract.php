@@ -179,6 +179,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 	 * @unsupported INDEX check; FOREIGN KEY check;
 	 */
 	public static function checkTable() {
+		$database_admin = DatabaseAdmin::instance();
 		$class = get_called_class();
 		$attributes = array();
 		foreach (static::$persistent_attributes as $name => $definition) {
@@ -190,10 +191,10 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 			}
 		}
 		try {
-			$database_attributes = Util::group_by_distinct('field', DatabaseAdmin::instance()->sqlDescribeTable(static::$table_name));
+			$database_attributes = Util::group_by_distinct('field', $database_admin->sqlDescribeTable(static::$table_name));
 		} catch (Exception $e) {
 			if (Util::ends_with($e->getMessage(), static::$table_name . "' doesn't exist")) {
-				DatabaseAdmin::instance()->sqlCreateTable(static::$table_name, $attributes, static::$primary_key);
+				$database_admin->sqlCreateTable(static::$table_name, $attributes, static::$primary_key);
 				return;
 			} else {
 				throw $e; // Rethrow to controller
@@ -204,7 +205,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 			$rename = static::$rename_attributes;
 			foreach ($rename as $old_name => $new_name) {
 				if (property_exists($class, $new_name)) {
-					DatabaseAdmin::instance()->sqlChangeAttribute(static::$table_name, $attributes[$new_name], $old_name);
+					$database_admin->sqlChangeAttribute(static::$table_name, $attributes[$new_name], $old_name);
 				}
 			}
 		} else {
@@ -215,7 +216,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 			// Add missing persistent attributes
 			if (!isset($database_attributes[$name])) {
 				if (!isset($rename[$name])) {
-					DatabaseAdmin::instance()->sqlAddAttribute(static::$table_name, $attributes[$name], $previous_attribute);
+					$database_admin->sqlAddAttribute(static::$table_name, $attributes[$name], $previous_attribute);
 				}
 			} else {
 				// Check existing persistent attributes for differences
@@ -255,7 +256,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 					$diff = true;
 				}
 				if ($diff) {
-					DatabaseAdmin::instance()->sqlChangeAttribute(static::$table_name, $attributes[$name]);
+					$database_admin->sqlChangeAttribute(static::$table_name, $attributes[$name]);
 				}
 			}
 			$previous_attribute = $name;
@@ -263,7 +264,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 		// Remove non-persistent attributes
 		foreach ($database_attributes as $name => $attribute) {
 			if (!isset(static::$persistent_attributes[$name]) AND !isset($rename[$name])) {
-				DatabaseAdmin::instance()->sqlDeleteAttribute(static::$table_name, $attribute);
+				$database_admin->sqlDeleteAttribute(static::$table_name, $attribute);
 			}
 		}
 	}
