@@ -45,6 +45,7 @@ class DynamicEntityModel extends PersistenceModel {
 	 * @param string $table_name
 	 */
 	protected function __construct($table_name) {
+		parent::__construct();
 		$this->definition = new DynamicEntityDefinition();
 		$this->definition->table_name = $table_name;
 		foreach (DatabaseAdmin::instance()->sqlDescribeTable($this->definition->table_name) as $attribute) {

@@ -16,7 +16,7 @@ class Configuration {
 	 * Initialize the ORM
 	 *
 	 * @param array $config array(
-	 *   'path' => '/path/to/data/dir',
+	 *   'cache_path' => '/path/to/data/dir',
 	 *   'db' => array(
 	 *     'host' => 'localhost',
 	 *     'db' => 'myDatabase',
@@ -26,12 +26,12 @@ class Configuration {
 	 * );
 	 */
 	public static function load(array $config) {
-		assert('isset($config["cache_path"])');
-		assert('isset($config["db"]');
+		assert('isset($config["cache_path"]);');
+		assert('isset($config["db"]);');
 
 		$db_conf = $config['db'];
 
-		Persistence\OrmMemcache::init($config['path']);
+		Persistence\OrmMemcache::init($config['cache_path']);
 
 		Persistence\Database::init($db_conf['host'], $db_conf['db'], $db_conf['user'], $db_conf['pass']);
 		Persistence\DatabaseAdmin::init($db_conf['host'], $db_conf['db'], $db_conf['user'], $db_conf['pass']);

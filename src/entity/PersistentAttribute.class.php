@@ -53,20 +53,25 @@ class PersistentAttribute {
 	 * @param string $name
 	 * @param array $definition
 	 */
-	public function __construct($name, array $definition) {
-		$this->field = $name;
-		$this->type = $definition[0];
-		$this->default = null;
-		if (isset($definition[1]) AND $definition[1]) {
-			$this->null = 'YES';
-		} else {
-			$this->null = 'NO';
+	public function __construct($name = null, array $definition = null) {
+		if ($name != null) {
+			$this->field = $name;
 		}
-		$this->extra = (isset($definition[2]) ? $definition[2] : '');
-		if ($this->type === T::Enumeration) {
-			$class = $this->extra;
-			$this->type = "enum('" . implode("','", $class::getTypeOptions()) . "')";
-			$this->extra = '';
+
+		if ($definition != null) {
+			$this->type = $definition[0];
+			$this->default = null;
+			if (isset($definition[1]) AND $definition[1]) {
+				$this->null = 'YES';
+			} else {
+				$this->null = 'NO';
+			}
+			$this->extra = (isset($definition[2]) ? $definition[2] : '');
+			if ($this->type === T::Enumeration) {
+				$class = $this->extra;
+				$this->type = "enum('" . implode("','", $class::getTypeOptions()) . "')";
+				$this->extra = '';
+			}
 		}
 	}
 

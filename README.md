@@ -17,7 +17,7 @@ password. After this any model has access to the database.
 
 ```php
 CsrDelft\Orm\Configuration::load(array(
-  'path' => '/path/to/data/dir',
+  'cache_path' => '/path/to/data/dir',
   'db' => array(
     'host' => 'localhost',
     'db' => 'myDatabase',
