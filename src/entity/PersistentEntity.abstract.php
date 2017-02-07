@@ -184,7 +184,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 		/** @var PersistentAttribute[] $attributes */
 		$attributes = array();
 		foreach (static::$persistent_attributes as $name => $definition) {
-			$attributes[$name] = PersistentAttribute::makeAttribute($name, $definition);
+			$attributes[$name] = new PersistentAttribute($name, $definition);
 			if (in_array($name, static::$primary_key)) {
 				$attributes[$name]->key = 'PRI';
 			} else {

@@ -45,6 +45,31 @@ class PersistentAttribute {
 	 */
 	public $extra;
 
+	/**
+	 * To compare table description of MySQL.
+	 *
+	 * @unsupported keys
+	 *
+	 * @param string $name
+	 * @param array $definition
+	 */
+	public function __construct($name, array $definition) {
+		$this->field = $name;
+		$this->type = $definition[0];
+		$this->default = null;
+		if (isset($definition[1]) AND $definition[1]) {
+			$this->null = 'YES';
+		} else {
+			$this->null = 'NO';
+		}
+		$this->extra = (isset($definition[2]) ? $definition[2] : '');
+		if ($this->type === T::Enumeration) {
+			$class = $this->extra;
+			$this->type = "enum('" . implode("','", $class::getTypeOptions()) . "')";
+			$this->extra = '';
+		}
+	}
+
 	public function toSQL() {
 		$sql = $this->field . ' ' . $this->type;
 		if ($this->null === 'YES') {
@@ -69,63 +94,33 @@ class PersistentAttribute {
 	 *
 	 * @unsupported keys
 	 *
-	 * @param string $name
-	 * @param array $definition
-	 * @return PersistentAttribute
-	 */
-	public static function makeAttribute($name, array $definition) {
-		$attribute = new PersistentAttribute();
-		$attribute->field = $name;
-		$attribute->type = $definition[0];
-		$attribute->default = null;
-		if (isset($definition[1]) AND $definition[1]) {
-			$attribute->null = 'YES';
-		} else {
-			$attribute->null = 'NO';
-		}
-		$attribute->extra = (isset($definition[2]) ? $definition[2] : '');
-		if ($attribute->type === T::Enumeration) {
-			$class = $attribute->extra;
-			$attribute->type = "enum('" . implode("','", $class::getTypeOptions()) . "')";
-			$attribute->extra = '';
-		}
-		return $attribute;
-	}
-
-	/**
-	 * To compare table description of MySQL.
-	 *
-	 * @unsupported keys
-	 *
-	 * @param PersistentAttribute $attribute
 	 * @return array $definition
 	 * @throws Exception
 	 */
-	public static function makeDefinition(PersistentAttribute $attribute) {
+	public function toDefinition() {
 		$definition = array();
-		if (Util::starts_with($attribute->type, 'enum')) {
-			$start = strpos($attribute->type, '(');
-			$length = strpos($attribute->type, ')') - $start;
-			$values = explode(',', substr($attribute->type, $start, $length));
+		if (Util::starts_with($this->type, 'enum')) {
+			$start = strpos($this->type, '(');
+			$length = strpos($this->type, ')') - $start;
+			$values = explode(',', substr($this->type, $start, $length));
 			foreach ($values as $i => $value) {
 				$values[$i] = str_replace("'", "", $value);
 			}
 			$definition[] = array(T::Enumeration, false, $values);
 		} else {
-			if (DB_CHECK AND !in_array($attribute->type, T::getTypeOptions())) {
-				throw new Exception('Unknown persistent attribute type: ' . $attribute->type);
+			if (DB_CHECK AND !in_array($this->type, T::getTypeOptions())) {
+				throw new Exception('Unknown persistent attribute type: ' . $this->type);
 			}
-			$definition[] = $attribute->type;
+			$definition[] = $this->type;
 		}
-		if ($attribute->null === 'YES') {
+		if ($this->null === 'YES') {
 			$definition[] = true;
 		} else {
 			$definition[] = false;
 		}
-		if (!empty($attribute->extra)) {
-			$definition[] = $attribute->extra;
+		if (!empty($this->extra)) {
+			$definition[] = $this->extra;
 		}
 		return $definition;
 	}
-
 }
