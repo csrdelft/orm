@@ -50,7 +50,7 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	protected function isCached($key, $memcache = false) {
 		if (isset($this->runtime_cache[$key])) {
 			return true;
-		} elseif ($memcache AND OrmMemcache::isAvailable()) {
+		} elseif ($memcache) {
 			// exists without retrieval
 			if ($this->memcache->add($key, '')) {
 				$this->memcache->delete($key);
@@ -64,7 +64,7 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	protected function getCached($key, $memcache = false) {
 		if (array_key_exists($key, $this->runtime_cache)) {
 			return $this->runtime_cache[$key];
-		} elseif ($memcache AND OrmMemcache::isAvailable()) {
+		} elseif ($memcache) {
 			$cache = $this->memcache->get($key);
 			if ($cache !== false) {
 				$value = unserialize($cache);
@@ -79,14 +79,14 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 
 	protected function setCache($key, $value, $memcache = false) {
 		$this->runtime_cache[$key] = $value;
-		if ($memcache AND OrmMemcache::isAvailable()) {
+		if ($memcache) {
 			$this->memcache->set($key, serialize($value));
 		}
 	}
 
 	protected function unsetCache($key, $memcache = false) {
 		unset($this->runtime_cache[$key]);
-		if ($memcache AND OrmMemcache::isAvailable()) {
+		if ($memcache) {
 			$this->memcache->delete($key);
 		}
 	}
@@ -97,7 +97,7 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	 * @param boolean $memcache This can be used to partially clear memcache.
 	 */
 	protected function flushCache($memcache = false) {
-		if ($memcache AND OrmMemcache::isAvailable()) {
+		if ($memcache) {
 			$this->memcache->flush();
 		}
 		$this->runtime_cache = array();
