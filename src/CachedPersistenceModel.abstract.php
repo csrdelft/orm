@@ -24,11 +24,18 @@ use PDOStatement;
 abstract class CachedPersistenceModel extends PersistenceModel {
 
 	private $runtime_cache = array();
+	private $memcache;
 	/**
 	 * Store prefetch result set as a whole in memcache
 	 * @var boolean
 	 */
 	protected $memcache_prefetch = false;
+
+	public function __construct() {
+		parent::__construct();
+
+		$this->memcache = OrmMemcache::instance();
+	}
 
 	/**
 	 * Calculate key for caching.
@@ -45,8 +52,8 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 			return true;
 		} elseif ($memcache AND OrmMemcache::isAvailable()) {
 			// exists without retrieval
-			if (OrmMemcache::instance()->add($key, '')) {
-				OrmMemcache::instance()->delete($key);
+			if ($this->memcache->add($key, '')) {
+				$this->memcache->delete($key);
 				return false;
 			}
 			return true;
@@ -58,7 +65,7 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 		if (array_key_exists($key, $this->runtime_cache)) {
 			return $this->runtime_cache[$key];
 		} elseif ($memcache AND OrmMemcache::isAvailable()) {
-			$cache = OrmMemcache::instance()->get($key);
+			$cache = $this->memcache->get($key);
 			if ($cache !== false) {
 				$value = unserialize($cache);
 				// unserialize once 
@@ -73,14 +80,14 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	protected function setCache($key, $value, $memcache = false) {
 		$this->runtime_cache[$key] = $value;
 		if ($memcache AND OrmMemcache::isAvailable()) {
-			OrmMemcache::instance()->set($key, serialize($value));
+			$this->memcache->set($key, serialize($value));
 		}
 	}
 
 	protected function unsetCache($key, $memcache = false) {
 		unset($this->runtime_cache[$key]);
 		if ($memcache AND OrmMemcache::isAvailable()) {
-			OrmMemcache::instance()->delete($key);
+			$this->memcache->delete($key);
 		}
 	}
 
@@ -91,7 +98,7 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	 */
 	protected function flushCache($memcache = false) {
 		if ($memcache AND OrmMemcache::isAvailable()) {
-			OrmMemcache::instance()->flush();
+			$this->memcache->flush();
 		}
 		$this->runtime_cache = array();
 	}

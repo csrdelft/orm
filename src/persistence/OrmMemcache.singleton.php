@@ -40,7 +40,7 @@ class OrmMemcache {
 	 * @return Memcache
 	 */
 	public static function instance() {
-		assert('isset(self::$instance)');
+		assert('isset(self::$instance)', 'Call OrmMemcache::init(...) first.');
 		return self::$instance;
 	}
 
