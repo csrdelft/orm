@@ -181,6 +181,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 	public static function checkTable() {
 		$database_admin = DatabaseAdmin::instance();
 		$class = get_called_class();
+		/** @var PersistentAttribute[] $attributes */
 		$attributes = array();
 		foreach (static::$persistent_attributes as $name => $definition) {
 			$attributes[$name] = PersistentAttribute::makeAttribute($name, $definition);
@@ -191,7 +192,12 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 			}
 		}
 		try {
-			$database_attributes = Util::group_by_distinct('field', $database_admin->sqlDescribeTable(static::$table_name));
+			$table_attributes = $database_admin->sqlDescribeTable(static::$table_name);
+			/** @var PersistentAttribute[] $database_attributes */
+			$database_attributes = array();
+			foreach ($table_attributes as $attribute) {
+				$database_attributes[$attribute->field] = $attribute; // overwrite existing
+			}
 		} catch (Exception $e) {
 			if (Util::ends_with($e->getMessage(), static::$table_name . "' doesn't exist")) {
 				$database_admin->sqlCreateTable(static::$table_name, $attributes, static::$primary_key);

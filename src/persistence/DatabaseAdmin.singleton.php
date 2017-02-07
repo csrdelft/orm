@@ -84,7 +84,7 @@ class DatabaseAdmin extends Database {
 	 * Get table attributes.
 	 *
 	 * @param string $name
-	 * @return PDOStatement
+	 * @return PDOStatement|PersistentAttribute[]
 	 */
 	public function sqlDescribeTable($name) {
 		$sql = 'DESCRIBE ' . $name;

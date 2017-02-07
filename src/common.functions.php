@@ -45,24 +45,4 @@ class Util {
 		}
 		return $value;
 	}
-
-	/**
-	 * Group by distinct object property
-	 *
-	 * @param string $prop
-	 * @param array|\PDOStatement $in
-	 * @param boolean $del delete from $in array
-	 * @return array $out
-	 */
-	public static function group_by_distinct($prop, $in, $del = true) {
-		$del &= is_array($in);
-		$out = array();
-		foreach ($in as $i => $obj) {
-			$out[$obj->$prop] = $obj; // overwrite existing
-			if ($del) {
-				unset($in[$i]);
-			}
-		}
-		return $out;
-	}
 }
