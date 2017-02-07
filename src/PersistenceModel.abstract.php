@@ -116,7 +116,7 @@ abstract class PersistenceModel implements Persistence {
 		}
 		try {
 			$result = Database::sqlSelect(array('*'), $this->getTableName(), $criteria, $criteria_params, $group_by, $order_by, $limit, $start);
-			$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, array($cast = true));
+			$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, array(true));
 			return $result;
 		} catch (PDOException $ex) {
 			throw $ex;
@@ -142,7 +142,8 @@ abstract class PersistenceModel implements Persistence {
 		}
 		$attributes = array_merge($this->getPrimaryKey(), $attributes);
 		$result = Database::sqlSelect($attributes, $this->getTableName(), $criteria, $criteria_params, $group_by, $order_by, $limit, $start);
-		$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, array($cast = true, $attributes));
+		// Fetch only attributes into ORM object
+		$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, array(true, $attributes));
 		return $result;
 	}
 
@@ -230,7 +231,8 @@ abstract class PersistenceModel implements Persistence {
 			$where[] = $key . ' = ?';
 		}
 		$result = Database::sqlSelect(array('*'), $this->getTableName(), implode(' AND ', $where), $primary_key_values, null, null, 1);
-		return $result->fetchObject(static::ORM, array($cast = true));
+		// Fetch into ORM object
+		return $result->fetchObject(static::ORM, array(true));
 	}
 
 	/**
