@@ -71,10 +71,17 @@ abstract class PersistenceModel implements Persistence {
 	 * @var PersistentEntity
 	 */
 	private $orm;
+	/**
+	 * Database connection
+	 *
+	 * @var Database
+	 */
+	protected $database;
 
 	protected function __construct() {
 		$orm = static::ORM;
 		$this->orm = new $orm();
+		$this->database = Database::instance();
 	}
 
 	public function getTableName() {
@@ -115,7 +122,7 @@ abstract class PersistenceModel implements Persistence {
 			$order_by = $this->default_order;
 		}
 		try {
-			$result = Database::sqlSelect(array('*'), $this->getTableName(), $criteria, $criteria_params, $group_by, $order_by, $limit, $start);
+			$result = $this->database->sqlSelect(array('*'), $this->getTableName(), $criteria, $criteria_params, $group_by, $order_by, $limit, $start);
 			$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, array(true));
 			return $result;
 		} catch (PDOException $ex) {
@@ -141,7 +148,7 @@ abstract class PersistenceModel implements Persistence {
 			$order_by = $this->default_order;
 		}
 		$attributes = array_merge($this->getPrimaryKey(), $attributes);
-		$result = Database::sqlSelect($attributes, $this->getTableName(), $criteria, $criteria_params, $group_by, $order_by, $limit, $start);
+		$result = $this->database->sqlSelect($attributes, $this->getTableName(), $criteria, $criteria_params, $group_by, $order_by, $limit, $start);
 		// Fetch only attributes into ORM object
 		$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, array(true, $attributes));
 		return $result;
@@ -155,7 +162,7 @@ abstract class PersistenceModel implements Persistence {
 	 * @return int count
 	 */
 	public function count($criteria = null, array $criteria_params = array()) {
-		$result = Database::sqlSelect(array('COUNT(*)'), $this->getTableName(), $criteria, $criteria_params);
+		$result = $this->database->sqlSelect(array('COUNT(*)'), $this->getTableName(), $criteria, $criteria_params);
 		return (int)$result->fetchColumn();
 	}
 
@@ -170,7 +177,7 @@ abstract class PersistenceModel implements Persistence {
 	 * @return PDOStatement
 	 */
 	public function select(array $columns, $criteria = null, array $criteria_params = array()) {
-		return Database::sqlSelect($columns, $this->getTableName(), $criteria, $criteria_params);
+		return $this->database->sqlSelect($columns, $this->getTableName(), $criteria, $criteria_params);
 	}
 
 	/**
@@ -194,7 +201,7 @@ abstract class PersistenceModel implements Persistence {
 		foreach ($this->getPrimaryKey() as $key) {
 			$where[] = $key . ' = ?';
 		}
-		return Database::sqlExists($this->getTableName(), implode(' AND ', $where), $primary_key_values);
+		return $this->database->sqlExists($this->getTableName(), implode(' AND ', $where), $primary_key_values);
 	}
 
 	/**
@@ -204,7 +211,7 @@ abstract class PersistenceModel implements Persistence {
 	 * @return string last insert id
 	 */
 	public function create(PersistentEntity $entity) {
-		return Database::sqlInsert($entity->getTableName(), $entity->getValues());
+		return $this->database->sqlInsert($entity->getTableName(), $entity->getValues());
 	}
 
 	/**
@@ -230,7 +237,7 @@ abstract class PersistenceModel implements Persistence {
 		foreach ($this->getPrimaryKey() as $key) {
 			$where[] = $key . ' = ?';
 		}
-		$result = Database::sqlSelect(array('*'), $this->getTableName(), implode(' AND ', $where), $primary_key_values, null, null, 1);
+		$result = $this->database->sqlSelect(array('*'), $this->getTableName(), implode(' AND ', $where), $primary_key_values, null, null, 1);
 		// Fetch into ORM object
 		return $result->fetchObject(static::ORM, array(true));
 	}
@@ -293,7 +300,7 @@ abstract class PersistenceModel implements Persistence {
 		foreach ($entity->getPrimaryKey() as $key) {
 			$where[] = $key . ' = ?';
 		}
-		$result = Database::sqlSelect($attributes, $entity->getTableName(), implode(' AND ', $where), $entity->getValues(true), null, null, 1);
+		$result = $this->database->sqlSelect($attributes, $entity->getTableName(), implode(' AND ', $where), $entity->getValues(true), null, null, 1);
 		$result->setFetchMode(PDO::FETCH_INTO, $entity);
 		$success = $result->fetch();
 		if ($success) {
@@ -318,7 +325,7 @@ abstract class PersistenceModel implements Persistence {
 			$params[':W' . $key] = $properties[$key];
 			unset($properties[$key]); // do not update primary key
 		}
-		return Database::sqlUpdate($entity->getTableName(), $properties, implode(' AND ', $where), $params, 1);
+		return $this->database->sqlUpdate($entity->getTableName(), $properties, implode(' AND ', $where), $params, 1);
 	}
 
 	/**
@@ -342,7 +349,7 @@ abstract class PersistenceModel implements Persistence {
 		foreach ($this->getPrimaryKey() as $key) {
 			$where[] = $key . ' = ?';
 		}
-		return Database::sqlDelete($this->getTableName(), implode(' AND ', $where), $primary_key_values, 1);
+		return $this->database->sqlDelete($this->getTableName(), implode(' AND ', $where), $primary_key_values, 1);
 	}
 
 }
