@@ -74,7 +74,8 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 			}
 		}
 
-		throw new Exception("Memcache not initialized");
+		// Entity not found
+		return false;
 	}
 
 	protected function setCache($key, $value, $memcache = false) {
