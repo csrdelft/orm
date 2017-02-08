@@ -2,7 +2,7 @@
 namespace CsrDelft\Orm\Entity;
 
 /**
- * PersistentEnum.interface.php
+ * PersistentEnum.php
  *
  * @author P.W.G. Brussee <brussee@live.nl>
  *

@@ -5,7 +5,7 @@ use CsrDelft\Orm\Persistence\Database;
 use Exception;
 
 /**
- * TransactionWrapper.class.php
+ * TransactionWrapper.php
  *
  * @author P.W.G. Brussee <brussee@live.nl>
  *

@@ -6,7 +6,7 @@ use PDO;
 use PDOStatement;
 
 /**
- * DatabaseAdmin.singleton.php
+ * DatabaseAdmin.php
  *
  * @author P.W.G. Brussee <brussee@live.nl>
  *

@@ -6,7 +6,7 @@ use CsrDelft\Orm\Util;
 use Exception;
 
 /**
- * PersistentEntity.abstract.php
+ * PersistentEntity.php
  *
  * @author P.W.G. Brussee <brussee@live.nl>
  *

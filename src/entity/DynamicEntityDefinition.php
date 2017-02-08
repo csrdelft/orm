@@ -2,7 +2,7 @@
 namespace CsrDelft\Orm\Entity;
 
 /**
- * DynamicEntityDefinition.class.php
+ * DynamicEntityDefinition.php
  *
  * @author P.W.G. Brussee <brussee@live.nl>
  *

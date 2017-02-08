@@ -4,7 +4,7 @@ namespace CsrDelft\Orm;
 use CsrDelft\Orm\Entity\PersistentEntity;
 
 /**
- * Persistence.interface.php
+ * Persistence.php
  *
  * @author P.W.G. Brussee <brussee@live.nl>
  *

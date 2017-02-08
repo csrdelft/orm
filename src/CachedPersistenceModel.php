@@ -7,7 +7,7 @@ use Exception;
 use PDOStatement;
 
 /**
- * CachedPersistenceModel.abstract.php
+ * CachedPersistenceModel.php
  *
  * @author P.W.G. Brussee <brussee@live.nl>
  *

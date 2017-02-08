@@ -8,7 +8,7 @@ use Exception;
 use PDO;
 
 /**
- * DynamicEntityModel.class.php
+ * DynamicEntityModel.php
  *
  * @author P.W.G. Brussee <brussee@live.nl>
  *

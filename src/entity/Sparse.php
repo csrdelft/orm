@@ -2,7 +2,7 @@
 namespace CsrDelft\Orm\Entity;
 
 /**
- * Sparse.interface.php
+ * Sparse.php
  *
  * @author P.W.G. Brussee <brussee@live.nl>
  *

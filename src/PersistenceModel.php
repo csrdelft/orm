@@ -8,7 +8,7 @@ use PDOException;
 use PDOStatement;
 
 /**
- * PersistenceModel.abstract.php
+ * PersistenceModel.php
  *
  * @author P.W.G. Brussee <brussee@live.nl>
  *

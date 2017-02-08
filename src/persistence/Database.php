@@ -5,7 +5,7 @@ use Exception;
 use PDO;
 
 /**
- * Database.singleton.php
+ * Database.php
  *
  * @author P.W.G. Brussee <brussee@live.nl>
  *
@@ -18,6 +18,13 @@ class Database extends PDO {
 	 */
 	private static $instance;
 
+	/**
+	 * Creates queries
+	 *
+	 * @var QueryBuilder
+	 */
+	private $queryBuilder;
+
 	public static function init($host, $db, $user, $pass) {
 		assert('!isset(self::$instance)');
 		$dsn = 'mysql:host=' . $host . ';dbname=' . $db;
@@ -26,6 +33,12 @@ class Database extends PDO {
 			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
 		);
 		self::$instance = new Database($dsn, $user, $pass, $options);
+	}
+
+	public function __construct($dsn, $username, $password, $options) {
+		parent::__construct($dsn, $username, $password, $options);
+
+		$this->queryBuilder = new QueryBuilder();
 	}
 
 	/**
@@ -133,19 +146,7 @@ class Database extends PDO {
 	 * @return \PDOStatement
 	 */
 	public function sqlSelect(array $attributes, $from, $where = null, array $params = array(), $group_by = null, $order_by = null, $limit = null, $start = 0) {
-		$sql = 'SELECT ' . implode(', ', $attributes) . ' FROM ' . $from;
-		if ($where !== null) {
-			$sql .= ' WHERE ' . $where;
-		}
-		if ($group_by !== null) {
-			$sql .= ' GROUP BY ' . $group_by;
-		}
-		if ($order_by !== null) {
-			$sql .= ' ORDER BY ' . $order_by;
-		}
-		if ((int)$limit > 0) {
-			$sql .= ' LIMIT ' . (int)$start . ', ' . (int)$limit;
-		}
+		$sql = $this->queryBuilder->buildSelect($attributes, $from, $where, $group_by, $order_by, $limit, $start);
 		$query = $this->prepare($sql);
 		$query->execute($params);
 		$this->addQuery($query->queryString, $params);
@@ -161,11 +162,7 @@ class Database extends PDO {
 	 * @return boolean
 	 */
 	public function sqlExists($from, $where = null, array $params = array()) {
-		$sql = 'SELECT EXISTS (SELECT 1 FROM ' . $from;
-		if ($where !== null) {
-			$sql .= ' WHERE ' . $where;
-		}
-		$sql .= ')';
+		$sql = $this->queryBuilder->buildExists($from, $where);
 		$query = $this->prepare($sql);
 		$query->execute($params);
 		$this->addQuery($query->queryString, $params);
@@ -187,14 +184,7 @@ class Database extends PDO {
 		foreach ($properties as $attribute => $value) {
 			$insert_params[':I' . $attribute] = $value; // name parameters after attribute
 		}
-		if ($replace) {
-			$sql = 'REPLACE';
-		} else {
-			$sql = 'INSERT';
-		}
-		$sql .= ' INTO ' . $into;
-		$sql .= ' (' . implode(', ', array_keys($properties)) . ')';
-		$sql .= ' VALUES (' . implode(', ', array_keys($insert_params)) . ')'; // named params
+		$sql = $this->queryBuilder->buildInsert($into, $properties, $insert_params, $replace);
 		$query = $this->prepare($sql);
 		$query->execute($insert_params);
 		$this->addQuery($query->queryString, $insert_params);
@@ -259,7 +249,6 @@ class Database extends PDO {
 	 * @throws Exception if duplicate named parameter
 	 */
 	public function sqlUpdate($table, array $properties, $where, array $where_params = array(), $limit = null) {
-		$sql = 'UPDATE ' . $table . ' SET ';
 		$attributes = array();
 		foreach ($properties as $attribute => $value) {
 			$attributes[] = $attribute . ' = :U' . $attribute; // name parameters after attribute
@@ -268,11 +257,7 @@ class Database extends PDO {
 			}
 			$where_params[':U' . $attribute] = $value;
 		}
-		$sql .= implode(', ', $attributes);
-		$sql .= ' WHERE ' . $where;
-		if ((int)$limit > 0) {
-			$sql .= ' LIMIT ' . (int)$limit;
-		}
+		$sql = $this->queryBuilder->buildUpdate($table, $attributes, $where, $limit);
 		$query = $this->prepare($sql);
 		$query->execute($where_params);
 		$this->addQuery($query->queryString, $where_params);
@@ -289,11 +274,7 @@ class Database extends PDO {
 	 * @return int number of rows affected
 	 */
 	public function sqlDelete($from, $where, array $where_params, $limit = null) {
-		$sql = 'DELETE FROM ' . $from;
-		$sql .= ' WHERE ' . $where;
-		if ((int)$limit > 0) {
-			$sql .= ' LIMIT ' . (int)$limit;
-		}
+		$sql = $this->queryBuilder->buildDelete($from, $where, $limit);
 		$query = $this->prepare($sql);
 		$query->execute($where_params);
 		$this->addQuery($query->queryString, $where_params);

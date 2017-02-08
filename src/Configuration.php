@@ -3,7 +3,7 @@ namespace CsrDelft\Orm;
 
 
 /**
- * Configuration.class.php
+ * Configuration.php
  *
  * @author G.J.W. Oolbekkink <g.j.w.oolbekkink@gmail.com>
  *
