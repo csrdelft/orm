@@ -2,7 +2,7 @@
 namespace CsrDelft\Orm\Entity;
 
 /**
- * PersistentAttributeType.php
+ * T.php
  *
  * @author P.W.G. Brussee <brussee@live.nl>
  *
