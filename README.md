@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/109c2ffa39c846559a9bb8441a5b8dc2)](https://www.codacy.com/app/C-S-R-Delft/orm?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=csrdelft/orm&amp;utm_campaign=Badge_Grade)
 # C.S.R. Delft ORM
 
 A simple object-relational mapper for PHP. We currently use this library in production
