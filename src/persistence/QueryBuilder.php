@@ -34,12 +34,8 @@ class QueryBuilder {
 		return $sql;
 	}
 
-	public function buildInsert($table, $properties, $insert_params, $replace) {
-		if ($replace) {
-			$sql = 'REPLACE';
-		} else {
-			$sql = 'INSERT';
-		}
+	public function buildInsert($table, $properties, $insert_params) {
+		$sql = 'INSERT';
 		$sql .= ' INTO ' . $table;
 		$sql .= ' (' . implode(', ', array_keys($properties)) . ')';
 		$sql .= ' VALUES (' . implode(', ', array_keys($insert_params)) . ')'; // named params
@@ -47,7 +43,7 @@ class QueryBuilder {
 		return $sql;
 	}
 
-	public function buildUpdate($table, $attributes, $where, $limit) {
+	public function buildUpdate($table, $attributes, $where, $limit = 0) {
 		$sql = 'UPDATE ' . $table . ' SET ';
 		$sql .= implode(', ', $attributes);
 		$sql .= ' WHERE ' . $where;
@@ -58,7 +54,7 @@ class QueryBuilder {
 		return $sql;
 	}
 
-	public function buildDelete($table, $where, $limit) {
+	public function buildDelete($table, $where, $limit = 0) {
 		$sql = 'DELETE FROM ' . $table;
 		$sql .= ' WHERE ' . $where;
 		if ((int)$limit > 0) {

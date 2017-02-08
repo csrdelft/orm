@@ -179,12 +179,12 @@ class Database extends PDO {
 	 * @return string last inserted row id or sequence value
 	 * @throws Exception if number of rows affected !== 1
 	 */
-	public function sqlInsert($into, array $properties, $replace = false) {
+	public function sqlInsert($into, array $properties) {
 		$insert_params = array();
 		foreach ($properties as $attribute => $value) {
 			$insert_params[':I' . $attribute] = $value; // name parameters after attribute
 		}
-		$sql = $this->queryBuilder->buildInsert($into, $properties, $insert_params, $replace);
+		$sql = $this->queryBuilder->buildInsert($into, $properties, $insert_params);
 		$query = $this->prepare($sql);
 		$query->execute($insert_params);
 		$this->addQuery($query->queryString, $insert_params);
