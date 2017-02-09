@@ -1,6 +1,8 @@
 <?php
 namespace CsrDelft\Orm\Persistence;
 
+use CsrDelft\Orm\Entity\PersistentAttribute;
+
 /**
  * Class QueryBuilder
  *
@@ -61,6 +63,58 @@ class QueryBuilder {
 			$sql .= ' LIMIT ' . (int)$limit;
 		}
 
+		return $sql;
+	}
+
+	public function buildShowTable() {
+		return 'SHOW TABLES';
+	}
+
+	public function buildDescribeTable($name) {
+		return 'DESCRIBE ' . $name;
+	}
+
+	public function buildShowCreateTable($name) {
+		return 'SHOW CREATE TABLE ' . $name;
+	}
+
+	/**
+	 * @param $name
+	 * @param PersistentAttribute[] $attributes
+	 * @param array $primary_key
+	 * @return string
+	 */
+	public function buildCreateTable($name, array $attributes, array $primary_key) {
+		$sql = 'CREATE TABLE ' . $name . ' (';
+		foreach ($attributes as $name => $attribute) {
+			$sql .= $attribute->toSQL() . ', ';
+		}
+		if (empty($primary_key)) {
+			$sql = substr($sql, 0, -2); // remove last ,
+		} else {
+			$sql .= 'PRIMARY KEY (' . implode(', ', $primary_key) . ')';
+		}
+		$sql .= ') ENGINE=InnoDB DEFAULT CHARSET=utf8 auto_increment=1';
+		return $sql;
+	}
+
+	public function buildDropTable($name) {
+		return 'DROP TABLE ' . $name;
+	}
+
+	public function buildAddAttribute($table, PersistentAttribute $attribute, $after_attribute = null) {
+		$sql = 'ALTER TABLE ' . $table . ' ADD ' . $attribute->toSQL();
+		$sql .= ($after_attribute === null ? ' FIRST' : ' AFTER ' . $after_attribute);
+		return $sql;
+	}
+
+	public function buildDeleteAttribute($table, PersistentAttribute $attribute) {
+		$sql = 'ALTER TABLE ' . $table . ' DROP ' . $attribute->field;
+		return $sql;
+	}
+
+	public function buildChangeAttribute($table, PersistentAttribute $attribute, $old_name = null) {
+		$sql = 'ALTER TABLE ' . $table . ' CHANGE ' . ($old_name === null ? $attribute->field : $old_name) . ' ' . $attribute->toSQL();
 		return $sql;
 	}
 

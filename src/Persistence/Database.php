@@ -23,7 +23,7 @@ class Database extends PDO {
 	 *
 	 * @var QueryBuilder
 	 */
-	private $queryBuilder;
+	protected $queryBuilder;
 
 	public static function init($host, $db, $user, $pass) {
 		assert('!isset(self::$instance)');

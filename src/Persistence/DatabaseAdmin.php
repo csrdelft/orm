@@ -74,7 +74,7 @@ class DatabaseAdmin extends Database {
 	 * @return PDOStatement
 	 */
 	public function sqlShowTables() {
-		$sql = 'SHOW TABLES';
+		$sql = $this->queryBuilder->buildShowTable();
 		$query = $this->prepare($sql);
 		$query->execute();
 		return $query;
@@ -87,7 +87,7 @@ class DatabaseAdmin extends Database {
 	 * @return PDOStatement|PersistentAttribute[]
 	 */
 	public function sqlDescribeTable($name) {
-		$sql = 'DESCRIBE ' . $name;
+		$sql = $this->queryBuilder->buildDescribeTable($name);
 		$query = $this->prepare($sql);
 		$this->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER); // Force column names to lower case.
 		$query->execute();
@@ -103,23 +103,14 @@ class DatabaseAdmin extends Database {
 	 * @return string SQL query
 	 */
 	public function sqlShowCreateTable($name) {
-		$sql = 'SHOW CREATE TABLE ' . $name;
+		$sql = $this->queryBuilder->buildShowCreateTable($name);
 		$query = $this->prepare($sql);
 		$query->execute();
 		return $query->fetchColumn(1);
 	}
 
 	public function sqlCreateTable($name, array $attributes, array $primary_key) {
-		$sql = 'CREATE TABLE ' . $name . ' (';
-		foreach ($attributes as $name => $attribute) {
-			$sql .= $attribute->toSQL() . ', ';
-		}
-		if (empty($primary_key)) {
-			$sql = substr($sql, 0, -2); // remove last ,
-		} else {
-			$sql .= 'PRIMARY KEY (' . implode(', ', $primary_key) . ')';
-		}
-		$sql .= ') ENGINE=InnoDB DEFAULT CHARSET=utf8 auto_increment=1';
+		$sql = $this->queryBuilder->buildCreateTable($name, $attributes, $primary_key);
 		$query = $this->prepare($sql);
 		if (DB_MODIFY) {
 			$query->execute();
@@ -128,7 +119,7 @@ class DatabaseAdmin extends Database {
 	}
 
 	public function sqlDropTable($name) {
-		$sql = 'DROP TABLE ' . $name;
+		$sql = $this->queryBuilder->buildDropTable($name);
 		$query = $this->prepare($sql);
 		$esc = '-- ';
 		if (DB_MODIFY AND DB_DROP === true) {
@@ -139,8 +130,7 @@ class DatabaseAdmin extends Database {
 	}
 
 	public function sqlAddAttribute($table, PersistentAttribute $attribute, $after_attribute = null) {
-		$sql = 'ALTER TABLE ' . $table . ' ADD ' . $attribute->toSQL();
-		$sql .= ($after_attribute === null ? ' FIRST' : ' AFTER ' . $after_attribute);
+		$sql = $this->queryBuilder->buildAddAttribute($table, $attribute, $after_attribute);
 		$query = $this->prepare($sql);
 		if (DB_MODIFY) {
 			$query->execute();
@@ -149,7 +139,7 @@ class DatabaseAdmin extends Database {
 	}
 
 	public function sqlChangeAttribute($table, PersistentAttribute $attribute, $old_name = null) {
-		$sql = 'ALTER TABLE ' . $table . ' CHANGE ' . ($old_name === null ? $attribute->field : $old_name) . ' ' . $attribute->toSQL();
+		$sql = $this->queryBuilder->buildChangeAttribute($table, $attribute, $old_name);
 		$query = $this->prepare($sql);
 		if (DB_MODIFY) {
 			$query->execute();
@@ -158,7 +148,7 @@ class DatabaseAdmin extends Database {
 	}
 
 	public function sqlDeleteAttribute($table, PersistentAttribute $attribute) {
-		$sql = 'ALTER TABLE ' . $table . ' DROP ' . $attribute->field;
+		$sql = $this->queryBuilder->buildDeleteAttribute($table, $attribute);
 		$query = $this->prepare($sql);
 		$esc = '-- ';
 		if (DB_MODIFY AND DB_DROP === true) {
