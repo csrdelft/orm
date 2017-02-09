@@ -45,7 +45,7 @@ below. An entity must only contain logic about itself, not logic about other cla
 or about other instances of the same entity. This should be in the Model (or the controller which is
 not part of this library).
 
-Entities are placed in the folder `model/entities/` and are named `EntityName.class.php`.
+Entities are placed in the folder `model/entities/` and are named `EntityName.php`.
 
 #### Variables in an entity
 
@@ -95,7 +95,7 @@ protected static $primary_key = array('id');
 
 #### Example
 
-**`model/entities/Car.class.php`**
+**`model/entities/Car.php`**
 
 ```php
 class Car extends PersistentEntity {
@@ -204,10 +204,10 @@ Delete an entity from the database.
 
 #### Example
 
-**`model/CarModel.class.php`**
+**`model/CarModel.php`**
 
 ```php
-require_once 'model/entity/Car.class.php';
+require_once 'model/entity/Car.php';
 
 class CarModel extends PersistenceModel {
   const ORM = 'Car';
@@ -222,7 +222,7 @@ class CarModel extends PersistenceModel {
 **`index.php`**
 
 ```php
-require_once 'model/CarModel.class.php';
+require_once 'model/CarModel.php';
 
 $model = CarModel::instance();
 $cars = $model->find();
