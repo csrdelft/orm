@@ -16,7 +16,7 @@ class Database extends PDO {
 	 * Singleton instance
 	 * @var Database
 	 */
-	private static $instance;
+	protected static $instance;
 
 	/**
 	 * Creates queries
@@ -25,18 +25,32 @@ class Database extends PDO {
 	 */
 	protected $queryBuilder;
 
-	public static function init($host, $db, $user, $pass) {
+	/**
+	 * Database credentials, for use with dump
+	 *
+	 * @var array
+	 */
+	protected $cred;
+
+	public static function init($host, $database, $user, $pass) {
 		assert('!isset(self::$instance)');
-		$dsn = 'mysql:host=' . $host . ';dbname=' . $db;
+		self::$instance = new static($host, $database, $user, $pass);
+	}
+
+	public function __construct($host, $database, $username, $password) {
+		$dsn = 'mysql:host=' . $host . ';dbname=' . $database;
 		$options = array(
 			PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8'",
 			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
 		);
-		self::$instance = new Database($dsn, $user, $pass, $options);
-	}
-
-	public function __construct($dsn, $username, $password, $options) {
 		parent::__construct($dsn, $username, $password, $options);
+
+		$this->cred = array(
+			'username' => $username,
+			'password' => $password,
+			'host' => $host,
+			'database' => $database
+		);
 
 		$this->queryBuilder = new QueryBuilder();
 	}

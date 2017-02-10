@@ -13,33 +13,6 @@ use PDOStatement;
  *
  */
 class DatabaseAdmin extends Database {
-
-	/**
-	 * Singleton instance
-	 * @var DatabaseAdmin
-	 */
-	private static $instance;
-
-	public static function init($host, $db, $user, $pass) {
-		assert('!isset(self::$instance)');
-		$dsn = 'mysql:host=' . $host . ';dbname=' . $db;
-		$options = array(
-			PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8'",
-			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-		);
-		self::$instance = new DatabaseAdmin($dsn, $user, $pass, $options);
-	}
-
-	/**
-	 * Get singleton DatabaseAdmin instance.
-	 *
-	 * @return DatabaseAdmin
-	 */
-	public static function instance() {
-		assert('isset(self::$instance)');
-		return self::$instance;
-	}
-
 	/**
 	 * Array of SQL statements for file.sql
 	 * @var array
@@ -63,8 +36,10 @@ class DatabaseAdmin extends Database {
 		$filename = 'backup-' . $name . '_' . date('d-m-Y_H-i-s') . '.sql.gz';
 		header('Content-Type: application/x-gzip');
 		header('Content-Disposition: attachment; filename="' . $filename . '"');
-		$cred = parse_ini_file(ETC_PATH . 'mysql.ini');
-		$cmd = 'mysqldump --user=' . $cred['user'] . ' --password=' . $cred['pass'] . ' --host=' . $cred['host'] . ' ' . $cred['db'] . ' ' . $name . ' | gzip --best';
+		$cmd = 'mysqldump --user=' . $this->cred['user']
+			. ' --password=' . $this->cred['pass']
+			. ' --host=' . $this->cred['host']
+			. ' ' . $this->cred['db'] . ' ' . $name . ' | gzip --best';
 		passthru($cmd);
 	}
 
@@ -112,7 +87,7 @@ class DatabaseAdmin extends Database {
 	public function sqlCreateTable($name, array $attributes, array $primary_key) {
 		$sql = $this->queryBuilder->buildCreateTable($name, $attributes, $primary_key);
 		$query = $this->prepare($sql);
-		if (DB_MODIFY) {
+		if (defined('DB_MODIFY') AND DB_MODIFY) {
 			$query->execute();
 		}
 		self::$queries[] = $query->queryString;
@@ -122,7 +97,7 @@ class DatabaseAdmin extends Database {
 		$sql = $this->queryBuilder->buildDropTable($name);
 		$query = $this->prepare($sql);
 		$esc = '-- ';
-		if (DB_MODIFY AND DB_DROP === true) {
+		if (defined('DB_MODIFY') AND defined('DB_DROP') AND DB_MODIFY AND DB_DROP === true) {
 			$query->execute();
 			$esc = '';
 		}
@@ -132,7 +107,7 @@ class DatabaseAdmin extends Database {
 	public function sqlAddAttribute($table, PersistentAttribute $attribute, $after_attribute = null) {
 		$sql = $this->queryBuilder->buildAddAttribute($table, $attribute, $after_attribute);
 		$query = $this->prepare($sql);
-		if (DB_MODIFY) {
+		if (defined('DB_MODIFY') AND DB_MODIFY) {
 			$query->execute();
 		}
 		self::$queries[] = $query->queryString;
@@ -141,7 +116,7 @@ class DatabaseAdmin extends Database {
 	public function sqlChangeAttribute($table, PersistentAttribute $attribute, $old_name = null) {
 		$sql = $this->queryBuilder->buildChangeAttribute($table, $attribute, $old_name);
 		$query = $this->prepare($sql);
-		if (DB_MODIFY) {
+		if (defined('DB_MODIFY') AND DB_MODIFY) {
 			$query->execute();
 		}
 		self::$queries[] = $query->queryString;
@@ -151,7 +126,7 @@ class DatabaseAdmin extends Database {
 		$sql = $this->queryBuilder->buildDeleteAttribute($table, $attribute);
 		$query = $this->prepare($sql);
 		$esc = '-- ';
-		if (DB_MODIFY AND DB_DROP === true) {
+		if (defined('DB_MODIFY') AND defined('DB_DROP') AND DB_MODIFY AND DB_DROP === true) {
 			$query->execute();
 			$esc = '';
 		}
