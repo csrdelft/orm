@@ -23,18 +23,6 @@ class Util {
 	}
 
 	/**
-	 * Print a variable with <pre>-tags around it.
-	 *
-	 * @param string $sString
-	 * @param string $cssID
-	 */
-	public static function debug_print($sString, $cssID = 'pubcie_debug') {
-//	if (DEBUG OR LoginModel::mag('P_ADMIN') OR LoginModel::instance()->isSued()) {
-//		echo '<pre class="' . $cssID . '">' . print_r($sString, true) . '</pre>';
-//	}
-	}
-
-	/**
 	 * PDO does a string cast (false = '') and MySql uses tinyint for booleans so expects 0/1
 	 * @param $value bool|bool-like
 	 * @return int

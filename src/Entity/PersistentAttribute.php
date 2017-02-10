@@ -97,7 +97,7 @@ class PersistentAttribute {
 	/**
 	 * To compare table description of MySQL.
 	 *
-	 * @unsupported keys
+	 * @unsupported keys, enum
 	 *
 	 * @return array $definition
 	 * @throws Exception
@@ -111,9 +111,9 @@ class PersistentAttribute {
 			foreach ($values as $i => $value) {
 				$values[$i] = str_replace("'", "", $value);
 			}
-			$definition[] = array(T::Enumeration, false, $values);
+			return array(T::Enumeration, false, $values);
 		} else {
-			if (DB_CHECK AND !in_array($this->type, T::getTypeOptions())) {
+			if (defined('DB_CHECK') AND DB_CHECK AND !in_array($this->type, T::getTypeOptions())) {
 				throw new Exception('Unknown persistent attribute type: ' . $this->type);
 			}
 			$definition[] = $this->type;
