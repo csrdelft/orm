@@ -3,7 +3,6 @@ namespace CsrDelft\Orm;
 
 use CsrDelft\Orm\Entity\PersistentEntity;
 use CsrDelft\Orm\Persistence\OrmMemcache;
-use Exception;
 use PDOStatement;
 
 /**

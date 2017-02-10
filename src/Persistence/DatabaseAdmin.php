@@ -124,7 +124,7 @@ class DatabaseAdmin extends PDO {
 	public function sqlCreateTable($name, array $attributes, array $primary_key) {
 		$sql = $this->queryBuilder->buildCreateTable($name, $attributes, $primary_key);
 		$query = $this->prepare($sql);
-		if (DB_MODIFY) {
+		if (defined('DB_MODIFY') AND DB_MODIFY) {
 			$query->execute();
 		}
 		self::$queries[] = $query->queryString;
@@ -134,7 +134,7 @@ class DatabaseAdmin extends PDO {
 		$sql = $this->queryBuilder->buildDropTable($name);
 		$query = $this->prepare($sql);
 		$esc = '-- ';
-		if (DB_MODIFY AND DB_DROP === true) {
+		if (defined('DB_MODIFY') AND defined('DB_DROP') AND DB_MODIFY AND DB_DROP === true) {
 			$query->execute();
 			$esc = '';
 		}
@@ -144,7 +144,7 @@ class DatabaseAdmin extends PDO {
 	public function sqlAddAttribute($table, PersistentAttribute $attribute, $after_attribute = null) {
 		$sql = $this->queryBuilder->buildAddAttribute($table, $attribute, $after_attribute);
 		$query = $this->prepare($sql);
-		if (DB_MODIFY) {
+		if (defined('DB_MODIFY') AND DB_MODIFY) {
 			$query->execute();
 		}
 		self::$queries[] = $query->queryString;
@@ -153,7 +153,7 @@ class DatabaseAdmin extends PDO {
 	public function sqlChangeAttribute($table, PersistentAttribute $attribute, $old_name = null) {
 		$sql = $this->queryBuilder->buildChangeAttribute($table, $attribute, $old_name);
 		$query = $this->prepare($sql);
-		if (DB_MODIFY) {
+		if (defined('DB_MODIFY') AND DB_MODIFY) {
 			$query->execute();
 		}
 		self::$queries[] = $query->queryString;
@@ -163,7 +163,7 @@ class DatabaseAdmin extends PDO {
 		$sql = $this->queryBuilder->buildDeleteAttribute($table, $attribute);
 		$query = $this->prepare($sql);
 		$esc = '-- ';
-		if (DB_MODIFY AND DB_DROP === true) {
+		if (defined('DB_MODIFY') AND defined('DB_DROP') AND DB_MODIFY AND DB_DROP === true) {
 			$query->execute();
 			$esc = '';
 		}

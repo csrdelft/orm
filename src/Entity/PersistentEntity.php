@@ -151,6 +151,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 	 * PDO does not cast values automatically (yet).
 	 *
 	 * @param array $attributes Attributes to cast
+	 * @throws Exception
 	 */
 	private function castValues(array $attributes) {
 		foreach ($attributes as $attribute) {
@@ -166,9 +167,8 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 			} else {
 				$this->$attribute = (string)$this->$attribute;
 			}
-			if (DB_CHECK AND $definition[0] === T::Enumeration AND !in_array($this->$attribute, $definition[2]::getTypeOptions())) {
+			if (defined('DB_CHECK') AND DB_CHECK AND $definition[0] === T::Enumeration AND !in_array($this->$attribute, $definition[2]::getTypeOptions())) {
 				throw new Exception(static::$table_name . '.' . $attribute . ' invalid ' . $definition[2] . '.enum value: "' . $this->$attribute . '"');
-				Util::debug_print($msg);
 			}
 		}
 	}

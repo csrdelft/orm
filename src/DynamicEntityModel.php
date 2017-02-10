@@ -2,7 +2,6 @@
 namespace CsrDelft\Orm;
 
 use CsrDelft\Orm\Entity\DynamicEntityDefinition;
-use CsrDelft\Orm\Entity\PersistentAttribute;
 use CsrDelft\Orm\Persistence\DatabaseAdmin;
 use Exception;
 use PDO;

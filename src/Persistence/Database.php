@@ -175,7 +175,6 @@ class Database extends PDO {
 	 *
 	 * @param string $into
 	 * @param array $properties
-	 * @param boolean $replace
 	 * @return string last inserted row id or sequence value
 	 * @throws Exception if number of rows affected !== 1
 	 */
