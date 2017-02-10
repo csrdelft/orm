@@ -167,7 +167,9 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 			} else {
 				$this->$attribute = (string)$this->$attribute;
 			}
-			if (defined('DB_CHECK') AND DB_CHECK AND $definition[0] === T::Enumeration AND !in_array($this->$attribute, $definition[2]::getTypeOptions())) {
+			// If $definition comes from PersistentAttribute->toDefinition, $definition[2] is an array if the definition is an enum
+			if (defined('DB_CHECK') AND DB_CHECK AND $definition[0] === T::Enumeration
+				AND !in_array($this->$attribute, is_array($definition[2]) ? $definition[2] : $definition[2]::getTypeOptions())) {
 				throw new Exception(static::$table_name . '.' . $attribute . ' invalid ' . $definition[2] . '.enum value: "' . $this->$attribute . '"');
 			}
 		}
