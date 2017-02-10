@@ -32,7 +32,7 @@ abstract class PersistenceModel implements Persistence {
 			require_once 'model/entity/' . $dir . $orm . '.class.php';
 		}
 		$orm::__static(); // Extend the persistent attributes
-		if (DB_CHECK) {
+		if (defined('DB_CHECK') AND DB_CHECK) {
 			$orm::checkTable();
 		}
 	}

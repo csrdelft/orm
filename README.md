@@ -229,3 +229,32 @@ $cars = $model->find();
 $actual_cars = $model->find('num_wheels = 4');
 $yellow_cars = $model->findByColor('yellow');
 ```
+
+## Database update
+
+This orm can check the models for you. To enable this feature you need to define
+the global constant `DB_CHECK` as `true`. After that you can check the DatabaseAdmin for
+any updated tables. This only checks tables which are in use and must be done
+after all models are used. It is also possible to enable automatically updating
+the database by defining the global constant `DB_MODIFY` as `true`. This will
+update tables according to your models. This will not try to migrate data, so
+be careful. `DB_MODIFY` will not drop tables. for this you will need to define
+`DB_DROP` as `true`.
+
+```php
+if (DB_CHECK) {
+    $queries = DatabaseAdmin::instance()->getQueries();
+    if (!empty($queries)) {
+        if (DB_MODIFY) {
+            header('Content-Type: text/x-sql');
+            header('Content-Disposition: attachment;filename=DB_modify_' . time() . '.sql');
+            foreach ($queries as $query) {
+                echo $query . ";\n";
+            }
+            exit;
+        } else {
+            var_dump($queries);
+        }
+    }
+}
+```
