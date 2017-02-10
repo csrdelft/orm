@@ -12,13 +12,19 @@ use PDOStatement;
  *
  *
  */
-class DatabaseAdmin extends Database {
-
+class DatabaseAdmin extends PDO {
 	/**
 	 * Singleton instance
 	 * @var DatabaseAdmin
 	 */
 	private static $instance;
+
+	/**
+	 * Creates queries
+	 *
+	 * @var QueryBuilder
+	 */
+	protected $queryBuilder;
 
 	public static function init($host, $db, $user, $pass) {
 		assert('!isset(self::$instance)');
@@ -38,6 +44,12 @@ class DatabaseAdmin extends Database {
 	public static function instance() {
 		assert('isset(self::$instance)');
 		return self::$instance;
+	}
+
+	public function __construct($dsn, $username, $passwd, $options) {
+		parent::__construct($dsn, $username, $passwd, $options);
+
+		$this->queryBuilder = new QueryBuilder();
 	}
 
 	/**
