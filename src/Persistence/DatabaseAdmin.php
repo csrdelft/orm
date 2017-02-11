@@ -12,7 +12,7 @@ use PDOStatement;
  *
  *
  */
-class DatabaseAdmin extends PDO {
+class DatabaseAdmin {
 	/**
 	 * Singleton instance
 	 * @var DatabaseAdmin
@@ -24,16 +24,16 @@ class DatabaseAdmin extends PDO {
 	 *
 	 * @var QueryBuilder
 	 */
-	protected $queryBuilder;
+	private $queryBuilder;
 
-	public static function init($host, $db, $user, $pass) {
+	/**
+	 * @var PDO
+	 */
+	private $database;
+
+	public static function init($pdo) {
 		assert('!isset(self::$instance)');
-		$dsn = 'mysql:host=' . $host . ';dbname=' . $db;
-		$options = array(
-			PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8'",
-			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-		);
-		self::$instance = new DatabaseAdmin($dsn, $user, $pass, $options);
+		self::$instance = new DatabaseAdmin($pdo);
 	}
 
 	/**
@@ -46,9 +46,8 @@ class DatabaseAdmin extends PDO {
 		return self::$instance;
 	}
 
-	public function __construct($dsn, $username, $passwd, $options) {
-		parent::__construct($dsn, $username, $passwd, $options);
-
+	public function __construct($pdo) {
+		$this->database = $pdo;
 		$this->queryBuilder = new QueryBuilder();
 	}
 
@@ -87,7 +86,7 @@ class DatabaseAdmin extends PDO {
 	 */
 	public function sqlShowTables() {
 		$sql = $this->queryBuilder->buildShowTable();
-		$query = $this->prepare($sql);
+		$query = $this->database->prepare($sql);
 		$query->execute();
 		return $query;
 	}
@@ -100,10 +99,10 @@ class DatabaseAdmin extends PDO {
 	 */
 	public function sqlDescribeTable($name) {
 		$sql = $this->queryBuilder->buildDescribeTable($name);
-		$query = $this->prepare($sql);
-		$this->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER); // Force column names to lower case.
+		$query = $this->database->prepare($sql);
+		$this->database->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER); // Force column names to lower case.
 		$query->execute();
-		$this->setAttribute(PDO::ATTR_CASE, PDO::CASE_NATURAL); // Leave column names as returned by the database driver.
+		$this->database->setAttribute(PDO::ATTR_CASE, PDO::CASE_NATURAL); // Leave column names as returned by the database driver.
 		$query->setFetchMode(PDO::FETCH_CLASS, 'CsrDelft\Orm\Entity\PersistentAttribute');
 		return $query;
 	}
@@ -116,14 +115,14 @@ class DatabaseAdmin extends PDO {
 	 */
 	public function sqlShowCreateTable($name) {
 		$sql = $this->queryBuilder->buildShowCreateTable($name);
-		$query = $this->prepare($sql);
+		$query = $this->database->prepare($sql);
 		$query->execute();
 		return $query->fetchColumn(1);
 	}
 
 	public function sqlCreateTable($name, array $attributes, array $primary_key) {
 		$sql = $this->queryBuilder->buildCreateTable($name, $attributes, $primary_key);
-		$query = $this->prepare($sql);
+		$query = $this->database->prepare($sql);
 		if (defined('DB_MODIFY') AND DB_MODIFY) {
 			$query->execute();
 		}
@@ -132,7 +131,7 @@ class DatabaseAdmin extends PDO {
 
 	public function sqlDropTable($name) {
 		$sql = $this->queryBuilder->buildDropTable($name);
-		$query = $this->prepare($sql);
+		$query = $this->database->prepare($sql);
 		$esc = '-- ';
 		if (defined('DB_MODIFY') AND defined('DB_DROP') AND DB_MODIFY AND DB_DROP === true) {
 			$query->execute();
@@ -143,7 +142,7 @@ class DatabaseAdmin extends PDO {
 
 	public function sqlAddAttribute($table, PersistentAttribute $attribute, $after_attribute = null) {
 		$sql = $this->queryBuilder->buildAddAttribute($table, $attribute, $after_attribute);
-		$query = $this->prepare($sql);
+		$query = $this->database->prepare($sql);
 		if (defined('DB_MODIFY') AND DB_MODIFY) {
 			$query->execute();
 		}
@@ -152,7 +151,7 @@ class DatabaseAdmin extends PDO {
 
 	public function sqlChangeAttribute($table, PersistentAttribute $attribute, $old_name = null) {
 		$sql = $this->queryBuilder->buildChangeAttribute($table, $attribute, $old_name);
-		$query = $this->prepare($sql);
+		$query = $this->database->prepare($sql);
 		if (defined('DB_MODIFY') AND DB_MODIFY) {
 			$query->execute();
 		}
@@ -161,7 +160,7 @@ class DatabaseAdmin extends PDO {
 
 	public function sqlDeleteAttribute($table, PersistentAttribute $attribute) {
 		$sql = $this->queryBuilder->buildDeleteAttribute($table, $attribute);
-		$query = $this->prepare($sql);
+		$query = $this->database->prepare($sql);
 		$esc = '-- ';
 		if (defined('DB_MODIFY') AND defined('DB_DROP') AND DB_MODIFY AND DB_DROP === true) {
 			$query->execute();

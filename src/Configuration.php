@@ -1,6 +1,8 @@
 <?php
 namespace CsrDelft\Orm;
 
+use PDO;
+
 
 /**
  * Configuration.php
@@ -33,8 +35,15 @@ class Configuration {
 
 		Persistence\OrmMemcache::init($config['cache_path']);
 
-		Persistence\Database::init($db_conf['host'], $db_conf['db'], $db_conf['user'], $db_conf['pass']);
-		Persistence\DatabaseAdmin::init($db_conf['host'], $db_conf['db'], $db_conf['user'], $db_conf['pass']);
+		$dsn = 'mysql:host=' . $db_conf['host'] . ';dbname=' . $db_conf['db'];
+		$options = array(
+			PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8'",
+			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+		);
+		$pdo = new PDO($dsn, $db_conf['user'], $db_conf['pass'], $options);
+
+		Persistence\Database::init($pdo);
+		Persistence\DatabaseAdmin::init($pdo, '');
 	}
 
 }

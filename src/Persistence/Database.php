@@ -10,7 +10,7 @@ use PDO;
  * @author P.W.G. Brussee <brussee@live.nl>
  *
  */
-class Database extends PDO {
+class Database {
 
 	/**
 	 * Singleton instance
@@ -23,21 +23,22 @@ class Database extends PDO {
 	 *
 	 * @var QueryBuilder
 	 */
-	protected $queryBuilder;
+	private $queryBuilder;
 
-	public static function init($host, $db, $user, $pass) {
+	/**
+	 * Database connection
+	 *
+	 * @var PDO
+	 */
+	private $database;
+
+	public static function init($pdo) {
 		assert('!isset(self::$instance)');
-		$dsn = 'mysql:host=' . $host . ';dbname=' . $db;
-		$options = array(
-			PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8'",
-			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-		);
-		self::$instance = new Database($dsn, $user, $pass, $options);
+		self::$instance = new Database($pdo);
 	}
 
-	public function __construct($dsn, $username, $password, $options) {
-		parent::__construct($dsn, $username, $password, $options);
-
+	public function __construct(PDO $pdo) {
+		$this->database = $pdo;
 		$this->queryBuilder = new QueryBuilder();
 	}
 
@@ -147,7 +148,7 @@ class Database extends PDO {
 	 */
 	public function sqlSelect(array $attributes, $from, $where = null, array $params = array(), $group_by = null, $order_by = null, $limit = null, $start = 0) {
 		$sql = $this->queryBuilder->buildSelect($attributes, $from, $where, $group_by, $order_by, $limit, $start);
-		$query = $this->prepare($sql);
+		$query = $this->database->prepare($sql);
 		$query->execute($params);
 		$this->addQuery($query->queryString, $params);
 		return $query;
@@ -163,7 +164,7 @@ class Database extends PDO {
 	 */
 	public function sqlExists($from, $where = null, array $params = array()) {
 		$sql = $this->queryBuilder->buildExists($from, $where);
-		$query = $this->prepare($sql);
+		$query = $this->database->prepare($sql);
 		$query->execute($params);
 		$this->addQuery($query->queryString, $params);
 		return (boolean)$query->fetchColumn();
@@ -184,13 +185,13 @@ class Database extends PDO {
 			$insert_params[':I' . $attribute] = $value; // name parameters after attribute
 		}
 		$sql = $this->queryBuilder->buildInsert($into, $properties, $insert_params);
-		$query = $this->prepare($sql);
+		$query = $this->database->prepare($sql);
 		$query->execute($insert_params);
 		$this->addQuery($query->queryString, $insert_params);
 		if ($query->rowCount() !== 1) {
 			throw new Exception('sqlInsert rowCount=' . $query->rowCount());
 		}
-		return $this->lastInsertId();
+		return $this->database->lastInsertId();
 	}
 
 	/**
@@ -230,7 +231,7 @@ class Database extends PDO {
 			}
 			$sql .= ')';
 		}
-		$query = $this->prepare($sql);
+		$query = $this->database->prepare($sql);
 		$query->execute($insert_values);
 		$this->addQuery($query->queryString, $insert_values);
 		return $query->rowCount();
@@ -257,7 +258,7 @@ class Database extends PDO {
 			$where_params[':U' . $attribute] = $value;
 		}
 		$sql = $this->queryBuilder->buildUpdate($table, $attributes, $where, $limit);
-		$query = $this->prepare($sql);
+		$query = $this->database->prepare($sql);
 		$query->execute($where_params);
 		$this->addQuery($query->queryString, $where_params);
 		return $query->rowCount();
@@ -274,7 +275,7 @@ class Database extends PDO {
 	 */
 	public function sqlDelete($from, $where, array $where_params, $limit = null) {
 		$sql = $this->queryBuilder->buildDelete($from, $where, $limit);
-		$query = $this->prepare($sql);
+		$query = $this->database->prepare($sql);
 		$query->execute($where_params);
 		$this->addQuery($query->queryString, $where_params);
 		return $query->rowCount();
