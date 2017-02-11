@@ -43,7 +43,7 @@ class Configuration {
 		$pdo = new PDO($dsn, $db_conf['user'], $db_conf['pass'], $options);
 
 		Persistence\Database::init($pdo);
-		Persistence\DatabaseAdmin::init($pdo, '');
+		Persistence\DatabaseAdmin::init($pdo);
 	}
 
 }

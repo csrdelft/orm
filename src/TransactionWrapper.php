@@ -40,7 +40,7 @@ class TransactionWrapper {
 			throw new Exception('Method does not exist: ' . $method_name . ' in ' . get_class($this->model));
 		}
 		// Begin transaction, if not already in one
-		$db = Database::instance();
+		$db = Database::instance()->getDatabase();
 		$beganTransaction = false;
 		if (!$db->inTransaction()) {
 			$db->beginTransaction();

@@ -11,7 +11,6 @@ use PDO;
  *
  */
 class Database {
-
 	/**
 	 * Singleton instance
 	 * @var Database
@@ -37,11 +36,6 @@ class Database {
 		self::$instance = new Database($pdo);
 	}
 
-	public function __construct(PDO $pdo) {
-		$this->database = $pdo;
-		$this->queryBuilder = new QueryBuilder();
-	}
-
 	/**
 	 * Get singleton Database instance.
 	 *
@@ -50,6 +44,11 @@ class Database {
 	public static function instance() {
 		assert('isset(self::$instance)');
 		return self::$instance;
+	}
+
+	public function __construct(PDO $pdo) {
+		$this->database = $pdo;
+		$this->queryBuilder = new QueryBuilder();
 	}
 
 	/**
@@ -248,6 +247,10 @@ class Database {
 		$query->execute($where_params);
 		$this->addQuery($query->queryString, $where_params);
 		return $query->rowCount();
+	}
+
+	public function getDatabase() {
+		return $this->database;
 	}
 
 }
