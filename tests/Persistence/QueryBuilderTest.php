@@ -174,5 +174,30 @@ final class QueryBuilderTest extends TestCase {
 		);
 	}
 
+	public function testInterpolateQuery() {
+		$query_builder = new QueryBuilder();
+		$query = "SELECT * FROM one WHERE two = ? AND four = ?";
+		$params = array("three", "five");
+
+		$this->assertEquals(
+			'SELECT * FROM one WHERE two = "three" AND four = "five"',
+			$query_builder->interpolateQuery($query, $params)
+		);
+
+		$query = "SELECT * FROM one WHERE two = :item AND four = :secondItem";
+		$params = array("secondItem" => "three", "item" => "five");
+		$this->assertEquals(
+			'SELECT * FROM one WHERE two = "five" AND four = "three"',
+			$query_builder->interpolateQuery($query, $params)
+		);
+
+		$query = "SELECT * FROM one WHERE two = ? AND three = ?";
+		$params = array(true, 10);
+		$this->assertEquals(
+			'SELECT * FROM one WHERE two = TRUE AND three = 10',
+			$query_builder->interpolateQuery($query, $params)
+		);
+	}
+
 
 }

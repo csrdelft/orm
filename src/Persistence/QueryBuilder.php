@@ -118,4 +118,35 @@ class QueryBuilder {
 		return $sql;
 	}
 
+	/**
+	 * @source http://stackoverflow.com/a/1376838
+	 *
+	 * Replaces any parameter placeholders in a query with the value of that
+	 * parameter. Useful for debugging. Assumes anonymous parameters from
+	 * $params are are in the same order as specified in $query
+	 *
+	 * @param string $query The sql query with parameter placeholders
+	 * @param array $params The array of substitution parameters
+	 * @return string The interpolated query
+	 */
+	public function interpolateQuery($query, $params) {
+		$attributes = array();
+		// build a regular expression for each parameter
+		foreach ($params as $attribute => $value) {
+			if (is_string($attribute)) {
+				$attributes[] = '/:' . $attribute . '/';
+			} else {
+				$attributes[] = '/[?]/';
+			}
+			if (is_string($value)) {
+				$params[$attribute] = '"' . $value . '"'; // quotes
+			} elseif (is_bool($value) AND ($value === true OR $value === false)) {
+				$params[$attribute] = $value ? 'TRUE' : 'FALSE';
+			} else {
+				$params[$attribute] = $value;
+			}
+		}
+		return preg_replace($attributes, $params, $query, 1);
+	}
+
 }
