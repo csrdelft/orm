@@ -135,10 +135,14 @@ A model has a few static variables which must be defined.
 
 ##### `ORM`
 
-The constant `ORM` defines which entity this model is the owner of. This is a string.
+The constant `ORM` defines which entity this model is the owner of. This is a string or class.
 
 ```php
 const ORM = 'Car';
+```
+
+```php
+const ORM = Car::class;
 ```
 
 ##### `DIR`
