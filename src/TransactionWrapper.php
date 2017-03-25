@@ -12,6 +12,8 @@ use Exception;
  * Wraps PersistenceModel methods inside a PDO database transaction,
  * if not already in one.
  *
+ * @deprecated Use Database::transaction
+ *
  */
 class TransactionWrapper {
 
