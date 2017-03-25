@@ -3,6 +3,8 @@ use CsrDelft\Orm\Persistence\Database;
 
 require_once 'SqliteDatabaseTestCase.php';
 
+class MyException extends Exception {}
+
 /**
  * @covers CsrDelft\Orm\Persistence\Database
  */
@@ -67,5 +69,46 @@ final class DatabaseTest extends SqliteDatabaseTestCase {
 		$database->sqlDelete('guestbook', 'id = ?', [1]);
 
 		$this->assertEquals(1, $dataset->getRowCount());
+	}
+
+	public function testTransaction() {
+		$database = new Database($this->getConnection()->getConnection());
+
+		$dataset = $this->getConnection()->createQueryTable('guestbook', 'SELECT * FROM guestbook');
+
+
+		$return = $database->_transaction(function() use ($database) {
+			$this->assertTrue($database->getDatabase()->inTransaction(), 'Database is in a transaction');
+
+			$database->sqlDelete('guestbook', 'id = ?', [1]);
+
+			return "testValue";
+		});
+
+		$this->assertEquals(1, $dataset->getRowCount());
+
+		$this->assertEquals("testValue", $return, 'transaction returns value of function');
+
+		$this->assertFalse($database->getDatabase()->inTransaction(), 'Database is not in a transaction');
+	}
+
+	public function testTransactionRollback() {
+		$database = new Database($this->getConnection()->getConnection());
+
+		$dataset = $this->getConnection()->createQueryTable('guestbook', 'SELECT * FROM guestbook');
+
+		try {
+			$database->_transaction(function() use ($database) {
+				$database->sqlDelete('guestbook', 'id = ?', [1]);
+
+				throw new MyException("testException");
+			});
+			$this->fail("Exception expected");
+		} catch (MyException $ex) {
+			$this->assertEquals("testException", $ex->getMessage(), 'Exception is rethrown');
+		}
+
+		$this->assertEquals(2, $dataset->getRowCount(), 'No guestbook entry is deleted');
+
 	}
 }

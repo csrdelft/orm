@@ -1,6 +1,7 @@
 <?php
 namespace CsrDelft\Orm\Persistence;
 
+use Closure;
 use Exception;
 use PDO;
 
@@ -49,6 +50,40 @@ class Database {
 	public function __construct(PDO $pdo) {
 		$this->database = $pdo;
 		$this->queryBuilder = new QueryBuilder();
+	}
+
+	public static function transaction(Closure $function) {
+		return static::instance()->_transaction($function);
+	}
+
+	/**
+	 * Wrap anonymous function $function in a database transaction
+	 * does a rollback if an exception is thrown and rethrows the
+	 * exception.
+	 *
+	 * Silently continues if the database is in a transaction
+	 *
+	 * Use `use` to scope variables.
+	 *
+	 * @param Closure $function
+	 * @throws Exception Any exception thrown by $function
+	 * @return mixed Value returned by $function
+	 */
+	public function _transaction(Closure $function) {
+		$db = $this->getDatabase();
+		if ($db->inTransaction()) {
+			return $function();
+		}
+		$db->beginTransaction();
+		try {
+			$response = $function();
+		} catch (Exception $ex) {
+			$db->rollBack();
+			throw $ex;
+		}
+		$db->commit();
+
+		return $response;
 	}
 
 	/**

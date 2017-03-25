@@ -262,3 +262,18 @@ if (DB_CHECK) {
     }
 }
 ```
+
+## Database transactions
+
+To wrap multiple database calls in a transaction you can use `Database::transaction(Closure)`.
+This function wraps another function in a database transaction. Any exception thrown causes the
+transaction to be rolled back. If the database is in a transaction this function will just call the
+`Closure` without trying to create a new transaction.
+
+```php
+$car = new Car();
+Database::transaction(function () use ($car) {
+    CarModel::instance()->create($car);
+    CarWheelModel::instance()->create($car->getWheels());
+});
+```
