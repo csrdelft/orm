@@ -3,6 +3,7 @@ namespace CsrDelft\Orm;
 
 use CsrDelft\Orm\Entity\PersistentEntity;
 use CsrDelft\Orm\Persistence\Database;
+use CsrDelft\Orm\Persistence\DatabaseAdmin;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -33,7 +34,7 @@ abstract class PersistenceModel implements Persistence {
 		}
 		$orm::__static(); // Extend the persistent attributes
 		if (defined('DB_CHECK') AND DB_CHECK) {
-			$orm::checkTable();
+			DatabaseAdmin::instance()->checkTable($orm);
 		}
 	}
 

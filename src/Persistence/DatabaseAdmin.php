@@ -2,6 +2,10 @@
 namespace CsrDelft\Orm\Persistence;
 
 use CsrDelft\Orm\Entity\PersistentAttribute;
+use CsrDelft\Orm\Entity\PersistentEntity;
+use CsrDelft\Orm\Entity\PersistentEnum;
+use CsrDelft\Orm\Util;
+use Exception;
 use PDO;
 use PDOStatement;
 
@@ -48,6 +52,111 @@ class DatabaseAdmin {
 	public function __construct($pdo) {
 		$this->database = $pdo;
 		$this->queryBuilder = new QueryBuilder();
+	}
+
+	/**
+	 * Check for differences in persistent attributes.
+	 *
+	 * @unsupported INDEX check; FOREIGN KEY check;
+	 *
+	 * @param PersistentEntity $class
+	 * @throws Exception
+	 */
+	public function checkTable($class) {
+		$database_admin = DatabaseAdmin::instance();
+		/** @var PersistentAttribute[] $attributes */
+		$attributes = array();
+		foreach ($class::$persistent_attributes as $name => $definition) {
+			$attributes[$name] = new PersistentAttribute($name, $definition);
+			if (in_array($name, $class::$primary_key)) {
+				$attributes[$name]->key = 'PRI';
+			} else {
+				$attributes[$name]->key = '';
+			}
+		}
+		try {
+			$table_attributes = $database_admin->sqlDescribeTable($class::$table_name);
+			/** @var PersistentAttribute[] $database_attributes */
+			$database_attributes = array();
+			foreach ($table_attributes as $attribute) {
+				$database_attributes[$attribute->field] = $attribute; // overwrite existing
+			}
+		} catch (Exception $e) {
+			if (Util::ends_with($e->getMessage(), $class::$table_name . "' doesn't exist")) {
+				$database_admin->sqlCreateTable($class::$table_name, $attributes, $class::$primary_key);
+				return;
+			} else {
+				throw $e; // Rethrow to controller
+			}
+		}
+		// Rename attributes
+
+		if (property_exists($class, 'rename_attributes')) {
+			$rename = $class::$rename_attributes;
+			foreach ($rename as $old_name => $new_name) {
+				if (property_exists($class, $new_name)) {
+					$database_admin->sqlChangeAttribute($class::$table_name, $attributes[$new_name], $old_name);
+				}
+			}
+		} else {
+			$rename = array();
+		}
+		$previous_attribute = null;
+		foreach ($class::$persistent_attributes as $name => $definition) {
+			// Add missing persistent attributes
+			if (!isset($database_attributes[$name])) {
+				if (!isset($rename[$name])) {
+					$database_admin->sqlAddAttribute($class::$table_name, $attributes[$name], $previous_attribute);
+				}
+			} else {
+				// Check existing persistent attributes for differences
+				$diff = false;
+				if ($attributes[$name]->type !== $database_attributes[$name]->type) {
+					if ($definition[0] === T::Enumeration) {
+						/** @var PersistentEnum $enum */
+						$enum = $definition[2];
+						if ($database_attributes[$name]->type !== "enum('" . implode("','", $enum::getTypeOptions()) . "')") {
+							$diff = true;
+						}
+					} else {
+						$diff = true;
+					}
+				}
+				if ($attributes[$name]->null !== $database_attributes[$name]->null) {
+					$diff = true;
+				}
+				// Cast database value if default value is defined
+				if ($attributes[$name]->default !== null) {
+					if ($definition[0] === T::Boolean) {
+						$database_attributes[$name]->default = (boolean)$database_attributes[$name]->default;
+					} elseif ($definition[0] === T::Integer) {
+						$database_attributes[$name]->default = (int)$database_attributes[$name]->default;
+					} elseif ($definition[0] === T::Float) {
+						$database_attributes[$name]->default = (float)$database_attributes[$name]->default;
+					}
+				}
+				if ($attributes[$name]->default !== $database_attributes[$name]->default) {
+					$diff = true;
+				}
+				if ($attributes[$name]->extra !== $database_attributes[$name]->extra) {
+					$diff = true;
+				}
+				// TODO: support other key types: MUL, UNI, etc.
+				if ($attributes[$name]->key !== $database_attributes[$name]->key AND ($attributes[$name]->key === 'PRI' OR $database_attributes[$name]->key === 'PRI')) {
+					$diff = true;
+				}
+				if ($diff) {
+					$database_admin->sqlChangeAttribute($class::$table_name, $attributes[$name]);
+				}
+			}
+			$previous_attribute = $name;
+		}
+		// Remove non-persistent attributes
+		foreach ($database_attributes as $name => $attribute) {
+			if (!isset($class::$persistent_attributes[$name]) AND !isset($rename[$name])) {
+				$database_admin->sqlDeleteAttribute($class::$table_name, $attribute);
+			}
+		}
 	}
 
 	/**
