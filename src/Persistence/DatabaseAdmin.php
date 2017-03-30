@@ -1,6 +1,7 @@
 <?php
 namespace CsrDelft\Orm\Persistence;
 
+use CsrDelft\Orm\Entity\DynamicEntity;
 use CsrDelft\Orm\Entity\PersistentAttribute;
 use CsrDelft\Orm\Entity\PersistentEntity;
 use CsrDelft\Orm\Entity\PersistentEnum;
@@ -16,6 +17,7 @@ use ReflectionProperty;
  * DatabaseAdmin.php
  *
  * @author P.W.G. Brussee <brussee@live.nl>
+ * @author G.J.W. Oolbekkink <g.j.w.oolbekkink@gmail.com>
  *
  */
 class DatabaseAdmin {
@@ -66,7 +68,9 @@ class DatabaseAdmin {
 	 * @throws Exception
 	 */
 	public function checkTable($class) {
-		$database_admin = DatabaseAdmin::instance();
+		// Do not check DynamicEntities
+		if ($class === DynamicEntity::class) return;
+
 		/** @var PersistentAttribute[] $attributes */
 		$attributes = array();
 		$reflection_class = new ReflectionClass($class);
@@ -89,7 +93,7 @@ class DatabaseAdmin {
 			}
 		}
 		try {
-			$table_attributes = $database_admin->sqlDescribeTable($properties['table_name']);
+			$table_attributes = $this->sqlDescribeTable($properties['table_name']);
 			/** @var PersistentAttribute[] $database_attributes */
 			$database_attributes = array();
 			foreach ($table_attributes as $attribute) {
@@ -97,7 +101,7 @@ class DatabaseAdmin {
 			}
 		} catch (Exception $e) {
 			if (Util::ends_with($e->getMessage(), $properties['table_name'] . "' doesn't exist")) {
-				$database_admin->sqlCreateTable($properties['table_name'], $attributes, $properties['primary_key']);
+				$this->sqlCreateTable($properties['table_name'], $attributes, $properties['primary_key']);
 				return;
 			} else {
 				throw $e; // Rethrow to controller
@@ -109,7 +113,7 @@ class DatabaseAdmin {
 			$rename = $properties['rename_attributes'];
 			foreach ($rename as $old_name => $new_name) {
 				if (property_exists($class, $new_name)) {
-					$database_admin->sqlChangeAttribute($properties['table_name'], $attributes[$new_name], $old_name);
+					$this->sqlChangeAttribute($properties['table_name'], $attributes[$new_name], $old_name);
 				}
 			}
 		} else {
@@ -120,7 +124,7 @@ class DatabaseAdmin {
 			// Add missing persistent attributes
 			if (!isset($database_attributes[$name])) {
 				if (!isset($rename[$name])) {
-					$database_admin->sqlAddAttribute($properties['table_name'], $attributes[$name], $previous_attribute);
+					$this->sqlAddAttribute($properties['table_name'], $attributes[$name], $previous_attribute);
 				}
 			} else {
 				// Check existing persistent attributes for differences
@@ -160,7 +164,7 @@ class DatabaseAdmin {
 					$diff = true;
 				}
 				if ($diff) {
-					$database_admin->sqlChangeAttribute($properties['table_name'], $attributes[$name]);
+					$this->sqlChangeAttribute($properties['table_name'], $attributes[$name]);
 				}
 			}
 			$previous_attribute = $name;
@@ -168,7 +172,7 @@ class DatabaseAdmin {
 		// Remove non-persistent attributes
 		foreach ($database_attributes as $name => $attribute) {
 			if (!isset($properties['persistent_attributes'][$name]) AND !isset($rename[$name])) {
-				$database_admin->sqlDeleteAttribute($properties['table_name'], $attribute);
+				$this->sqlDeleteAttribute($properties['table_name'], $attribute);
 			}
 		}
 	}
