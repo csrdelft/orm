@@ -67,9 +67,4 @@ class DynamicEntity extends PersistentEntity {
 			unset($this->$attribute);
 		}
 	}
-
-	public static function checkTable() {
-		// Definition is generated from table and not checked again for modifications
-	}
-
 }

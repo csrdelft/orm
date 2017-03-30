@@ -1,6 +1,7 @@
 <?php
 namespace CsrDelft\Orm;
 
+use CsrDelft\Orm\Entity\DynamicEntity;
 use CsrDelft\Orm\Entity\DynamicEntityDefinition;
 use CsrDelft\Orm\Persistence\DatabaseAdmin;
 use Exception;
@@ -17,7 +18,7 @@ use PDO;
  */
 class DynamicEntityModel extends PersistenceModel {
 
-	const ORM = 'CsrDelft\Orm\Entity\DynamicEntity';
+	const ORM = DynamicEntity::class;
 
 	/**
 	 * Factory pattern instead of singleton.
@@ -77,6 +78,7 @@ class DynamicEntityModel extends PersistenceModel {
 	}
 
 	protected function retrieveByPrimaryKey(array $primary_key_values) {
+		/** @var DynamicEntity $entity */
 		$entity = parent::retrieveByPrimaryKey($primary_key_values);
 		if ($entity) {
 			$entity->definition = $this->definition;
