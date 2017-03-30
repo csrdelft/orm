@@ -9,5 +9,7 @@ php:
   - hhvm
   - nightly
 
+install: composer install --dev
+
 after_script:
-  - php vendor/bin/codacycoverage clover build/logs/clover.xml
+  - php vendor/bin/codacycoverage clover
