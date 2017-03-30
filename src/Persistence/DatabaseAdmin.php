@@ -73,12 +73,14 @@ class DatabaseAdmin {
 		$properties = $reflection_class->getProperties(ReflectionProperty::IS_STATIC);
 
 		// Reduce $properties to an associative array
+		/** @var ReflectionProperty[] $properties */
 		$properties = array_reduce($properties, function ($result, ReflectionProperty $item) {
-			$result[$item->getName()] = $item;
+			$item->setAccessible(true);
+			$result[$item->getName()] = $item->getValue();
 			return $result;
 		}, array());
 
-		foreach ($properties['persistent_attribute'] as $name => $definition) {
+		foreach ($properties['persistent_attributes'] as $name => $definition) {
 			$attributes[$name] = new PersistentAttribute($name, $definition);
 			if (in_array($name, $properties['primary_key'])) {
 				$attributes[$name]->key = 'PRI';

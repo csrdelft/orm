@@ -18,7 +18,7 @@ use PDO;
  */
 class DynamicEntityModel extends PersistenceModel {
 
-	const ORM = DynamicEntityDefinition::class;
+	const ORM = DynamicEntity::class;
 
 	/**
 	 * Factory pattern instead of singleton.
