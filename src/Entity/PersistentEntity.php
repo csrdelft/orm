@@ -174,16 +174,4 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 			}
 		}
 	}
-
-
-
-	/**
-	 * Check for differences in persistent attributes.
-	 *
-	 * @unsupported INDEX check; FOREIGN KEY check;
-	 */
-	public static function checkTable() {
-		DatabaseAdmin::instance()->checkTable(get_called_class());
-	}
-
 }
