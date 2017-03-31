@@ -24,10 +24,10 @@ abstract class PersistenceModel implements Persistence {
 	public static function __static() {
 		/** @var PersistentEntity $orm */
 		$orm = static::ORM;
+
+		$dir = '';
 		if (defined('static::DIR')) {
 			$dir = static::DIR;
-		} else {
-			$dir = '';
 		}
 		if (!class_exists(static::ORM)) {
 			require_once 'model/entity/' . $dir . $orm . '.class.php';

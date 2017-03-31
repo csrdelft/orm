@@ -26,7 +26,7 @@ class CarModel extends PersistenceModel {
 }
 
 /**
- * PersistenceModelIntegrationTest.php
+ * PersistenceModelTest.php
  *
  * @author G.J.W. Oolbekkink <g.j.w.oolbekkink@gmail.com>
  * @date 30/03/2017
