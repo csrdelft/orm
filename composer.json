@@ -23,6 +23,7 @@
   "autoload": {
     "psr-4": {
       "CsrDelft\\Orm\\": "src"
-    }
+    },
+    "files": ["src/common.php"]
   }
 }

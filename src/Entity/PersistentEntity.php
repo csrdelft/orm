@@ -138,7 +138,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 			$attributes = array_intersect($attributes, $this->attributes_retrieved);
 		}
 		foreach ($attributes as $attribute) {
-			$values[$attribute] = Util::pdo_bool($this->$attribute);
+			$values[$attribute] = pdo_bool($this->$attribute);
 		}
 		if ($primary_key_only) {
 			return array_values($values);
