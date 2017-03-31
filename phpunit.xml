@@ -23,6 +23,14 @@
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">src</directory>
+            <exclude>
+                <!-- These files do not contain logic -->
+                <file>src/Entity/T.php</file>
+                <file>src/Entity/Sparse.php</file>
+                <file>src/Entity/PersistentEnum.php</file>
+                <file>src/Entity/DynamicEntityDefinition.php</file>
+                <file>src/Persistence.php</file>
+            </exclude>
         </whitelist>
     </filter>
 </phpunit>
