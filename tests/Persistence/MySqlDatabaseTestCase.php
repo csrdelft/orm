@@ -46,7 +46,14 @@ abstract class MySqlDatabaseTestCase extends PHPUnit_Extensions_Database_TestCas
 			$create = "CREATE TABLE IF NOT EXISTS `$table` ";
 			$cols = array();
 			foreach ($meta->getColumns() as $col) {
-				$cols[] = "`$col` VARCHAR(200)";
+				if ($col == 'id') {
+					$cols[] = "`$col` INT NOT NULL auto_increment";
+				} else {
+					$cols[] = "`$col` VARCHAR(200)";
+				}
+			}
+			if (in_array("`id` INT NOT NULL auto_increment", $cols)) {
+				$cols[] = "PRIMARY KEY (`id`)";
 			}
 			$create .= '(' . implode(',', $cols) . ');';
 			$pdo->exec($create);
