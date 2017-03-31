@@ -7,9 +7,15 @@ php:
   - hhvm
   - nightly
 
+services:
+  - mysql
+
 cache:
   directories:
     - $HOME/.composer/cache/files
+
+before_install:
+  - mysql -e 'CREATE DATABASE orm_test;'
 
 install: composer install --dev
 

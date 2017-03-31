@@ -1,0 +1,5 @@
+<?xml version="1.0" ?>
+<dataset>
+    <car id="1" num_wheels="4" brand="Opel"/>
+    <car id="2" num_wheels="3" brand="Delorean"/>
+</dataset>

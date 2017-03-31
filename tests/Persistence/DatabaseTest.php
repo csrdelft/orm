@@ -1,14 +1,14 @@
 <?php
 use CsrDelft\Orm\Persistence\Database;
 
-require_once 'SqliteDatabaseTestCase.php';
+require_once 'MySqlDatabaseTestCase.php';
 
 class MyException extends Exception {}
 
 /**
  * @covers CsrDelft\Orm\Persistence\Database
  */
-final class DatabaseTest extends SqliteDatabaseTestCase {
+final class DatabaseTest extends MySqlDatabaseTestCase {
 
 	/**
 	 * Returns the test dataset.

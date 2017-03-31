@@ -1,6 +1,8 @@
 <?php
+use CsrDelft\Orm\Configuration;
+use CsrDelft\Orm\Persistence\Database;
 
-abstract class SqliteDatabaseTestCase extends PHPUnit_Extensions_Database_TestCase {
+abstract class MySqlDatabaseTestCase extends PHPUnit_Extensions_Database_TestCase {
 	// only instantiate pdo once for test clean-up/fixture load
 	static private $pdo = null;
 
@@ -10,7 +12,17 @@ abstract class SqliteDatabaseTestCase extends PHPUnit_Extensions_Database_TestCa
 	final public function getConnection() {
 		if ($this->conn === null) {
 			if (self::$pdo == null) {
-				self::$pdo = new PDO('sqlite::memory:');
+				Configuration::load([
+					'cache_path' => '.',
+					'db' => [
+						'host' => 'localhost',
+						'user' => 'travis',
+						'db' => 'orm_test',
+						'pass' => null
+					]
+				]);
+
+				self::$pdo = Database::instance()->getDatabase();
 			}
 			$this->conn = $this->createDefaultDBConnection(self::$pdo, ':memory:');
 		}
@@ -19,6 +31,8 @@ abstract class SqliteDatabaseTestCase extends PHPUnit_Extensions_Database_TestCa
 	}
 
 	public function setUp() {
+
+
 		$conn = $this->getConnection();
 		$pdo = $conn->getConnection();
 
