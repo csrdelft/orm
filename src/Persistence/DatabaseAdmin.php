@@ -74,6 +74,9 @@ class DatabaseAdmin {
 		/** @var PersistentAttribute[] $attributes */
 		$attributes = array();
 		$reflection_class = new ReflectionClass($class);
+		// Only check PersistentEntities
+		if (!$reflection_class->isSubclassOf(PersistentEntity::class)) return;
+
 		$properties = $reflection_class->getProperties(ReflectionProperty::IS_STATIC);
 
 		// Reduce $properties to an associative array
