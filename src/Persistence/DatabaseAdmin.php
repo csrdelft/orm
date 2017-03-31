@@ -40,7 +40,7 @@ class DatabaseAdmin {
 	private $database;
 
 	public static function init($pdo) {
-		assert('!isset(self::$instance)');
+		assert(!isset(self::$instance));
 		self::$instance = new DatabaseAdmin($pdo);
 	}
 
@@ -50,7 +50,7 @@ class DatabaseAdmin {
 	 * @return DatabaseAdmin
 	 */
 	public static function instance() {
-		assert('isset(self::$instance)');
+		assert(isset(self::$instance));
 		return self::$instance;
 	}
 

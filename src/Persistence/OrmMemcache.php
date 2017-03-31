@@ -20,7 +20,7 @@ class OrmMemcache {
 	private static $instance;
 
 	public static function init($path) {
-		assert('!isset(self::$instance)');
+		assert(!isset(self::$instance));
 		if (class_exists('Memcache')) {
 			self::$instance = new Memcache();
 			if (self::$instance->connect('unix://' . $path . 'csrdelft-cache.socket', 0)) {
@@ -37,7 +37,7 @@ class OrmMemcache {
 	 * @return Memcache
 	 */
 	public static function instance() {
-		assert('isset(self::$instance)', 'Call OrmMemcache::init(...) first.');
+		assert(isset(self::$instance), 'Call OrmMemcache::init(...) first.');
 		return self::$instance;
 	}
 

@@ -28,8 +28,8 @@ class Configuration {
 	 * );
 	 */
 	public static function load(array $config) {
-		assert('isset($config["cache_path"]);');
-		assert('isset($config["db"]);');
+		assert(isset($config["cache_path"]));
+		assert(isset($config["db"]));
 
 		$db_conf = $config['db'];
 

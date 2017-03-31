@@ -33,7 +33,7 @@ class Database {
 	private $database;
 
 	public static function init($pdo) {
-		assert('!isset(self::$instance)');
+		assert(!isset(self::$instance));
 		self::$instance = new Database($pdo);
 	}
 
@@ -43,7 +43,7 @@ class Database {
 	 * @return Database
 	 */
 	public static function instance() {
-		assert('isset(self::$instance)');
+		assert(isset(self::$instance));
 		return self::$instance;
 	}
 
