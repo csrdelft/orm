@@ -156,9 +156,9 @@ class DatabaseAdmin {
 						$database_attributes[$name]->default = (float)$database_attributes[$name]->default;
 					}
 				}
-				if ($attributes[$name]->default !== $database_attributes[$name]->default) {
-					$diff = true;
-				}
+//				if ($attributes[$name]->default !== $database_attributes[$name]->default) {
+//					$diff = true;
+//				}
 				if ($attributes[$name]->extra !== $database_attributes[$name]->extra) {
 					$diff = true;
 				}
