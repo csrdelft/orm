@@ -1,4 +1,5 @@
 <?php
+namespace common;
 
 /**
  * @source http://stackoverflow.com/questions/834303/php-startswith-and-endswith-functions

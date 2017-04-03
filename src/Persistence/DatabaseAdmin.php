@@ -103,7 +103,7 @@ class DatabaseAdmin {
 				$database_attributes[$attribute->field] = $attribute; // overwrite existing
 			}
 		} catch (Exception $e) {
-			if (ends_with($e->getMessage(), $properties['table_name'] . "' doesn't exist")) {
+			if (\common\ends_with($e->getMessage(), $properties['table_name'] . "' doesn't exist")) {
 				$this->sqlCreateTable($properties['table_name'], $attributes, $properties['primary_key']);
 				return;
 			} else {
