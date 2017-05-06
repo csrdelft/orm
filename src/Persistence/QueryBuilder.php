@@ -80,16 +80,16 @@ class QueryBuilder {
 	}
 
 	public function buildDelete($table, $where, $limit = 0) {
-		$limit = '';
+		$limitSql = '';
 		if ((int)$limit > 0) {
-			$limit = ' LIMIT ' . (int)$limit;
+			$limitSql = ' LIMIT ' . (int)$limit;
 		}
 
 		return sprintf(
 			'DELETE FROM %s WHERE %s%s',
 			$table,
 			$where,
-			$limit
+			$limitSql
 		);
 	}
 
@@ -113,7 +113,7 @@ class QueryBuilder {
 	 */
 	public function buildCreateTable($name, array $attributes, array $primary_key) {
 		$attributeSql = '';
-		foreach ($attributes as $name => $attribute) {
+		foreach ($attributes as $attribute) {
 			$attributeSql .= $attribute->toSQL() . ', ';
 		}
 		if (empty($primary_key)) {
@@ -122,7 +122,7 @@ class QueryBuilder {
 			$attributeSql .= 'PRIMARY KEY (' . implode(', ', $primary_key) . ')';
 		}
 		return sprintf(
-			'CREATE TABLE %s (%s) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1',
+			'CREATE TABLE %s (%s) ENGINE=InnoDB DEFAULT CHARSET=utf8 auto_increment=1',
 			$name,
 			$attributeSql
 		);
@@ -146,7 +146,7 @@ class QueryBuilder {
 			$location = 'AFTER ' . $after_attribute;
 		}
 		return sprintf(
-			'ALTER TABLE %s ADD %s %s;',
+			'ALTER TABLE %s ADD %s %s',
 			$table,
 			$attribute->toSQL(),
 			$location
@@ -158,7 +158,7 @@ class QueryBuilder {
 		PersistentAttribute $attribute
 	) {
 		return sprintf(
-			'ALTER TABLE %s DROP %s;',
+			'ALTER TABLE %s DROP %s',
 			$table,
 			$attribute->field
 		);
@@ -174,7 +174,7 @@ class QueryBuilder {
 		}
 
 		return sprintf(
-			'ALTER TABLE %s CHANGE %s %s;',
+			'ALTER TABLE %s CHANGE %s %s',
 			$table,
 			$old_name,
 			$attribute->toSQL()
