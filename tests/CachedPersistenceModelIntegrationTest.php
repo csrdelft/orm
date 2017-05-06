@@ -8,11 +8,11 @@ class Bike extends \CsrDelft\Orm\Entity\PersistentEntity {
 	public $brand;
 
 	protected static $persistent_attributes = [
-		'id' => array(T::Integer, false, 'auto_increment'),
-		'brand' => array(T::String)
+		'id' => [T::Integer, false, 'auto_increment'],
+		'brand' => [T::String]
 	];
 	protected static $table_name = 'bike';
-	protected static $primary_key = array('id');
+	protected static $primary_key = ['id'];
 }
 
 class BikeModel extends \CsrDelft\Orm\CachedPersistenceModel {

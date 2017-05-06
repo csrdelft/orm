@@ -1,4 +1,5 @@
 <?php
+
 namespace CsrDelft\Orm\Persistence;
 
 use CsrDelft\Orm\Entity\DynamicEntity;
@@ -6,7 +7,6 @@ use CsrDelft\Orm\Entity\PersistentAttribute;
 use CsrDelft\Orm\Entity\PersistentEntity;
 use CsrDelft\Orm\Entity\PersistentEnum;
 use CsrDelft\Orm\Entity\T;
-use CsrDelft\Orm\Util;
 use Exception;
 use PDO;
 use PDOStatement;
@@ -72,7 +72,7 @@ class DatabaseAdmin {
 		if ($class === DynamicEntity::class) return;
 
 		/** @var PersistentAttribute[] $attributes */
-		$attributes = array();
+		$attributes = [];
 		$reflection_class = new ReflectionClass($class);
 		// Only check PersistentEntities
 		if (!$reflection_class->isSubclassOf(PersistentEntity::class)) return;
@@ -81,11 +81,15 @@ class DatabaseAdmin {
 
 		// Reduce $properties to an associative array
 		/** @var ReflectionProperty[] $properties */
-		$properties = array_reduce($properties, function ($result, ReflectionProperty $item) {
-			$item->setAccessible(true);
-			$result[$item->getName()] = $item->getValue();
-			return $result;
-		}, array());
+		$properties = array_reduce(
+			$properties,
+			function ($result, ReflectionProperty $item) {
+				$item->setAccessible(true);
+				$result[$item->getName()] = $item->getValue();
+				return $result;
+			},
+			[]
+		);
 
 		foreach ($properties['persistent_attributes'] as $name => $definition) {
 			$attributes[$name] = new PersistentAttribute($name, $definition);
@@ -98,7 +102,7 @@ class DatabaseAdmin {
 		try {
 			$table_attributes = $this->sqlDescribeTable($properties['table_name']);
 			/** @var PersistentAttribute[] $database_attributes */
-			$database_attributes = array();
+			$database_attributes = [];
 			foreach ($table_attributes as $attribute) {
 				$database_attributes[$attribute->field] = $attribute; // overwrite existing
 			}
@@ -120,7 +124,7 @@ class DatabaseAdmin {
 				}
 			}
 		} else {
-			$rename = array();
+			$rename = [];
 		}
 		$previous_attribute = null;
 		foreach ($properties['persistent_attributes'] as $name => $definition) {
@@ -136,7 +140,11 @@ class DatabaseAdmin {
 					if ($definition[0] === T::Enumeration) {
 						/** @var PersistentEnum $enum */
 						$enum = $definition[2];
-						if ($database_attributes[$name]->type !== "enum('" . implode("','", $enum::getTypeOptions()) . "')") {
+						$enumSql = sprintf(
+							'enum(\'%s\')',
+							implode('\',\'', $enum::getTypeOptions())
+						);
+						if ($database_attributes[$name]->type !== $enumSql) {
 							$diff = true;
 						}
 					} else {
@@ -163,7 +171,13 @@ class DatabaseAdmin {
 					$diff = true;
 				}
 				// TODO: support other key types: MUL, UNI, etc.
-				if ($attributes[$name]->key !== $database_attributes[$name]->key AND ($attributes[$name]->key === 'PRI' OR $database_attributes[$name]->key === 'PRI')) {
+				if (
+					$attributes[$name]->key !== $database_attributes[$name]->key
+					AND (
+						$attributes[$name]->key === 'PRI'
+						OR $database_attributes[$name]->key === 'PRI'
+					)
+				) {
 					$diff = true;
 				}
 				if ($diff) {
@@ -184,7 +198,7 @@ class DatabaseAdmin {
 	 * Array of SQL statements for file.sql
 	 * @var array
 	 */
-	private static $queries = array();
+	private static $queries = [];
 
 	/**
 	 * Get array of SQL statements for file.sql
@@ -215,9 +229,12 @@ class DatabaseAdmin {
 	public function sqlDescribeTable($name) {
 		$sql = $this->queryBuilder->buildDescribeTable($name);
 		$query = $this->database->prepare($sql);
-		$this->database->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER); // Force column names to lower case.
+		// Force column names to lower case.
+		$this->database->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
 		$query->execute();
-		$this->database->setAttribute(PDO::ATTR_CASE, PDO::CASE_NATURAL); // Leave column names as returned by the database driver.
+		// Leave column names as returned by the database driver.
+		$this->database->setAttribute(PDO::ATTR_CASE, PDO::CASE_NATURAL);
+		/** @noinspection PhpMethodParametersCountMismatchInspection */
 		$query->setFetchMode(PDO::FETCH_CLASS, 'CsrDelft\Orm\Entity\PersistentAttribute');
 		return $query;
 	}
@@ -248,15 +265,28 @@ class DatabaseAdmin {
 		$sql = $this->queryBuilder->buildDropTable($name);
 		$query = $this->database->prepare($sql);
 		$esc = '-- ';
-		if (defined('DB_MODIFY') AND defined('DB_DROP') AND DB_MODIFY AND DB_DROP === true) {
+		if (
+			defined('DB_MODIFY')
+			AND defined('DB_DROP')
+			AND DB_MODIFY
+			AND DB_DROP === true
+		) {
 			$query->execute();
 			$esc = '';
 		}
 		self::$queries[] = $esc . $query->queryString;
 	}
 
-	public function sqlAddAttribute($table, PersistentAttribute $attribute, $after_attribute = null) {
-		$sql = $this->queryBuilder->buildAddAttribute($table, $attribute, $after_attribute);
+	public function sqlAddAttribute(
+		$table,
+		PersistentAttribute $attribute,
+		$after_attribute = null
+	) {
+		$sql = $this->queryBuilder->buildAddAttribute(
+			$table,
+			$attribute,
+			$after_attribute
+		);
 		$query = $this->database->prepare($sql);
 		if (defined('DB_MODIFY') AND DB_MODIFY) {
 			$query->execute();
@@ -264,8 +294,16 @@ class DatabaseAdmin {
 		self::$queries[] = $query->queryString;
 	}
 
-	public function sqlChangeAttribute($table, PersistentAttribute $attribute, $old_name = null) {
-		$sql = $this->queryBuilder->buildChangeAttribute($table, $attribute, $old_name);
+	public function sqlChangeAttribute(
+		$table,
+		PersistentAttribute $attribute,
+		$old_name = null
+	) {
+		$sql = $this->queryBuilder->buildChangeAttribute(
+			$table,
+				$attribute,
+				$old_name
+		);
 		$query = $this->database->prepare($sql);
 		if (defined('DB_MODIFY') AND DB_MODIFY) {
 			$query->execute();
@@ -273,11 +311,19 @@ class DatabaseAdmin {
 		self::$queries[] = $query->queryString;
 	}
 
-	public function sqlDeleteAttribute($table, PersistentAttribute $attribute) {
+	public function sqlDeleteAttribute(
+		$table,
+		PersistentAttribute $attribute
+	) {
 		$sql = $this->queryBuilder->buildDeleteAttribute($table, $attribute);
 		$query = $this->database->prepare($sql);
 		$esc = '-- ';
-		if (defined('DB_MODIFY') AND defined('DB_DROP') AND DB_MODIFY AND DB_DROP === true) {
+		if (
+			defined('DB_MODIFY')
+			AND defined('DB_DROP')
+			AND DB_MODIFY
+			AND DB_DROP === true
+		) {
 			$query->execute();
 			$esc = '';
 		}

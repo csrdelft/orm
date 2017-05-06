@@ -1,8 +1,7 @@
 <?php
+
 namespace CsrDelft\Orm\Entity;
 
-use CsrDelft\Orm\Persistence\DatabaseAdmin;
-use CsrDelft\Orm\Util;
 use Exception;
 
 /**
@@ -14,7 +13,7 @@ use Exception;
  *
  * @see PersistenceModel->retrieveAttributes for a usage example of sparse and foreign keys.
  *
- * Optional: static $rename_attributes = array('old_name' => 'new_name');
+ * Optional: static $rename_attributes = ['old_name' => 'new_name'];
  */
 abstract class PersistentEntity implements Sparse, \JsonSerializable {
 
@@ -29,7 +28,8 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 		while ($class = get_parent_class($class)) {
 			$parent = get_class_vars($class);
 			if (isset($parent['persistent_attributes'])) {
-				static::$persistent_attributes = $parent['persistent_attributes'] + static::$persistent_attributes;
+				static::$persistent_attributes =
+					$parent['persistent_attributes'] + static::$persistent_attributes;
 			}
 		}
 	}
@@ -46,9 +46,13 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 	 * by PDO::FETCH_CLASS with $cast = true
 	 *
 	 * @param boolean $cast Regular construction should not cast (unset) attributes!
-	 * @param array $attributes_retrieved Names of attributes that are set before construction in case of sparse retrieval
+	 * @param array $attributes_retrieved Names of attributes that are set before construction
+	 * in case of sparse retrieval
 	 */
-	public function __construct($cast = false, array $attributes_retrieved = null) {
+	public function __construct(
+		$cast = false,
+		array $attributes_retrieved = null
+	) {
 		$this->attributes_retrieved = $attributes_retrieved;
 		if ($attributes_retrieved == null) {
 			// Cast all attributes
@@ -85,7 +89,11 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 	}
 
 	public function getUUID() {
-		return strtolower(implode('.', $this->getValues(true)) . '@' . get_class($this) . '.csrdelft.nl');
+		return strtolower(sprintf(
+			'%s@%s.csrdelft.nl',
+			implode('.', $this->getValues(true)),
+			get_class($this)
+		));
 	}
 
 	public function jsonSerialize() {
@@ -127,7 +135,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 	 * @return array
 	 */
 	public function getValues($primary_key_only = false) {
-		$values = array();
+		$values = [];
 		if ($primary_key_only) {
 			$attributes = $this->getPrimaryKey();
 		} else {
@@ -168,9 +176,24 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 				$this->$attribute = (string)$this->$attribute;
 			}
 			// If $definition comes from PersistentAttribute->toDefinition, $definition[2] is an array if the definition is an enum
-			if (defined('DB_CHECK') AND DB_CHECK AND $definition[0] === T::Enumeration
-				AND !in_array($this->$attribute, is_array($definition[2]) ? $definition[2] : $definition[2]::getTypeOptions())) {
-				throw new Exception(static::$table_name . '.' . $attribute . ' invalid ' . $definition[2] . '.enum value: "' . $this->$attribute . '"');
+			if (
+				defined('DB_CHECK')
+				AND DB_CHECK
+				AND $definition[0] === T::Enumeration
+				AND !in_array(
+					$this->$attribute,
+					is_array($definition[2])
+						? $definition[2]
+						: $definition[2]::getTypeOptions()
+				)
+			) {
+				throw new Exception(sprintf(
+					'%s.%s invalid %s.enum value: "%s"',
+					static::$table_name,
+					$attribute,
+					$definition[2],
+					$this->$attribute
+				));
 			}
 		}
 	}

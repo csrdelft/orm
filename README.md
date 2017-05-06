@@ -20,15 +20,15 @@ a writable path and the database and database admin need a host, database, usern
 password. After this any model has access to the database.
 
 ```php
-CsrDelft\Orm\Configuration::load(array(
+CsrDelft\Orm\Configuration::load([
   'cache_path' => '/path/to/data/dir',
-  'db' => array(
+  'db' => [
     'host' => 'localhost',
     'db' => 'myDatabase',
     'user' => 'myUser',
     'pass' => 'myPass'
-  )
-));
+  ]
+]);
 ```
 
 ## Usage
@@ -80,10 +80,10 @@ A Type is an array, with the following values.
 for instance `auto_increment` or comment.
 
 ```php
-protected static $persistent_attributes = array(
-  'id' => array(T::Integer, false, 'auto_increment'),
-  'num_wheels' => array(T::Integer),
-  'color' => array(T::Enumeration, false, 'ColorEnum')
+protected static $persistent_attributes = [
+  'id' => [T::Integer, false, 'auto_increment'),
+  'num_wheels' => [T::Integer),
+  'color' => [T::Enumeration, false, 'ColorEnum')
 );
 ```
 
@@ -92,7 +92,7 @@ protected static $persistent_attributes = array(
 An array with the full primary key.
 
 ```php
-protected static $primary_key = array('id');
+protected static $primary_key = ['id'];
 ```
 
 #### Example
@@ -114,12 +114,12 @@ class Car extends PersistentEntity {
   }
 
   protected static $table_name = 'cars';
-  protected static $persistent_attributes = array(
-    'id' => array(T::Integer, false, 'auto_increment'),
-    'num_wheels' => array(T::Integer),
-    'color' => array(T::Enumeration, false, 'ColorEnum')
-  );
-  protected static $primary_key = array('id');
+  protected static $persistent_attributes = [
+    'id' => [T::Integer, false, 'auto_increment'],
+    'num_wheels' => [T::Integer],
+    'color' => [T::Enumeration, false, 'ColorEnum']
+  ];
+  protected static $primary_key = ['id'];
 }
 ```
 
@@ -184,7 +184,7 @@ put `?`'s here where variables are. The criteria params are where you fill these
 params are automatically filtered and safe for user input.
 
 ```php
-CarModel::instance()->find('num_wheels = ? AND color = ?', array($normal_car_wheels, $car_color));
+CarModel::instance()->find('num_wheels = ? AND color = ?', [$normal_car_wheels, $car_color]);
 ```
 
 ### `count($criteria, $criteria_params) : int`
@@ -220,7 +220,7 @@ class CarModel extends PersistenceModel {
   protected static $instance;
   
   public function findByColor($color) {
-    return $this->find('color = ?', array($color));
+    return $this->find('color = ?', [$color]);
   }
 }
 ```

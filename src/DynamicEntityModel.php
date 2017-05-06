@@ -86,19 +86,46 @@ class DynamicEntityModel extends PersistenceModel {
 		return $entity;
 	}
 
-	public function find($criteria = null, array $criteria_params = array(), $group_by = null, $order_by = null, $limit = null, $start = 0) {
+	public function find(
+		$criteria = null,
+		array $criteria_params = [],
+		$group_by = null,
+		$order_by = null,
+		$limit = null,
+				$start = 0
+	) {
 		$result = parent::find($criteria, $criteria_params, $group_by, $order_by, $limit, $start);
 		if ($result) {
-			$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, array(true, null, $this->definition));
+			/** @noinspection PhpMethodParametersCountMismatchInspection */
+			$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, [true, null, $this->definition]);
 		}
 		return $result;
 	}
 
-	public function findSparse(array $attributes, $criteria = null, array $criteria_params = array(), $group_by = null, $order_by = null, $limit = null, $start = 0) {
-		$result = parent::findSparse($attributes, $criteria, $criteria_params, $group_by, $order_by, $limit, $start);
+	public function findSparse(
+		array $attributes,
+		$criteria = null,
+		array $criteria_params = [],
+		$group_by = null,
+		$order_by = null,
+		$limit = null,
+		$start = 0
+	) {
+		$result = parent::findSparse(
+			$attributes,
+				$criteria,
+				$criteria_params,
+				$group_by,
+				$order_by,
+				$limit,
+				$start
+		);
+
 		if ($result) {
-			$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, array(true, $attributes, $this->definition));
+			/** @noinspection PhpMethodParametersCountMismatchInspection */
+			$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, [true, $attributes, $this->definition]);
 		}
+
 		return $result;
 	}
 

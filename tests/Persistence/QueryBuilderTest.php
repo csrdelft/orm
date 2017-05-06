@@ -12,32 +12,32 @@ final class QueryBuilderTest extends TestCase {
 		$query_builder = new QueryBuilder();
 		$this->assertEquals(
 			"SELECT one FROM two",
-			$query_builder->buildSelect(array('one'), 'two')
+			$query_builder->buildSelect(['one'], 'two')
 		);
 
 		$this->assertEquals(
 			"SELECT one, two FROM three WHERE one = ?",
-			$query_builder->buildSelect(array('one', 'two'), 'three', 'one = ?')
+			$query_builder->buildSelect(['one', 'two'], 'three', 'one = ?')
 		);
 
 		$this->assertEquals(
 			"SELECT one FROM two GROUP BY three",
-			$query_builder->buildSelect(array('one'), 'two', null, 'three')
+			$query_builder->buildSelect(['one'], 'two', null, 'three')
 		);
 
 		$this->assertEquals(
 			"SELECT one FROM two ORDER BY three",
-			$query_builder->buildSelect(array('one'), 'two', null, null, 'three')
+			$query_builder->buildSelect(['one'], 'two', null, null, 'three')
 		);
 
 		$this->assertEquals(
 			"SELECT one FROM two LIMIT 0, 1",
-			$query_builder->buildSelect(array('one'), 'two', null, null, null, 1)
+			$query_builder->buildSelect(['one'], 'two', null, null, null, 1)
 		);
 
 		$this->assertEquals(
 			"SELECT one FROM two LIMIT 5, 1",
-			$query_builder->buildSelect(array('one'), 'two', null, null, null, 1, 5)
+			$query_builder->buildSelect(['one'], 'two', null, null, null, 1, 5)
 		);
 	}
 
@@ -58,12 +58,12 @@ final class QueryBuilderTest extends TestCase {
 		$query_builder = new QueryBuilder();
 		$this->assertEquals(
 			"UPDATE one SET two, three WHERE four = ?",
-			$query_builder->buildUpdate('one', array('two', 'three'), 'four = ?')
+			$query_builder->buildUpdate('one', ['two', 'three'], 'four = ?')
 		);
 
 		$this->assertEquals(
 			"UPDATE one SET two, three WHERE four = ? LIMIT 10",
-			$query_builder->buildUpdate('one', array('two', 'three'), 'four = ?', 10)
+			$query_builder->buildUpdate('one', ['two', 'three'], 'four = ?', 10)
 		);
 	}
 
@@ -71,7 +71,7 @@ final class QueryBuilderTest extends TestCase {
 		$query_builder = new QueryBuilder();
 		$this->assertEquals(
 			"INSERT INTO one (two, three) VALUES (four, five)",
-			$query_builder->buildInsert('one', array('two' => '', 'three' => ''), array('four' => '', 'five' => ''))
+			$query_builder->buildInsert('one', ['two' => '', 'three' => ''], ['four' => '', 'five' => ''])
 		);
 	}
 
@@ -114,17 +114,17 @@ final class QueryBuilderTest extends TestCase {
 
 	public function testBuildCreateTable() {
 		$query_builder = new QueryBuilder();
-		$attribute_two = new PersistentAttribute('two', array(T::Integer));
-		$attribute_three = new PersistentAttribute('three', array(T::Text, true));
+		$attribute_two = new PersistentAttribute('two', [T::Integer]);
+		$attribute_three = new PersistentAttribute('three', [T::Text, true]);
 
 		$this->assertEquals(
 			"CREATE TABLE one (two int(11) NOT NULL, three text NULL DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8 auto_increment=1",
-			$query_builder->buildCreateTable('one', array($attribute_two, $attribute_three), array())
+			$query_builder->buildCreateTable('one', [$attribute_two, $attribute_three], [])
 		);
 
 		$this->assertEquals(
 			"CREATE TABLE one (two int(11) NOT NULL, three text NULL DEFAULT NULL, PRIMARY KEY (two)) ENGINE=InnoDB DEFAULT CHARSET=utf8 auto_increment=1",
-			$query_builder->buildCreateTable('one', array($attribute_two, $attribute_three), array('two'))
+			$query_builder->buildCreateTable('one', [$attribute_two, $attribute_three], ['two'])
 		);
 
 	}
@@ -139,7 +139,7 @@ final class QueryBuilderTest extends TestCase {
 
 	public function testBuildAddAttribute() {
 		$query_builder = new QueryBuilder();
-		$attribute = new PersistentAttribute('two', array(T::Integer));
+		$attribute = new PersistentAttribute('two', [T::Integer]);
 		$this->assertEquals(
 			"ALTER TABLE one ADD two int(11) NOT NULL FIRST",
 			$query_builder->buildAddAttribute('one', $attribute)
@@ -153,7 +153,7 @@ final class QueryBuilderTest extends TestCase {
 
 	public function testBuildDeleteAttribute() {
 		$query_builder = new QueryBuilder();
-		$attribute = new PersistentAttribute('two', array(T::Integer));
+		$attribute = new PersistentAttribute('two', [T::Integer]);
 		$this->assertEquals(
 			"ALTER TABLE one DROP two",
 			$query_builder->buildDeleteAttribute('one', $attribute)
@@ -162,7 +162,7 @@ final class QueryBuilderTest extends TestCase {
 
 	public function testBuildChangeAttribute() {
 		$query_builder = new QueryBuilder();
-		$attribute = new PersistentAttribute('two', array(T::Integer));
+		$attribute = new PersistentAttribute('two', [T::Integer]);
 		$this->assertEquals(
 			"ALTER TABLE one CHANGE two two int(11) NOT NULL",
 			$query_builder->buildChangeAttribute('one', $attribute)
@@ -177,7 +177,7 @@ final class QueryBuilderTest extends TestCase {
 	public function testInterpolateQuery() {
 		$query_builder = new QueryBuilder();
 		$query = "SELECT * FROM one WHERE two = ? AND four = ?";
-		$params = array("three", "five");
+		$params = ["three", "five"];
 
 		$this->assertEquals(
 			'SELECT * FROM one WHERE two = "three" AND four = "five"',
@@ -185,14 +185,14 @@ final class QueryBuilderTest extends TestCase {
 		);
 
 		$query = "SELECT * FROM one WHERE two = :item AND four = :secondItem";
-		$params = array("secondItem" => "three", "item" => "five");
+		$params = ["secondItem" => "three", "item" => "five"];
 		$this->assertEquals(
 			'SELECT * FROM one WHERE two = "five" AND four = "three"',
 			$query_builder->interpolateQuery($query, $params)
 		);
 
 		$query = "SELECT * FROM one WHERE two = ? AND three = ?";
-		$params = array(true, 10);
+		$params = [true, 10];
 		$this->assertEquals(
 			'SELECT * FROM one WHERE two = TRUE AND three = 10',
 			$query_builder->interpolateQuery($query, $params)

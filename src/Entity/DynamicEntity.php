@@ -18,7 +18,11 @@ class DynamicEntity extends PersistentEntity {
 	 */
 	public $definition;
 
-	public function __construct($cast = false, array $attributes_retrieved = null, DynamicEntityDefinition $definition = null) {
+	public function __construct(
+		$cast = false,
+		array $attributes_retrieved = null,
+		DynamicEntityDefinition $definition = null
+	) {
 		$this->definition = $definition;
 		parent::__construct($cast, $attributes_retrieved);
 	}
@@ -34,7 +38,7 @@ class DynamicEntity extends PersistentEntity {
 	 */
 	public function getAttributes() {
 		if (!isset($this->definition)) {
-			return array();
+			return [];
 		}
 		return array_keys($this->definition->persistent_attributes);
 	}

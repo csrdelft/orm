@@ -44,7 +44,7 @@ abstract class MySqlDatabaseTestCase extends PHPUnit_Extensions_Database_TestCas
 			// recreate table
 			$meta = $fixtureDataSet->getTableMetaData($table);
 			$create = "CREATE TABLE IF NOT EXISTS `$table` ";
-			$cols = array();
+			$cols = [];
 			foreach ($meta->getColumns() as $col) {
 				if ($col == 'id') {
 					$cols[] = "`$col` INT NOT NULL auto_increment";

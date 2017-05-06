@@ -1,4 +1,5 @@
 <?php
+
 namespace CsrDelft\Orm\Persistence;
 
 use Closure;
@@ -90,8 +91,8 @@ class Database {
 	 * Array of SQL statements for debug
 	 * @var array
 	 */
-	private static $queries = array();
-	private static $trace = array();
+	private static $queries = [];
+	private static $trace = [];
 
 	/**
 	 * Get array of SQL statements for debug
@@ -149,8 +150,25 @@ class Database {
 	 * @param int $start
 	 * @return \PDOStatement
 	 */
-	public function sqlSelect(array $attributes, $from, $where = null, array $params = array(), $group_by = null, $order_by = null, $limit = null, $start = 0) {
-		$sql = $this->queryBuilder->buildSelect($attributes, $from, $where, $group_by, $order_by, $limit, $start);
+	public function sqlSelect(
+		array $attributes,
+		$from,
+		$where = null,
+		array $params = [],
+		$group_by = null,
+		$order_by = null,
+		$limit = null,
+		$start = 0
+	) {
+		$sql = $this->queryBuilder->buildSelect(
+			$attributes,
+			$from,
+			$where,
+			$group_by,
+			$order_by,
+			$limit,
+			$start
+		);
 		$query = $this->database->prepare($sql);
 		$query->execute($params);
 		$this->addQuery($query->queryString, $params);
@@ -165,7 +183,11 @@ class Database {
 	 * @param array $params
 	 * @return boolean
 	 */
-	public function sqlExists($from, $where = null, array $params = array()) {
+	public function sqlExists(
+		$from,
+		$where = null,
+		array $params = []
+	) {
 		$sql = $this->queryBuilder->buildExists($from, $where);
 		$query = $this->database->prepare($sql);
 		$query->execute($params);
@@ -182,8 +204,11 @@ class Database {
 	 * @return string last inserted row id or sequence value
 	 * @throws Exception if number of rows affected !== 1
 	 */
-	public function sqlInsert($into, array $properties) {
-		$insert_params = array();
+	public function sqlInsert(
+		$into,
+		array $properties
+	) {
+		$insert_params = [];
 		foreach ($properties as $attribute => $value) {
 			$insert_params[':I' . $attribute] = $value; // name parameters after attribute
 		}
@@ -201,18 +226,28 @@ class Database {
 	 * Requires positional parameters.
 	 *
 	 * @param string $into
-	 * @param array $properties = array( array("attr_name1", "attr_name2", ...), array("entry1value1", "entry1value2", ...), array("entry2value1", "entry2value2", ...), ...)
+	 * @param array $properties =
+	 *        [
+	 *            ["attr_name1", "attr_name2", ...],
+	 *            ["entry1value1", "entry1value2", ...],
+	 *            ["entry2value1", "entry2value2", ...],
+	 *            ...
+	 *        ]
 	 * @param boolean $replace DELETE & INSERT if primary key already exists
 	 * @return int number of rows affected
 	 * @throws Exception if number of values !== number of properties
 	 */
-	public function sqlInsertMultiple($into, array $properties, $replace = false) {
+	public function sqlInsertMultiple(
+		$into,
+		array $properties,
+		$replace = false
+	) {
 		if ($replace) {
 			$sql = 'REPLACE';
 		} else {
 			$sql = 'INSERT';
 		}
-		$insert_values = array();
+		$insert_values = [];
 		$attributes = array_shift($properties);
 		$count = count($attributes);
 		$sql .= ' INTO ' . $into . ' (' . implode(', ', $attributes) . ') VALUES ';
@@ -251,8 +286,14 @@ class Database {
 	 * @return int number of rows affected
 	 * @throws Exception if duplicate named parameter
 	 */
-	public function sqlUpdate($table, array $properties, $where, array $where_params = array(), $limit = null) {
-		$attributes = array();
+	public function sqlUpdate(
+		$table,
+		array $properties,
+		$where,
+		array $where_params = [],
+		$limit = null
+	) {
+		$attributes = [];
 		foreach ($properties as $attribute => $value) {
 			$attributes[] = $attribute . ' = :U' . $attribute; // name parameters after attribute
 			if (array_key_exists(':U' . $attribute, $where_params)) {
@@ -276,7 +317,12 @@ class Database {
 	 * @param int $limit
 	 * @return int number of rows affected
 	 */
-	public function sqlDelete($from, $where, array $where_params, $limit = null) {
+	public function sqlDelete(
+		$from,
+		$where,
+		array $where_params,
+		$limit = null
+	) {
 		$sql = $this->queryBuilder->buildDelete($from, $where, $limit);
 		$query = $this->database->prepare($sql);
 		$query->execute($where_params);

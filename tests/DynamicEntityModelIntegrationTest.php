@@ -40,7 +40,7 @@ final class DynamicEntityModelIntegrationTest extends MySqlDatabaseTestCase {
 	}
 
 	public function testFindSparse() {
-		$sparse_car = $this->model->findSparse(array('id'), 'brand = "Opel"')->fetch();
+		$sparse_car = $this->model->findSparse(['id'], 'brand = "Opel"')->fetch();
 
 		$this->assertNull($sparse_car->brand);
 		$this->assertEquals(1, $sparse_car->id);

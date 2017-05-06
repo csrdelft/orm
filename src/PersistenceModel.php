@@ -1,4 +1,5 @@
 <?php
+
 namespace CsrDelft\Orm;
 
 use CsrDelft\Orm\Entity\PersistentEntity;
@@ -109,13 +110,30 @@ abstract class PersistenceModel implements Persistence {
 	 * @param int $start results from index
 	 * @return PDOStatement implements Traversable using foreach does NOT require ->fetchAll()
 	 */
-	public function find($criteria = null, array $criteria_params = array(), $group_by = null, $order_by = null, $limit = null, $start = 0) {
+	public function find(
+		$criteria = null,
+		array $criteria_params = [],
+		$group_by = null,
+		$order_by = null,
+		$limit = null,
+		$start = 0
+	) {
 		if ($order_by == null) {
 			$order_by = $this->default_order;
 		}
 		try {
-			$result = $this->database->sqlSelect(array('*'), $this->getTableName(), $criteria, $criteria_params, $group_by, $order_by, $limit, $start);
-			$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, array(true));
+			$result = $this->database->sqlSelect(
+				['*'],
+				$this->getTableName(),
+				$criteria,
+				$criteria_params,
+				$group_by,
+				$order_by,
+				$limit,
+				$start
+			);
+			/** @noinspection PhpMethodParametersCountMismatchInspection */
+			$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, [true]);
 			return $result;
 		} catch (PDOException $ex) {
 			throw $ex;
@@ -135,14 +153,32 @@ abstract class PersistenceModel implements Persistence {
 	 * @param int $start results from index
 	 * @return PDOStatement implements Traversable using foreach does NOT require ->fetchAll()
 	 */
-	public function findSparse(array $attributes, $criteria = null, array $criteria_params = array(), $group_by = null, $order_by = null, $limit = null, $start = 0) {
+	public function findSparse(
+		array $attributes,
+		$criteria = null,
+		array $criteria_params = [],
+		$group_by = null,
+		$order_by = null,
+		$limit = null,
+		$start = 0
+	) {
 		if ($order_by == null) {
 			$order_by = $this->default_order;
 		}
 		$attributes = array_merge($this->getPrimaryKey(), $attributes);
-		$result = $this->database->sqlSelect($attributes, $this->getTableName(), $criteria, $criteria_params, $group_by, $order_by, $limit, $start);
+		$result = $this->database->sqlSelect(
+			$attributes,
+			$this->getTableName(),
+			$criteria,
+			$criteria_params,
+			$group_by,
+			$order_by,
+			$limit,
+			$start
+		);
 		// Fetch only attributes into ORM object
-		$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, array(true, $attributes));
+		/** @noinspection PhpMethodParametersCountMismatchInspection */
+		$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, [true, $attributes]);
 		return $result;
 	}
 
@@ -153,8 +189,13 @@ abstract class PersistenceModel implements Persistence {
 	 * @param array $criteria_params optional named parameters
 	 * @return int count
 	 */
-	public function count($criteria = null, array $criteria_params = array()) {
-		$result = $this->database->sqlSelect(array('COUNT(*)'), $this->getTableName(), $criteria, $criteria_params);
+	public function count($criteria = null, array $criteria_params = []) {
+		$result = $this->database->sqlSelect(
+			['COUNT(*)'],
+			$this->getTableName(),
+			$criteria,
+			$criteria_params
+		);
 		return (int)$result->fetchColumn();
 	}
 
@@ -168,7 +209,7 @@ abstract class PersistenceModel implements Persistence {
 	 * @param array $criteria_params optional named parameters
 	 * @return PDOStatement
 	 */
-	public function select(array $columns, $criteria = null, array $criteria_params = array()) {
+	public function select(array $columns, $criteria = null, array $criteria_params = []) {
 		return $this->database->sqlSelect($columns, $this->getTableName(), $criteria, $criteria_params);
 	}
 
@@ -189,11 +230,15 @@ abstract class PersistenceModel implements Persistence {
 	 * @return boolean primary key exists
 	 */
 	protected function existsByPrimaryKey(array $primary_key_values) {
-		$where = array();
+		$where = [];
 		foreach ($this->getPrimaryKey() as $key) {
 			$where[] = $key . ' = ?';
 		}
-		return $this->database->sqlExists($this->getTableName(), implode(' AND ', $where), $primary_key_values);
+		return $this->database->sqlExists(
+			$this->getTableName(),
+			implode(' AND ', $where),
+			$primary_key_values
+		);
 	}
 
 	/**
@@ -225,13 +270,21 @@ abstract class PersistenceModel implements Persistence {
 	 * @return PersistentEntity|false
 	 */
 	protected function retrieveByPrimaryKey(array $primary_key_values) {
-		$where = array();
+		$where = [];
 		foreach ($this->getPrimaryKey() as $key) {
 			$where[] = $key . ' = ?';
 		}
-		$result = $this->database->sqlSelect(array('*'), $this->getTableName(), implode(' AND ', $where), $primary_key_values, null, null, 1);
+		$result = $this->database->sqlSelect(
+			['*'],
+			$this->getTableName(),
+			implode(' AND ', $where),
+			$primary_key_values,
+			null,
+			null,
+			1
+		);
 		// Fetch into ORM object
-		return $result->fetchObject(static::ORM, array(true));
+		return $result->fetchObject(static::ORM, [true]);
 	}
 
 	/**
@@ -252,14 +305,14 @@ abstract class PersistenceModel implements Persistence {
 	 * Usage example:
 	 *
 	 * $model = UserModel::instance();
-	 * $users = $model->findSparse(array('name'), ...); // retrieves only name attribute
+	 * $users = $model->findSparse(['name'], ...); // retrieves only name attribute
 	 * foreach ($users as $user) {
 	 *   echo $user->getAddress(); // address is sparse: retrieve address
 	 * }
 	 *
 	 * class User extends PersistentEntity {
 	 *   public function getAddress() {
-	 *     $attributes = array('city' 'street', 'number', 'postal_code');
+	 *     $attributes = ['city' 'street', 'number', 'postal_code'];
 	 *     UserModel::instance()->retrieveAttributes($this, $attributes);
 	 *   }
 	 * }
@@ -273,7 +326,7 @@ abstract class PersistenceModel implements Persistence {
 	 *   public $address;
 	 *   public function getAddress() {
 	 *     if (!isset($this->address)) {
-	 *       $fk = array('address_uuid')
+	 *       $fk = ['address_uuid']
 	 *       if ($this->isSparse($fk) {
 	 *         UserModel::instance()->retrieveAttributes($this, $fk);
 	 *       }
@@ -288,11 +341,20 @@ abstract class PersistenceModel implements Persistence {
 	 * @return PersistentEntity|false
 	 */
 	public function retrieveAttributes(PersistentEntity $entity, array $attributes) {
-		$where = array();
+		$where = [];
 		foreach ($entity->getPrimaryKey() as $key) {
 			$where[] = $key . ' = ?';
 		}
-		$result = $this->database->sqlSelect($attributes, $entity->getTableName(), implode(' AND ', $where), $entity->getValues(true), null, null, 1);
+		$result = $this->database->sqlSelect(
+			$attributes,
+			$entity->getTableName(),
+			implode(' AND ', $where),
+			$entity->getValues(true),
+			null,
+			null,
+			1
+		);
+		/** @noinspection PhpMethodParametersCountMismatchInspection */
 		$result->setFetchMode(PDO::FETCH_INTO, $entity);
 		$success = $result->fetch();
 		if ($success) {
@@ -310,14 +372,20 @@ abstract class PersistenceModel implements Persistence {
 	 */
 	public function update(PersistentEntity $entity) {
 		$properties = $entity->getValues();
-		$where = array();
-		$params = array();
+		$where = [];
+		$params = [];
 		foreach ($entity->getPrimaryKey() as $key) {
 			$where[] = $key . ' = :W' . $key; // name parameters after column
 			$params[':W' . $key] = $properties[$key];
 			unset($properties[$key]); // do not update primary key
 		}
-		return $this->database->sqlUpdate($entity->getTableName(), $properties, implode(' AND ', $where), $params, 1);
+		return $this->database->sqlUpdate(
+			$entity->getTableName(),
+			$properties,
+			implode(' AND ', $where),
+			$params,
+			1
+		);
 	}
 
 	/**
@@ -337,11 +405,16 @@ abstract class PersistenceModel implements Persistence {
 	 * @return int number of rows affected
 	 */
 	protected function deleteByPrimaryKey(array $primary_key_values) {
-		$where = array();
+		$where = [];
 		foreach ($this->getPrimaryKey() as $key) {
 			$where[] = $key . ' = ?';
 		}
-		return $this->database->sqlDelete($this->getTableName(), implode(' AND ', $where), $primary_key_values, 1);
+		return $this->database->sqlDelete(
+			$this->getTableName(),
+			implode(' AND ', $where),
+			$primary_key_values,
+			1
+		);
 	}
 
 }

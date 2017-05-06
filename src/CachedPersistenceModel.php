@@ -22,7 +22,7 @@ use PDOStatement;
  */
 abstract class CachedPersistenceModel extends PersistenceModel {
 
-	private $runtime_cache = array();
+	private $runtime_cache = [];
 	private $memcache;
 	/**
 	 * Store prefetch result set as a whole in memcache
@@ -100,7 +100,7 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 		if ($memcache) {
 			$this->memcache->flush();
 		}
-		$this->runtime_cache = array();
+		$this->runtime_cache = [];
 	}
 
 	/**
@@ -112,7 +112,11 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	 * @param boolean $overwrite
 	 * @return PersistentEntity|mixed
 	 */
-	protected function cache(PersistentEntity $entity, $memcache = false, $overwrite = false) {
+	protected function cache(
+		PersistentEntity $entity,
+		$memcache = false,
+		$overwrite = false
+	) {
 		$key = $this->cacheKey($entity->getValues(true));
 		if (!$overwrite AND $this->isCached($key, $memcache)) {
 			$entity = $this->getCached($key, $memcache);
@@ -131,7 +135,7 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	 * @return array result set of PDOStatement
 	 */
 	protected function cacheResult($result_set, $memcache = false) {
-		$cached = array();
+		$cached = [];
 		foreach ($result_set as $entity) {
 			$cached[] = $this->cache($entity, $memcache);
 		}
@@ -151,12 +155,33 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	 * @param int $start results from index
 	 * @return array
 	 */
-	public function prefetch($criteria = null, array $criteria_params = array(), $group_by = null, $order_by = null, $limit = null, $start = 0) {
-		$key = $this->prefetchKey($criteria, $criteria_params, $group_by, $order_by, $limit, $start);
+	public function prefetch(
+		$criteria = null,
+		array $criteria_params = [],
+		$group_by = null,
+		$order_by = null,
+		$limit = null,
+		$start = 0
+	) {
+		$key = $this->prefetchKey(
+			$criteria,
+				$criteria_params,
+				$group_by,
+				$order_by,
+				$limit,
+				$start
+		);
 		if ($this->isCached($key, $this->memcache_prefetch)) {
 			$result = $this->getCached($key, $this->memcache_prefetch);
 		} else {
-			$result = $this->find($criteria, $criteria_params, $group_by, $order_by, $limit, $start);
+			$result = $this->find(
+				$criteria,
+					$criteria_params,
+					$group_by,
+					$order_by,
+					$limit,
+					$start
+			);
 		}
 		$cached = $this->cacheResult($result, false);
 		if ($result instanceof PDOStatement) {
@@ -177,8 +202,22 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	 * @return string
 	 * @internal param array $params
 	 */
-	private function prefetchKey($criteria, array $criteria_params, $group_by, $order_by, $limit, $start) {
-		$params = array($criteria, implode('+', $criteria_params), $group_by, $order_by, $limit, $start);
+	private function prefetchKey(
+		$criteria,
+		array $criteria_params,
+		$group_by,
+		$order_by,
+		$limit,
+		$start
+	) {
+		$params = [
+			$criteria,
+			implode('+', $criteria_params),
+			$group_by,
+			$order_by,
+			$limit,
+			$start
+		];
 		return get_class($this) . crc32(implode('-', $params));
 	}
 

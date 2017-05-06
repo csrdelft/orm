@@ -26,7 +26,21 @@ abstract class T implements PersistentEnum {
 	const UID = 'varchar(4)';
 
 	public static function getTypeOptions() {
-		return array(self::String, self::Char, self::Boolean, self::Integer, self::Float, self::Date, self::Time, self::DateTime, self::Timestamp, self::Text, self::LongText, self::Enumeration, self::UID);
+		return [
+			self::String,
+			self::Char,
+			self::Boolean,
+			self::Integer,
+			self::Float,
+			self::Date,
+			self::Time,
+			self::DateTime,
+			self::Timestamp,
+			self::Text,
+			self::LongText,
+			self::Enumeration,
+			self::UID
+		];
 	}
 
 	public static function getDescription($option) {

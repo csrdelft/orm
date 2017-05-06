@@ -1,4 +1,5 @@
 <?php
+
 namespace CsrDelft\Orm\Persistence;
 
 use CsrDelft\Orm\Entity\PersistentAttribute;
@@ -10,39 +11,61 @@ use CsrDelft\Orm\Entity\PersistentAttribute;
  */
 class QueryBuilder {
 
-	public function buildSelect(array $attributes, $from, $where = null, $group_by = null, $order_by = null, $limit = null, $start = 0) {
-		$sql = 'SELECT ' . implode(', ', $attributes) . ' FROM ' . $from;
+	public function buildSelect(
+		array $attributes,
+		$from,
+		$where = null,
+		$group_by = null,
+		$order_by = null,
+		$limit = null,
+		$start = 0
+	) {
+		$whereSql = '';
 		if ($where !== null) {
-			$sql .= ' WHERE ' . $where;
+			$whereSql = ' WHERE ' . $where;
 		}
+		$groupBySql = '';
 		if ($group_by !== null) {
-			$sql .= ' GROUP BY ' . $group_by;
+			$groupBySql = ' GROUP BY ' . $group_by;
 		}
+		$orderBySql = '';
 		if ($order_by !== null) {
-			$sql .= ' ORDER BY ' . $order_by;
+			$orderBySql = ' ORDER BY ' . $order_by;
 		}
+		$limitSql = '';
 		if ((int)$limit > 0) {
-			$sql .= ' LIMIT ' . (int)$start . ', ' . (int)$limit;
+			$limitSql = ' LIMIT ' . (int)$start . ', ' . (int)$limit;
 		}
-		return $sql;
+		return sprintf(
+			'SELECT %s FROM %s%s%s%s%s',
+			implode(', ', $attributes),
+			$from,
+			$whereSql,
+			$groupBySql,
+			$orderBySql,
+			$limitSql
+		);
 	}
 
 	public function buildExists($table, $where = null) {
-		$sql = 'SELECT EXISTS (SELECT 1 FROM ' . $table;
+		$whereSql = '';
 		if ($where !== null) {
-			$sql .= ' WHERE ' . $where;
+			$whereSql = ' WHERE ' . $where;
 		}
-		$sql .= ')';
-		return $sql;
+		return sprintf(
+			'SELECT EXISTS (SELECT 1 FROM %s%s)',
+			$table,
+			$whereSql
+		);
 	}
 
 	public function buildInsert($table, $properties, $insert_params) {
-		$sql = 'INSERT';
-		$sql .= ' INTO ' . $table;
-		$sql .= ' (' . implode(', ', array_keys($properties)) . ')';
-		$sql .= ' VALUES (' . implode(', ', array_keys($insert_params)) . ')'; // named params
-
-		return $sql;
+		return sprintf(
+			'INSERT INTO %s (%s) VALUES (%s)',
+			$table,
+			implode(', ', array_keys($properties)),
+			implode(', ', array_keys($insert_params))
+		);
 	}
 
 	public function buildUpdate($table, $attributes, $where, $limit = 0) {
@@ -57,13 +80,17 @@ class QueryBuilder {
 	}
 
 	public function buildDelete($table, $where, $limit = 0) {
-		$sql = 'DELETE FROM ' . $table;
-		$sql .= ' WHERE ' . $where;
+		$limit = '';
 		if ((int)$limit > 0) {
-			$sql .= ' LIMIT ' . (int)$limit;
+			$limit = ' LIMIT ' . (int)$limit;
 		}
 
-		return $sql;
+		return sprintf(
+			'DELETE FROM %s WHERE %s%s',
+			$table,
+			$where,
+			$limit
+		);
 	}
 
 	public function buildShowTable() {
@@ -71,11 +98,11 @@ class QueryBuilder {
 	}
 
 	public function buildDescribeTable($name) {
-		return 'DESCRIBE ' . $name;
+		return sprintf('DESCRIBE %s', $name);
 	}
 
 	public function buildShowCreateTable($name) {
-		return 'SHOW CREATE TABLE ' . $name;
+		return sprintf('SHOW CREATE TABLE %s', $name);
 	}
 
 	/**
@@ -85,37 +112,73 @@ class QueryBuilder {
 	 * @return string
 	 */
 	public function buildCreateTable($name, array $attributes, array $primary_key) {
-		$sql = 'CREATE TABLE ' . $name . ' (';
+		$attributeSql = '';
 		foreach ($attributes as $name => $attribute) {
-			$sql .= $attribute->toSQL() . ', ';
+			$attributeSql .= $attribute->toSQL() . ', ';
 		}
 		if (empty($primary_key)) {
-			$sql = substr($sql, 0, -2); // remove last ,
+			$attributeSql = substr($attributeSql, 0, -2); // remove last ,
 		} else {
-			$sql .= 'PRIMARY KEY (' . implode(', ', $primary_key) . ')';
+			$attributeSql .= 'PRIMARY KEY (' . implode(', ', $primary_key) . ')';
 		}
-		$sql .= ') ENGINE=InnoDB DEFAULT CHARSET=utf8 auto_increment=1';
-		return $sql;
+		return sprintf(
+			'CREATE TABLE %s (%s) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1',
+			$name,
+			$attributeSql
+		);
 	}
 
 	public function buildDropTable($name) {
-		return 'DROP TABLE ' . $name;
+		return sprintf(
+			'DROP TABLE %s',
+			$name
+		);
 	}
 
-	public function buildAddAttribute($table, PersistentAttribute $attribute, $after_attribute = null) {
-		$sql = 'ALTER TABLE ' . $table . ' ADD ' . $attribute->toSQL();
-		$sql .= ($after_attribute === null ? ' FIRST' : ' AFTER ' . $after_attribute);
-		return $sql;
+	public function buildAddAttribute(
+		$table,
+		PersistentAttribute $attribute,
+		$after_attribute = null
+	) {
+		if (is_null($after_attribute)) {
+			$location = 'FIRST';
+		} else {
+			$location = 'AFTER ' . $after_attribute;
+		}
+		return sprintf(
+			'ALTER TABLE %s ADD %s %s;',
+			$table,
+			$attribute->toSQL(),
+			$location
+		);
 	}
 
-	public function buildDeleteAttribute($table, PersistentAttribute $attribute) {
-		$sql = 'ALTER TABLE ' . $table . ' DROP ' . $attribute->field;
-		return $sql;
+	public function buildDeleteAttribute(
+		$table,
+		PersistentAttribute $attribute
+	) {
+		return sprintf(
+			'ALTER TABLE %s DROP %s;',
+			$table,
+			$attribute->field
+		);
 	}
 
-	public function buildChangeAttribute($table, PersistentAttribute $attribute, $old_name = null) {
-		$sql = 'ALTER TABLE ' . $table . ' CHANGE ' . ($old_name === null ? $attribute->field : $old_name) . ' ' . $attribute->toSQL();
-		return $sql;
+	public function buildChangeAttribute(
+		$table,
+		PersistentAttribute $attribute,
+		$old_name = null
+	) {
+		if ($old_name === null) {
+			$old_name = $attribute->field;
+		}
+
+		return sprintf(
+			'ALTER TABLE %s CHANGE %s %s;',
+			$table,
+			$old_name,
+			$attribute->toSQL()
+		);
 	}
 
 	/**
@@ -130,7 +193,7 @@ class QueryBuilder {
 	 * @return string The interpolated query
 	 */
 	public function interpolateQuery($query, $params) {
-		$attributes = array();
+		$attributes = [];
 		// build a regular expression for each parameter
 		foreach ($params as $attribute => $value) {
 			if (is_string($attribute)) {

@@ -1,7 +1,6 @@
 <?php
 namespace CsrDelft\Orm\Entity;
 
-use CsrDelft\Orm\Util;
 use Exception;
 
 /**
@@ -103,7 +102,7 @@ class PersistentAttribute {
 	 * @throws Exception
 	 */
 	public function toDefinition() {
-		$definition = array();
+		$definition = [];
 		if (\common\starts_with($this->type, 'enum')) {
 			$start = strpos($this->type, '(') + 1;
 			$length = strpos($this->type, ')') - $start;
@@ -111,9 +110,13 @@ class PersistentAttribute {
 			foreach ($values as $i => $value) {
 				$values[$i] = str_replace("'", "", $value);
 			}
-			return array(T::Enumeration, false, $values);
+			return [T::Enumeration, false, $values];
 		} else {
-			if (defined('DB_CHECK') AND DB_CHECK AND !in_array($this->type, T::getTypeOptions())) {
+			if (
+				defined('DB_CHECK')
+				AND DB_CHECK
+				AND !in_array($this->type, T::getTypeOptions())
+			) {
 				throw new Exception('Unknown persistent attribute type: ' . $this->type);
 			}
 			$definition[] = $this->type;

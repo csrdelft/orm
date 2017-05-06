@@ -1,7 +1,6 @@
 <?php
 require_once 'Persistence/MySqlDatabaseTestCase.php';
 
-use CsrDelft\Orm\Configuration;
 use CsrDelft\Orm\Entity\PersistentEntity;
 use CsrDelft\Orm\Entity\T;
 use CsrDelft\Orm\PersistenceModel;
@@ -12,9 +11,9 @@ class Car extends PersistentEntity {
 	public $brand;
 
 	protected static $persistent_attributes = [
-		'id' => array(T::Integer, false, 'auto_increment'),
-		'num_wheels' => array(T::Integer),
-		'brand' => array(T::String)
+		'id' => [T::Integer, false, 'auto_increment'],
+		'num_wheels' => [T::Integer],
+		'brand' => [T::String]
 	];
 	protected static $table_name = 'car';
 	protected static $primary_key = ['id'];
