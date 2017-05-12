@@ -81,9 +81,9 @@ for instance `auto_increment` or comment.
 
 ```php
 protected static $persistent_attributes = [
-  'id' => [T::Integer, false, 'auto_increment'),
-  'num_wheels' => [T::Integer),
-  'color' => [T::Enumeration, false, 'ColorEnum')
+  'id' => [T::Integer, false, 'auto_increment'],
+  'num_wheels' => [T::Integer],
+  'color' => [T::Enumeration, false, 'ColorEnum']
 );
 ```
 
