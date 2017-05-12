@@ -69,6 +69,7 @@ class DatabaseAdmin {
 	 */
 	public function checkTable($class) {
 		// Do not check DynamicEntities
+		if ($class === DynamicEntity::class) return;
 		if (is_subclass_of($class, DynamicEntity::class)) return;
 
 		/** @var PersistentAttribute[] $attributes */
