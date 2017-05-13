@@ -147,15 +147,6 @@ const ORM = 'Car';
 const ORM = Car::class;
 ```
 
-##### `DIR`
-
-The constant `DIR` allows the entity to be in another folder than `model/entity`. `DIR` is
-a subdirectory of `model/entity`.
-
-```php
-const DIR = 'cars/';
-```
-
 ##### `$default_order`
 
 This is the default value to use for the order when selecting from the database.

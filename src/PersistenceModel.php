@@ -17,7 +17,6 @@ use PDOStatement;
  * Uses the database to provide persistence.
  * Requires an ORM class constant to be defined in superclass.
  * Requires a static property $instance in superclass.
- * Optional DIR class constant for location of ORM class.
  *
  */
 abstract class PersistenceModel implements Persistence {
@@ -25,14 +24,6 @@ abstract class PersistenceModel implements Persistence {
 	public static function __static() {
 		/** @var PersistentEntity $orm */
 		$orm = static::ORM;
-
-		$dir = '';
-		if (defined('static::DIR')) {
-			$dir = static::DIR;
-		}
-		if (!class_exists(static::ORM)) {
-			require_once 'model/entity/' . $dir . $orm . '.class.php';
-		}
 		$orm::__static(); // Extend the persistent attributes
 		if (defined('DB_CHECK') AND DB_CHECK) {
 			DatabaseAdmin::instance()->checkTable($orm);
