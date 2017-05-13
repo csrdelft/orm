@@ -112,14 +112,14 @@ class DynamicEntityModel extends PersistenceModel {
 		$start = 0
 	) {
 		$result = parent::findSparse(
-			$attributes,
-				$criteria,
-				$criteria_params,
-				$group_by,
-				$order_by,
-				$limit,
-				$start
-		);
+            $attributes,
+            $criteria,
+            $criteria_params,
+            $group_by,
+            $order_by,
+            $limit,
+            $start
+        );
 
 		if ($result) {
 			/** @noinspection PhpMethodParametersCountMismatchInspection */

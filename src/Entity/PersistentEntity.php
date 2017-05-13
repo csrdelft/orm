@@ -92,7 +92,7 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 		return strtolower(sprintf(
 			'%s@%s.csrdelft.nl',
 			implode('.', $this->getValues(true)),
-			get_class($this)
+			\common\short_class($this)
 		));
 	}
 

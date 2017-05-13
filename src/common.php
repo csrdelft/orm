@@ -32,3 +32,14 @@ function pdo_bool($value) {
 	}
 	return $value;
 }
+
+/**
+ * Get the short name for a class
+ *
+ * @param object|string $class
+ *
+ * @return string
+ */
+function short_class($class) {
+    return (new \ReflectionClass($class))->getShortName();
+}
