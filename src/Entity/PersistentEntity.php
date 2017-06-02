@@ -11,9 +11,9 @@ use Exception;
  *
  * Requires static properties in subclass: $persistent_attributes, $primary_key and $table_name
  *
- * @see PersistenceModel->retrieveAttributes for a usage example of sparse and foreign keys.
+ * @see PersistenceModel::retrieveAttributes for a usage example of sparse and foreign keys.
  *
- * Optional: static $rename_attributes = ['old_name' => 'new_name'];
+ * @mixin array $persistent_attributes
  */
 abstract class PersistentEntity implements Sparse, \JsonSerializable {
 

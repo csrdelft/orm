@@ -132,48 +132,6 @@ abstract class PersistenceModel implements Persistence {
 	}
 
 	/**
-	 * Find existing entities with optional search criteria.
-	 * Retrieves only requested attributes and the primary key values.
-	 *
-	 * @param array $attributes to retrieve
-	 * @param string $criteria WHERE
-	 * @param array $criteria_params optional named parameters
-	 * @param string $group_by GROUP BY
-	 * @param string $order_by ORDER BY
-	 * @param int $limit max amount of results
-	 * @param int $start results from index
-	 * @return PDOStatement implements Traversable using foreach does NOT require ->fetchAll()
-	 */
-	public function findSparse(
-		array $attributes,
-		$criteria = null,
-		array $criteria_params = [],
-		$group_by = null,
-		$order_by = null,
-		$limit = null,
-		$start = 0
-	) {
-		if ($order_by == null) {
-			$order_by = $this->default_order;
-		}
-		$attributes = array_merge($this->getPrimaryKey(), $attributes);
-		$result = $this->database->sqlSelect(
-			$attributes,
-			$this->getTableName(),
-			$criteria,
-			$criteria_params,
-			$group_by,
-			$order_by,
-			$limit,
-			$start
-		);
-		// Fetch only attributes into ORM object
-		/** @noinspection PhpMethodParametersCountMismatchInspection */
-		$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, [true, $attributes]);
-		return $result;
-	}
-
-	/**
 	 * Count existing entities with optional criteria.
 	 *
 	 * @param string $criteria WHERE

@@ -39,13 +39,6 @@ final class DynamicEntityModelIntegrationTest extends MySqlDatabaseTestCase {
 		$this->assertEquals(4, $car->num_wheels);
 	}
 
-	public function testFindSparse() {
-		$sparse_car = $this->model->findSparse(['id'], 'brand = "Opel"')->fetch();
-
-		$this->assertNull($sparse_car->brand);
-		$this->assertEquals(1, $sparse_car->id);
-	}
-
 	public function testRetrieveUUID() {
 		/** @var \CsrDelft\Orm\Entity\DynamicEntity $car */
 		$car = $this->model->retrieveByUUID('1@car.csrdelft.nl');
