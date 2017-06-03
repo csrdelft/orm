@@ -12,10 +12,30 @@ use Exception;
  * Requires static properties in subclass: $persistent_attributes, $primary_key and $table_name
  *
  * @see PersistenceModel::retrieveAttributes for a usage example of sparse and foreign keys.
- *
- * @mixin array $persistent_attributes
  */
-abstract class PersistentEntity implements Sparse, \JsonSerializable {
+abstract class PersistentEntity implements \JsonSerializable {
+
+	/**
+	 * Array of persistent attributes, mapped to column names in the database. Each persistent attribute must have a
+	 * public attribute the data can be saved in.
+	 *
+	 * @var array
+	 */
+	protected static $persistent_attributes = [];
+
+	/**
+	 * Table name the entity is saved in.
+	 *
+	 * @var string
+	 */
+	protected static $table_name = null;
+
+	/**
+	 * Primary key for the table, can be any number of columns.
+	 *
+	 * @var array
+	 */
+	protected static $primary_key = [];
 
 	/**
 	 * Static constructor is called (by inheritance) once and only from PersistenceModel.
@@ -32,6 +52,10 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 					$parent['persistent_attributes'] + static::$persistent_attributes;
 			}
 		}
+
+		assert(count(static::$persistent_attributes) !== 0, sprintf('"%s::$persistent_attributes" must be set.', get_class()));
+		assert(count(static::$primary_key) !== 0, sprintf('"%s::$primary_key" must be set.', get_class()));
+		assert(static::$table_name !== null, sprintf('"%s::$table_name" must be set.', get_class()));
 	}
 
 	/**
@@ -63,6 +87,11 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 		}
 	}
 
+	/**
+	 * Get name of the table for this entity.
+	 *
+	 * @return string
+	 */
 	public function getTableName() {
 		return static::$table_name;
 	}
@@ -84,10 +113,23 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 		return static::$persistent_attributes[$attribute_name];
 	}
 
+	/**
+	 * Get primary key of entity.
+	 *
+	 * @return string[]
+	 */
 	public function getPrimaryKey() {
 		return array_values(static::$primary_key);
 	}
 
+
+	/**
+	 * Get universal Id for entity.
+	 *
+	 * Warning: assumes unique PersistentEntity names.
+	 *
+	 * @return string
+	 */
 	public function getUUID() {
 		return strtolower(sprintf(
 			'%s@%s.csrdelft.nl',
@@ -96,6 +138,11 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 		));
 	}
 
+	/**
+	 * Get array ready for json serialization.
+	 *
+	 * @return string[]
+	 */
 	public function jsonSerialize() {
 		$array = get_object_vars($this);
 		$array['UUID'] = $this->getUUID();
@@ -103,22 +150,9 @@ abstract class PersistentEntity implements Sparse, \JsonSerializable {
 	}
 
 	/**
-	 * Are there any attributes not yet retrieved?
-	 *
-	 * @param array $attributes to check for
-	 * @return boolean
+	 * @internal Used when Model received attributes.
+	 * @param array $attributes
 	 */
-	public function isSparse(array $attributes = null) {
-		if (!isset($this->attributes_retrieved)) {
-			// Bookkeeping only in case of sparse retrieval
-			return false;
-		}
-		if (empty($attributes)) {
-			$attributes = $this->getAttributes();
-		}
-		return array_intersect($attributes, $this->attributes_retrieved) !== $attributes;
-	}
-
 	public function onAttributesRetrieved(array $attributes) {
 		if (isset($this->attributes_retrieved)) {
 			// Bookkeeping only in case of sparse retrieval

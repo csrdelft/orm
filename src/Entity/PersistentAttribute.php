@@ -74,6 +74,11 @@ class PersistentAttribute {
 		}
 	}
 
+	/**
+	 * Get sql for this PersistentAttribute.
+	 *
+	 * @return string
+	 */
 	public function toSQL() {
 		$sql = $this->field . ' ' . $this->type;
 		if ($this->null === 'YES') {
