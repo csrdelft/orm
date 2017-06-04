@@ -14,11 +14,20 @@ use PDO;
  */
 class Configuration {
 
+	protected static $instance = null;
+
+	private $configPath;
+	private $configPrefix;
+
 	/**
 	 * Initialize the ORM
 	 *
 	 * @param array $config [
 	 *   'cache_path' => '/path/to/data/dir',
+	 *   'config' => [
+	 *     'path' => '/path/to/config/dir',
+	 *     'prefix' => '',
+	 *   ],
 	 *   'db' => [
 	 *     'host' => 'localhost',
 	 *     'db' => 'myDatabase',
@@ -27,8 +36,10 @@ class Configuration {
 	 *   ]
 	 * ];
 	 */
-	public static function load(array $config) {
+	public function __construct(array $config) {
+		assert(static::$instance == null);
 		assert(key_exists("cache_path", $config), "Cache path not set.");
+		assert(key_exists("config_path", $config), "Config path not set.");
 		assert(key_exists("db", $config), "Database config not set");
 
 		$db_conf = $config['db'];
@@ -44,6 +55,27 @@ class Configuration {
 
 		Persistence\Database::init($pdo);
 		Persistence\DatabaseAdmin::init($pdo);
+
+		$this->pdo = $pdo;
+		$this->configPath = $config['config']['path'];
+		$this->configPrefix = $config['config']['prefix'];
+
+		static::$instance = $this;
 	}
 
+	/**
+	 * @return static
+	 */
+	public static function instance() {
+		assert(static::$instance != null, 'Configuration not initialized.');
+		return static::$instance;
+	}
+
+	public function getConfigPath() {
+		return $this->configPath;
+	}
+
+	public function getConfigPrefix() {
+		return $this->configPrefix;
+	}
 }

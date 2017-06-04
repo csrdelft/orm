@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Entity tableName="Bike" xmlns="../../../orm.xsd">
+	<PersistentAttributes>
+		<Attribute name="id" type="integer" extra="auto_increment"/>
+		<Attribute name="brand" type="string"/>
+	</PersistentAttributes>
+	<PrimaryKey>
+		<Key name="id"/>
+	</PrimaryKey>
+</Entity>

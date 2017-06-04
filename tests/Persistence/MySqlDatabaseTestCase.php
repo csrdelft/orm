@@ -21,9 +21,13 @@ abstract class MySqlDatabaseTestCase extends PHPUnit_Extensions_Database_TestCas
 				}
 				$config = parse_ini_file(__DIR__ . '/../database.ini', true)[$environment];
 
-				Configuration::load([
+				new Configuration([
 					'cache_path' => '.',
 					'db' => $config,
+					'config' => [
+						'path' => __DIR__ . '/../src/config',
+						'prefix' => 'Test\\Orm\\Model\\Entity\\',
+					],
 				]);
 
 				self::$pdo = Database::instance()->getDatabase();

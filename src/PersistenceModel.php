@@ -2,7 +2,9 @@
 
 namespace CsrDelft\Orm;
 
+use CsrDelft\Orm\Entity\DynamicEntity;
 use CsrDelft\Orm\Entity\PersistentEntity;
+use CsrDelft\Orm\Parser\EntityParserXml;
 use CsrDelft\Orm\Persistence\Database;
 use CsrDelft\Orm\Persistence\DatabaseAdmin;
 use PDO;
@@ -24,7 +26,6 @@ abstract class PersistenceModel implements Persistence {
 	public static function __static() {
 		/** @var PersistentEntity $orm */
 		$orm = static::ORM;
-		$orm::__static(); // Extend the persistent attributes
 		if (defined('DB_CHECK') AND DB_CHECK) {
 			DatabaseAdmin::instance()->checkTable($orm);
 		}
@@ -50,11 +51,7 @@ abstract class PersistenceModel implements Persistence {
 	 * @var string
 	 */
 	protected $default_order = null;
-	/**
-	 * Object relational mapping
-	 * @var PersistentEntity
-	 */
-	private $orm;
+
 	/**
 	 * Database connection
 	 *
@@ -62,14 +59,17 @@ abstract class PersistenceModel implements Persistence {
 	 */
 	protected $database;
 
+	protected $schema;
+
 	protected function __construct() {
-		$orm = static::ORM;
-		$this->orm = new $orm();
 		$this->database = Database::instance();
+		if (static::ORM != DynamicEntity::class) {
+			$this->schema = new EntityParserXml(static::ORM);
+		}
 	}
 
 	public function getTableName() {
-		return $this->orm->getTableName();
+		return $this->schema->getTableName();
 	}
 
 	/**
@@ -78,15 +78,15 @@ abstract class PersistenceModel implements Persistence {
 	 * @return array
 	 */
 	public function getAttributes() {
-		return $this->orm->getAttributes();
+		return $this->schema->getAttributes();
 	}
 
 	public function getAttributeDefinition($attribute_name) {
-		return $this->orm->getAttributeDefinition($attribute_name);
+		return $this->schema->getAttributeDefinition($attribute_name);
 	}
 
 	public function getPrimaryKey() {
-		return $this->orm->getPrimaryKey();
+		return $this->schema->getPrimaryKey();
 	}
 
 	/**
