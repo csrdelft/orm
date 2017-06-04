@@ -52,10 +52,6 @@ abstract class PersistentEntity implements \JsonSerializable {
 					$parent['persistent_attributes'] + static::$persistent_attributes;
 			}
 		}
-
-		assert(count(static::$persistent_attributes) !== 0, sprintf('"%s::$persistent_attributes" must be set.', get_class()));
-		assert(count(static::$primary_key) !== 0, sprintf('"%s::$primary_key" must be set.', get_class()));
-		assert(static::$table_name !== null, sprintf('"%s::$table_name" must be set.', get_class()));
 	}
 
 	/**
