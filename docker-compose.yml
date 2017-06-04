@@ -1,0 +1,46 @@
+version: '3'
+
+volumes:
+  mysqldata:
+    driver: local
+
+services:
+  phpunit:
+    restart: 'no'
+    image: phpunit/phpunit:5.7.12
+    links:
+      - db
+    depends_on:
+      - db
+    command: tests
+    environment:
+      - DOCKER=1
+    volumes:
+      - .:/app
+
+  composer:
+    restart: 'no'
+    build:
+      context: ./
+      dockerfile: ./composer.dockerfile
+    links:
+      - db
+    depends_on:
+      - db
+    command: install
+    environment:
+      - DOCKER=1
+    volumes:
+      - .:/app
+
+  db:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: orm
+      MYSQL_USER: orm
+      MYSQL_PASSWORD: orm
+      MYSQL_DATABASE: orm
+    volumes:
+      - mysqldata:/var/lib/mysql/
+    ports:
+      - "3306:3306"

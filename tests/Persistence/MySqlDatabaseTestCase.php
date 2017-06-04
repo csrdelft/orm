@@ -12,14 +12,18 @@ abstract class MySqlDatabaseTestCase extends PHPUnit_Extensions_Database_TestCas
 	final public function getConnection() {
 		if ($this->conn === null) {
 			if (self::$pdo == null) {
+				if (getenv('TRAVIS')) {
+					$environment = 'travis';
+				} elseif (getenv('DOCKER')) {
+					$environment = 'docker';
+				} else {
+					$environment = 'local';
+				}
+				$config = parse_ini_file(__DIR__ . '/../database.ini', true)[$environment];
+
 				Configuration::load([
 					'cache_path' => '.',
-					'db' => [
-						'host' => 'localhost',
-						'user' => 'travis',
-						'db' => 'orm_test',
-						'pass' => null
-					]
+					'db' => $config,
 				]);
 
 				self::$pdo = Database::instance()->getDatabase();
