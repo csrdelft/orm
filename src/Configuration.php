@@ -38,9 +38,9 @@ class Configuration {
 	 */
 	public function __construct(array $config) {
 		assert(static::$instance == null);
-		assert(key_exists("cache_path", $config), "Cache path not set.");
-		assert(key_exists("config_path", $config), "Config path not set.");
-		assert(key_exists("db", $config), "Database config not set");
+		assert(key_exists('cache_path', $config), "Cache path not set.");
+		assert(key_exists('config', $config), "Config path not set.");
+		assert(key_exists('db', $config), "Database config not set");
 
 		$db_conf = $config['db'];
 
