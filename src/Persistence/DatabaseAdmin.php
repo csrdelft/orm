@@ -256,8 +256,7 @@ class DatabaseAdmin {
 	 *
 	 * @return array
 	 */
-	private function createAttributes(TableDefinition $tableDefinition): array
-	{
+	private function createAttributes(TableDefinition $tableDefinition) {
 		/** @var PersistentAttribute[] $attributes */
 		$attributes = [];
 
