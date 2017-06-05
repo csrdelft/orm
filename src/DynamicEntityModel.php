@@ -2,8 +2,8 @@
 namespace CsrDelft\Orm;
 
 use CsrDelft\Orm\Entity\DynamicEntity;
-use CsrDelft\Orm\Entity\DynamicEntityDefinition;
 use CsrDelft\Orm\Persistence\DatabaseAdmin;
+use CsrDelft\Orm\Schema\DynamicTableDefinition;
 use Exception;
 use PDO;
 
@@ -12,7 +12,7 @@ use PDO;
  *
  * @author P.W.G. Brussee <brussee@live.nl>
  *
- * Defines the DynamicEntity class by the DynamicEntityDefinition.
+ * Defines the DynamicEntity class by the DynamicTableDefinition.
  * Factory pattern instead of singleton, so ::instance() won't work!
  *
  */
@@ -35,46 +35,27 @@ class DynamicEntityModel extends PersistenceModel {
 
 	/**
 	 * Definition of the DynamicEntity
-	 * @var DynamicEntityDefinition
+	 * @var DynamicTableDefinition
 	 */
 	private $definition;
 
 	/**
-	 * Override the constructor of PersistentModel and create DynamicEntityDefinition from table structure.
+	 * Override the constructor of PersistentModel and create DynamicTableDefinition from table structure.
 	 *
 	 * @param string $table_name
 	 */
 	protected function __construct($table_name) {
 		parent::__construct();
-		$this->definition = new DynamicEntityDefinition();
-		$this->definition->table_name = $table_name;
-		foreach (DatabaseAdmin::instance()->sqlDescribeTable($this->definition->table_name) as $attribute) {
-			$this->definition->persistent_attributes[$attribute->field] = $attribute->toDefinition();
+		$persistent_attributes = [];
+		$primary_key = [];
+		foreach (DatabaseAdmin::instance()->sqlDescribeTable($table_name) as $attribute) {
+			$persistent_attributes[$attribute->field] = $attribute->toDefinition();
 			if ($attribute->key === 'PRI') {
-				$this->definition->primary_key[] = $attribute->field;
+				$primary_key[] = $attribute->field;
 			}
 		}
-	}
 
-	public function getTableName() {
-		return $this->definition->table_name;
-	}
-
-	/**
-	 * Get all attribute names.
-	 *
-	 * @return array
-	 */
-	public function getAttributes() {
-		return array_keys($this->definition->persistent_attributes);
-	}
-
-	public function getAttributeDefinition($attribute_name) {
-		return $this->definition->persistent_attributes[$attribute_name];
-	}
-
-	public function getPrimaryKey() {
-		return array_values($this->definition->primary_key);
+		$this->schema = new DynamicTableDefinition($table_name, $primary_key, $persistent_attributes);
 	}
 
 	protected function retrieveByPrimaryKey(array $primary_key_values) {

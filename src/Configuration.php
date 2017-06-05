@@ -16,8 +16,8 @@ class Configuration {
 
 	protected static $instance = null;
 
-	private $configPath;
-	private $configPrefix;
+	protected $configPath;
+	protected $configPrefix;
 
 	/**
 	 * Initialize the ORM

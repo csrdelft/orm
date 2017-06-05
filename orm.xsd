@@ -3,11 +3,11 @@
 					 xmlns:xs="http://www.w3.org/2001/XMLSchema">
 	<xs:element name="Entity" type="EntityType"/>
 	<xs:complexType name="EntityType">
-		<xs:attribute type="xs:string" name="tableName" use="required"/>
 		<xs:sequence>
-			<xs:element type="PersistentAttributesType" name="PersistentAttributes"/>
+			<xs:element type="ColumnDefinitionType" name="ColumnDefinition"/>
 			<xs:element type="PrimaryKeyType" name="PrimaryKey"/>
 		</xs:sequence>
+		<xs:attribute type="xs:string" name="tableName" use="required"/>
 	</xs:complexType>
 	<xs:complexType name="KeyType">
 		<xs:simpleContent>
@@ -16,19 +16,19 @@
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
-	<xs:complexType name="AttributeType">
+	<xs:complexType name="DefinitionType">
 		<xs:simpleContent>
 			<xs:extension base="xs:string">
 				<xs:attribute type="xs:string" name="name" use="required"/>
 				<xs:attribute type="xs:string" name="type" use="required"/>
-				<xs:attribute type="xs:boolean" name="nullable" use="optional" default="false"/>
+				<xs:attribute type="xs:boolean" name="null" use="optional" default="false"/>
 				<xs:attribute type="xs:string" name="extra" use="optional"/>
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
-	<xs:complexType name="PersistentAttributesType">
+	<xs:complexType name="ColumnDefinitionType">
 		<xs:sequence>
-			<xs:element type="AttributeType" name="Attribute" maxOccurs="unbounded" minOccurs="1"/>
+			<xs:element type="DefinitionType" name="Definition" maxOccurs="unbounded" minOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="PrimaryKeyType">

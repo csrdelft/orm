@@ -4,9 +4,10 @@ namespace CsrDelft\Orm;
 
 use CsrDelft\Orm\Entity\DynamicEntity;
 use CsrDelft\Orm\Entity\PersistentEntity;
-use CsrDelft\Orm\Parser\EntityParserXml;
 use CsrDelft\Orm\Persistence\Database;
 use CsrDelft\Orm\Persistence\DatabaseAdmin;
+use CsrDelft\Orm\Schema\XmlTableDefinition;
+use CsrDelft\Orm\Schema\TableDefinition;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -24,10 +25,9 @@ use PDOStatement;
 abstract class PersistenceModel implements Persistence {
 
 	public static function __static() {
-		/** @var PersistentEntity $orm */
-		$orm = static::ORM;
 		if (defined('DB_CHECK') AND DB_CHECK) {
-			DatabaseAdmin::instance()->checkTable($orm);
+			$definition = new XmlTableDefinition(Configuration::instance(), static::ORM);
+			DatabaseAdmin::instance()->checkTable($definition, static::ORM);
 		}
 	}
 
@@ -59,34 +59,16 @@ abstract class PersistenceModel implements Persistence {
 	 */
 	protected $database;
 
+	/**
+	 * @var TableDefinition
+	 */
 	protected $schema;
 
 	protected function __construct() {
 		$this->database = Database::instance();
 		if (static::ORM != DynamicEntity::class) {
-			$this->schema = new EntityParserXml(static::ORM);
+			$this->schema = new XmlTableDefinition(Configuration::instance(), static::ORM);
 		}
-	}
-
-	public function getTableName() {
-		return $this->schema->getTableName();
-	}
-
-	/**
-	 * Get all attribute names.
-	 *
-	 * @return array
-	 */
-	public function getAttributes() {
-		return $this->schema->getAttributes();
-	}
-
-	public function getAttributeDefinition($attribute_name) {
-		return $this->schema->getAttributeDefinition($attribute_name);
-	}
-
-	public function getPrimaryKey() {
-		return $this->schema->getPrimaryKey();
 	}
 
 	/**
@@ -115,7 +97,7 @@ abstract class PersistenceModel implements Persistence {
 		try {
 			$result = $this->database->sqlSelect(
 				['*'],
-				$this->getTableName(),
+				$this->schema->getTableName(),
 				$criteria,
 				$criteria_params,
 				$group_by,
@@ -141,7 +123,7 @@ abstract class PersistenceModel implements Persistence {
 	public function count($criteria = null, array $criteria_params = []) {
 		$result = $this->database->sqlSelect(
 			['COUNT(*)'],
-			$this->getTableName(),
+			$this->schema->getTableName(),
 			$criteria,
 			$criteria_params
 		);
@@ -159,7 +141,7 @@ abstract class PersistenceModel implements Persistence {
 	 * @return PDOStatement
 	 */
 	public function select(array $columns, $criteria = null, array $criteria_params = []) {
-		return $this->database->sqlSelect($columns, $this->getTableName(), $criteria, $criteria_params);
+		return $this->database->sqlSelect($columns, $this->schema->getTableName(), $criteria, $criteria_params);
 	}
 
 	/**
@@ -169,7 +151,7 @@ abstract class PersistenceModel implements Persistence {
 	 * @return boolean entity exists
 	 */
 	public function exists(PersistentEntity $entity) {
-		return $this->existsByPrimaryKey($entity->getValues(true));
+		return $this->existsByPrimaryKey($this->getValues($entity,true));
 	}
 
 	/**
@@ -180,11 +162,11 @@ abstract class PersistenceModel implements Persistence {
 	 */
 	protected function existsByPrimaryKey(array $primary_key_values) {
 		$where = [];
-		foreach ($this->getPrimaryKey() as $key) {
+		foreach ($this->schema->getPrimaryKey() as $key) {
 			$where[] = $key . ' = ?';
 		}
 		return $this->database->sqlExists(
-			$this->getTableName(),
+			$this->schema->getTableName(),
 			implode(' AND ', $where),
 			$primary_key_values
 		);
@@ -197,7 +179,10 @@ abstract class PersistenceModel implements Persistence {
 	 * @return string last insert id
 	 */
 	public function create(PersistentEntity $entity) {
-		return $this->database->sqlInsert($entity->getTableName(), $entity->getValues());
+		return $this->database->sqlInsert(
+			$this->schema->getTableName(),
+			$this->getValues($entity)
+		);
 	}
 
 	/**
@@ -209,7 +194,7 @@ abstract class PersistenceModel implements Persistence {
 	 * @return PersistentEntity|false
 	 */
 	public function retrieve(PersistentEntity $entity) {
-		return $this->retrieveAttributes($entity, $entity->getAttributes());
+		return $this->retrieveAttributes($entity, $this->schema->getColumnNames());
 	}
 
 	/**
@@ -220,12 +205,12 @@ abstract class PersistenceModel implements Persistence {
 	 */
 	protected function retrieveByPrimaryKey(array $primary_key_values) {
 		$where = [];
-		foreach ($this->getPrimaryKey() as $key) {
+		foreach ($this->schema->getPrimaryKey() as $key) {
 			$where[] = $key . ' = ?';
 		}
 		$result = $this->database->sqlSelect(
 			['*'],
-			$this->getTableName(),
+			$this->schema->getTableName(),
 			implode(' AND ', $where),
 			$primary_key_values,
 			null,
@@ -291,14 +276,14 @@ abstract class PersistenceModel implements Persistence {
 	 */
 	public function retrieveAttributes(PersistentEntity $entity, array $attributes) {
 		$where = [];
-		foreach ($entity->getPrimaryKey() as $key) {
+		foreach ($this->schema->getPrimaryKey() as $key) {
 			$where[] = $key . ' = ?';
 		}
 		$result = $this->database->sqlSelect(
 			$attributes,
-			$entity->getTableName(),
+			$this->schema->getTableName(),
 			implode(' AND ', $where),
-			$entity->getValues(true),
+			$this->getValues($entity, true),
 			null,
 			null,
 			1
@@ -306,9 +291,7 @@ abstract class PersistenceModel implements Persistence {
 		/** @noinspection PhpMethodParametersCountMismatchInspection */
 		$result->setFetchMode(PDO::FETCH_INTO, $entity);
 		$success = $result->fetch();
-		if ($success) {
-			$entity->onAttributesRetrieved($attributes);
-		}
+		$this->createUUID($success);
 		return $success;
 	}
 
@@ -320,16 +303,16 @@ abstract class PersistenceModel implements Persistence {
 	 * @return int number of rows affected
 	 */
 	public function update(PersistentEntity $entity) {
-		$properties = $entity->getValues();
+		$properties = $this->getValues($entity);
 		$where = [];
 		$params = [];
-		foreach ($entity->getPrimaryKey() as $key) {
+		foreach ($this->schema->getPrimaryKey() as $key) {
 			$where[] = $key . ' = :W' . $key; // name parameters after column
 			$params[':W' . $key] = $properties[$key];
 			unset($properties[$key]); // do not update primary key
 		}
 		return $this->database->sqlUpdate(
-			$entity->getTableName(),
+			$this->schema->getTableName(),
 			$properties,
 			implode(' AND ', $where),
 			$params,
@@ -344,7 +327,7 @@ abstract class PersistenceModel implements Persistence {
 	 * @return int number of rows affected
 	 */
 	public function delete(PersistentEntity $entity) {
-		return $this->deleteByPrimaryKey($entity->getValues(true));
+		return $this->deleteByPrimaryKey($this->getValues($entity, true));
 	}
 
 	/**
@@ -355,15 +338,46 @@ abstract class PersistenceModel implements Persistence {
 	 */
 	protected function deleteByPrimaryKey(array $primary_key_values) {
 		$where = [];
-		foreach ($this->getPrimaryKey() as $key) {
+		foreach ($this->schema->getPrimaryKey() as $key) {
 			$where[] = $key . ' = ?';
 		}
 		return $this->database->sqlDelete(
-			$this->getTableName(),
+			$this->schema->getTableName(),
 			implode(' AND ', $where),
 			$primary_key_values,
 			1
 		);
 	}
 
+	/**
+	 * Get the attributes and their values of this object.
+	 *
+	 * @param PersistentEntity $entity
+	 * @param boolean $primary_key_only
+	 *
+	 * @return array
+	 */
+	public function getValues(PersistentEntity $entity, $primary_key_only = false) {
+		$values = [];
+		if ($primary_key_only) {
+			$attributes = $this->schema->getPrimaryKey();
+		} else {
+			$attributes = $this->schema->getColumnNames();
+		}
+		foreach ($attributes as $attribute) {
+			$values[$attribute] = \common\pdo_bool($entity->$attribute);
+		}
+		if ($primary_key_only) {
+			return array_values($values);
+		}
+		return $values;
+	}
+
+	private function createUUID($entity) {
+		$entity->UUID = strtolower(sprintf(
+			'%s@%s.csrdelft.nl',
+			implode('.', $this->getValues($entity, true)),
+			\common\short_class($this)
+		));
+	}
 }

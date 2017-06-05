@@ -150,16 +150,7 @@ class Database {
 	 * @param int $start
 	 * @return \PDOStatement
 	 */
-	public function sqlSelect(
-		array $attributes,
-		$from,
-		$where = null,
-		array $params = [],
-		$group_by = null,
-		$order_by = null,
-		$limit = null,
-		$start = 0
-	) {
+	public function sqlSelect(array $attributes, $from, $where = null, array $params = [], $group_by = null, $order_by = null, $limit = null, $start = 0) {
 		$sql = $this->queryBuilder->buildSelect(
 			$attributes,
 			$from,
@@ -183,11 +174,7 @@ class Database {
 	 * @param array $params
 	 * @return boolean
 	 */
-	public function sqlExists(
-		$from,
-		$where = null,
-		array $params = []
-	) {
+	public function sqlExists($from, $where = null, array $params = []) {
 		$sql = $this->queryBuilder->buildExists($from, $where);
 		$query = $this->database->prepare($sql);
 		$query->execute($params);
@@ -237,11 +224,7 @@ class Database {
 	 * @return int number of rows affected
 	 * @throws Exception if number of values !== number of properties
 	 */
-	public function sqlInsertMultiple(
-		$into,
-		array $properties,
-		$replace = false
-	) {
+	public function sqlInsertMultiple($into, array $properties, $replace = false) {
 		if ($replace) {
 			$sql = 'REPLACE';
 		} else {
@@ -286,13 +269,7 @@ class Database {
 	 * @return int number of rows affected
 	 * @throws Exception if duplicate named parameter
 	 */
-	public function sqlUpdate(
-		$table,
-		array $properties,
-		$where,
-		array $where_params = [],
-		$limit = null
-	) {
+	public function sqlUpdate($table, array $properties, $where, array $where_params = [], $limit = null) {
 		$attributes = [];
 		foreach ($properties as $attribute => $value) {
 			$attributes[] = $attribute . ' = :U' . $attribute; // name parameters after attribute
@@ -317,12 +294,7 @@ class Database {
 	 * @param int $limit
 	 * @return int number of rows affected
 	 */
-	public function sqlDelete(
-		$from,
-		$where,
-		array $where_params,
-		$limit = null
-	) {
+	public function sqlDelete($from, $where, array $where_params, $limit = null) {
 		$sql = $this->queryBuilder->buildDelete($from, $where, $limit);
 		$query = $this->database->prepare($sql);
 		$query->execute($where_params);

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Entity tableName="Car">
-	<PersistentAttributes>
-		<Attribute name="id" type="integer" extra="auto_increment"/>
-		<Attribute name="num_wheels" type="integer"/>
-		<Attribute name="brand" type="string"/>
-	</PersistentAttributes>
+	<ColumnDefinition>
+		<Definition name="id" type="integer" extra="auto_increment"/>
+		<Definition name="num_wheels" type="integer"/>
+		<Definition name="brand" type="string"/>
+	</ColumnDefinition>
 	<PrimaryKey>
 		<Key name="id"/>
 	</PrimaryKey>

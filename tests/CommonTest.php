@@ -26,6 +26,4 @@ final class CommonTest extends TestCase {
 		$this->assertEquals(0, \common\pdo_bool(false));
 		$this->assertEquals(1, \common\pdo_bool(true));
 	}
-
-
 }

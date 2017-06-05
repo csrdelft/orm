@@ -1,6 +1,8 @@
 <?php
 namespace CsrDelft\Orm\Entity;
 
+use CsrDelft\Orm\Schema\DynamicTableDefinition;
+
 /**
  * DynamicEntity.php
  *
@@ -14,21 +16,21 @@ class DynamicEntity extends PersistentEntity {
 
 	/**
 	 * Definition of the DynamicEntity
-	 * @var DynamicEntityDefinition
+	 * @var DynamicTableDefinition
 	 */
 	public $definition;
 
 	public function __construct(
 		$cast = false,
 		array $attributes_retrieved = null,
-		DynamicEntityDefinition $definition = null
+		DynamicTableDefinition $definition = null
 	) {
 		$this->definition = $definition;
 		parent::__construct($cast, $attributes_retrieved);
 	}
 
 	public function getTableName() {
-		return $this->definition->table_name;
+		return $this->definition->getTableName();
 	}
 
 	/**
@@ -40,15 +42,15 @@ class DynamicEntity extends PersistentEntity {
 		if (!isset($this->definition)) {
 			return [];
 		}
-		return array_keys($this->definition->persistent_attributes);
+		return array_keys($this->definition->getColumnDefinitions());
 	}
 
 	public function getAttributeDefinition($attribute_name) {
-		return $this->definition->persistent_attributes[$attribute_name];
+		return $this->definition->getColumnDefinitions()[$attribute_name];
 	}
 
 	public function getPrimaryKey() {
-		return array_values($this->definition->primary_key);
+		return array_values($this->definition->getPrimaryKey());
 	}
 
 	public function __set($attribute, $value) {
