@@ -3,6 +3,7 @@
  * The XmlTableDefinitionTest file.
  */
 use CsrDelft\Orm\Configuration;
+use CsrDelft\Orm\Entity\PersistentAttribute;
 use CsrDelft\Orm\Schema\XmlTableDefinition;
 use PHPUnit\Framework\TestCase;
 
@@ -50,9 +51,9 @@ class XmlTableDefinitionTest extends TestCase
 
 		$this->assertEquals(
 			[
-				'id' => ['integer', false, 'auto_increment'],
-				'color' => ['string', true, null],
-				'brand' => ['string', false, null],
+				'id' => new PersistentAttribute('id', ['integer', false, 'auto_increment']),
+				'color' => new PersistentAttribute('color', ['string', true, null]),
+				'brand' => new PersistentAttribute('brand', ['string', false, null]),
 			],
 			$tableDefinition->getColumnDefinitions()
 		);

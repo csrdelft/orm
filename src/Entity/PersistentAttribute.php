@@ -136,4 +136,18 @@ class PersistentAttribute {
 		}
 		return $definition;
 	}
+
+	/**
+	 * @param PersistentAttribute $other
+	 *
+	 * @return bool
+	 */
+	public function equals(PersistentAttribute $other) {
+		return $this->field == $other->field
+			&& $this->type == $other->type
+			&& $this->null == $other->null
+			&& $this->key == $other->key
+			&& $this->default == $other->default
+			&& $this->extra == $other->extra;
+	}
 }

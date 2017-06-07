@@ -254,14 +254,14 @@ class DatabaseAdmin {
 	/**
 	 * @param TableDefinition $tableDefinition
 	 *
-	 * @return array
+	 * @return PersistentAttribute[]
 	 */
 	private function createAttributes(TableDefinition $tableDefinition) {
 		/** @var PersistentAttribute[] $attributes */
 		$attributes = [];
 
 		foreach ($tableDefinition->getColumnDefinitions() as $name => $definition) {
-			$attributes[$name] = new PersistentAttribute($name, $definition);
+			$attributes[$name] = $definition;
 			if (in_array($name, $tableDefinition->getPrimaryKey())) {
 				$attributes[$name]->key = 'PRI';
 			} else {
@@ -279,11 +279,11 @@ class DatabaseAdmin {
 	 */
 	private function addAttributes(TableDefinition $tableDefinition, $database_attributes, $attributes) {
 		$previous_attribute = null;
-		foreach ($tableDefinition->getColumnDefinitions() as $name => $definition) {
+		foreach (array_keys($tableDefinition->getColumnDefinitions()) as $name) {
 			if (!isset($database_attributes[$name])) {
 				$this->sqlAddAttribute($tableDefinition->getTableName(), $attributes[$name], $previous_attribute);
 			}
-			$previous_attribute = $attributes[$name];
+			$previous_attribute = $name;
 		}
 	}
 
@@ -298,9 +298,9 @@ class DatabaseAdmin {
 				// Check existing persistent attributes for differences
 				$diff = false;
 				if ($attributes[$name]->type !== $database_attributes[$name]->type) {
-					if ($definition[0] === T::Enumeration) {
+					if ($definition->type === T::Enumeration) {
 						/** @var PersistentEnum $enum */
-						$enum = $definition[2];
+						$enum = $definition->extra;
 						$enumSql = sprintf(
 							'enum(\'%s\')',
 							implode('\',\'', $enum::getTypeOptions())
@@ -317,11 +317,11 @@ class DatabaseAdmin {
 				}
 				// Cast database value if default value is defined
 				if ($attributes[$name]->default !== null) {
-					if ($definition[0] === T::Boolean) {
+					if ($definition->type === T::Boolean) {
 						$database_attributes[$name]->default = (boolean)$database_attributes[$name]->default;
-					} elseif ($definition[0] === T::Integer) {
+					} elseif ($definition->type === T::Integer) {
 						$database_attributes[$name]->default = (int)$database_attributes[$name]->default;
-					} elseif ($definition[0] === T::Float) {
+					} elseif ($definition->type === T::Float) {
 						$database_attributes[$name]->default = (float)$database_attributes[$name]->default;
 					}
 				}

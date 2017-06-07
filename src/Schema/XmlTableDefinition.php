@@ -3,6 +3,7 @@
 namespace CsrDelft\Orm\Schema;
 
 use CsrDelft\Orm\Configuration;
+use CsrDelft\Orm\Entity\PersistentAttribute;
 
 /**
  * Class EntityParserXml.
@@ -87,7 +88,7 @@ class XmlTableDefinition implements TableDefinition
 	}
 
 	/**
-	 * @return array
+	 * @return PersistentAttribute[]
 	 */
 	public function getColumnDefinitions() {
 		$columnDefinitions = [];
@@ -112,7 +113,7 @@ class XmlTableDefinition implements TableDefinition
 				$extra = null;
 			}
 
-			$columnDefinitions[$name] = [$type, $null, $extra];
+			$columnDefinitions[$name] = new PersistentAttribute($name, [$type, $null, $extra]);
 		}
 
 		return $columnDefinitions;

@@ -5,6 +5,8 @@
 
 namespace CsrDelft\Orm\Schema;
 
+use CsrDelft\Orm\Entity\PersistentAttribute;
+
 
 /**
  * Interface TableDefinition.
@@ -30,7 +32,7 @@ interface TableDefinition
 	public function getPrimaryKey();
 
 	/**
-	 * @return array
+	 * @return PersistentAttribute[]
 	 */
 	public function getColumnDefinitions();
 
