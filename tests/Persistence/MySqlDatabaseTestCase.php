@@ -15,7 +15,7 @@ abstract class MySqlDatabaseTestCase extends PHPUnit_Extensions_Database_TestCas
 				Configuration::load([
 					'cache_path' => '.',
 					'db' => [
-						'host' => 'localhost',
+						'host' => '127.0.0.1',
 						'user' => 'travis',
 						'db' => 'orm_test',
 						'pass' => ''
