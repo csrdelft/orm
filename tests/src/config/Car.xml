@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Entity tableName="Car">
+	<ColumnDefinition>
+		<Definition name="id" type="integer" extra="auto_increment"/>
+		<Definition name="num_wheels" type="integer"/>
+		<Definition name="brand" type="string"/>
+	</ColumnDefinition>
+	<PrimaryKey>
+		<Key name="id"/>
+	</PrimaryKey>
+</Entity>

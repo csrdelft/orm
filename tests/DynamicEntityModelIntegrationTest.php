@@ -2,6 +2,8 @@
 require_once 'Persistence/MySqlDatabaseTestCase.php';
 
 use CsrDelft\Orm\DynamicEntityModel;
+use CsrDelft\Orm\Entity\DynamicEntity;
+use Test\Orm\Model\CarModel;
 
 /**
  * DynamicEntityModelIntegrationTest.php
@@ -26,10 +28,11 @@ final class DynamicEntityModelIntegrationTest extends MySqlDatabaseTestCase {
 
 	public function setUp() {
 		parent::setUp();
-		$this->model = DynamicEntityModel::makeModel('car');
+		$this->model = DynamicEntityModel::makeModel('Car');
 	}
 
 	public function testCount() {
+
 		$this->assertEquals(2, $this->model->count());
 	}
 
@@ -40,7 +43,7 @@ final class DynamicEntityModelIntegrationTest extends MySqlDatabaseTestCase {
 	}
 
 	public function testRetrieveUUID() {
-		/** @var \CsrDelft\Orm\Entity\DynamicEntity $car */
+		/** @var DynamicEntity $car */
 		$car = $this->model->retrieveByUUID('1@car.csrdelft.nl');
 
 		$this->assertEquals('Opel', $car->brand);

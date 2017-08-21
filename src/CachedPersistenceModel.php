@@ -67,7 +67,7 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 			$cache = $this->memcache->get($key);
 			if ($cache !== false) {
 				$value = unserialize($cache);
-				// unserialize once 
+				// unserialize once
 				$this->setCache($key, $value, false);
 				return $value;
 			}
@@ -117,7 +117,7 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 		$memcache = false,
 		$overwrite = false
 	) {
-		$key = $this->cacheKey($entity->getValues(true));
+		$key = $this->cacheKey($this->getValues($entity,true));
 		if (!$overwrite AND $this->isCached($key, $memcache)) {
 			$entity = $this->getCached($key, $memcache);
 		} else {

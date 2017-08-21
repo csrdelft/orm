@@ -1,25 +1,8 @@
 <?php
-use CsrDelft\Orm\Entity\T;
+use CsrDelft\Orm\CachedPersistenceModel;
+use Test\Orm\Model\BikeModel;
 
 require_once 'Persistence/MySqlDatabaseTestCase.php';
-
-class Bike extends \CsrDelft\Orm\Entity\PersistentEntity {
-	public $id;
-	public $brand;
-
-	protected static $persistent_attributes = [
-		'id' => [T::Integer, false, 'auto_increment'],
-		'brand' => [T::String]
-	];
-	protected static $table_name = 'bike';
-	protected static $primary_key = ['id'];
-}
-
-class BikeModel extends \CsrDelft\Orm\CachedPersistenceModel {
-	const ORM = Bike::class;
-
-	protected static $instance;
-}
 
 /**
  * CachedPersistenceModelIntegrationTest.php
@@ -28,7 +11,7 @@ class BikeModel extends \CsrDelft\Orm\CachedPersistenceModel {
  * @date 31/03/2017
  */
 class CachedPersistenceModelIntegrationTest extends MySqlDatabaseTestCase {
-	/** @var  \CsrDelft\Orm\CachedPersistenceModel */
+	/** @var  CachedPersistenceModel */
 	private $model;
 	/**
 	 * Returns the test dataset.
@@ -47,7 +30,7 @@ class CachedPersistenceModelIntegrationTest extends MySqlDatabaseTestCase {
 	public function testPrefetch() {
 		$bikes = $this->model->prefetch();
 		// CachedPersistenceModel assumes nobody else touches the db in this request
-		$this->getConnection()->getConnection()->query('DELETE FROM bike WHERE id = 1;')->execute();
+		$this->getConnection()->getConnection()->query('DELETE FROM Bike WHERE id = 1;')->execute();
 		$this->assertTrue($this->model->exists($bikes[0]));
 
 	}

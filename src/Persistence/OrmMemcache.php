@@ -41,6 +41,9 @@ class OrmMemcache {
 		return self::$instance;
 	}
 
+	/**
+	 * OrmMemcache constructor.
+	 */
 	private function __construct() {
 		// never called
 	}

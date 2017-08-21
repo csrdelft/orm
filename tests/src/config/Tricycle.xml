@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Entity tableName="Tricycle">
+	<ColumnDefinition>
+		<Definition name="id" type="integer" extra="auto_increment"/>
+		<Definition name="color" type="string" null="true"/>
+		<Definition name="brand" type="string"/>
+	</ColumnDefinition>
+	<PrimaryKey>
+		<Key name="id"/>
+	</PrimaryKey>
+</Entity>

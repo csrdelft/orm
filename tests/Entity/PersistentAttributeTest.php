@@ -90,10 +90,8 @@ final class MyEnum implements PersistentEnum {
 	}
 
 	public static function getDescription($option) {
-		// TODO: Implement getDescription() method.
 	}
 
 	public static function getChar($option) {
-		// TODO: Implement getChar() method.
 	}
 }

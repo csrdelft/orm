@@ -10,6 +10,8 @@ use Exception;
  *
  * Translation of persistent attribute definitions to and from MySQL table structure.
  *
+ * Warning: The fields in this class are based on the `DESCRIBE table;` sql query DO NOT CHANGE.
+ *
  */
 class PersistentAttribute {
 
@@ -135,5 +137,19 @@ class PersistentAttribute {
 			$definition[] = $this->extra;
 		}
 		return $definition;
+	}
+
+	/**
+	 * @param PersistentAttribute $other
+	 *
+	 * @return bool
+	 */
+	public function equals(PersistentAttribute $other) {
+		return $this->field == $other->field
+			&& $this->type == $other->type
+			&& $this->null == $other->null
+			&& $this->key == $other->key
+			&& $this->default == $other->default
+			&& $this->extra == $other->extra;
 	}
 }

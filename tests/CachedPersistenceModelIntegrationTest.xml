@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
 <dataset>
-    <bike id="1" brand="Union"/>
-    <bike id="2" brand="Gazelle"/>
+    <Bike id="1" brand="Union"/>
+    <Bike id="2" brand="Gazelle"/>
 </dataset>
