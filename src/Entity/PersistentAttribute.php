@@ -9,7 +9,6 @@ use Exception;
  * @author P.W.G. Brussee <brussee@live.nl>
  *
  * Translation of persistent attribute definitions to and from MySQL table structure.
- *
  */
 class PersistentAttribute {
 

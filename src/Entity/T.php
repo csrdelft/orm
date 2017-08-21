@@ -1,4 +1,5 @@
 <?php
+
 namespace CsrDelft\Orm\Entity;
 
 /**
@@ -9,7 +10,8 @@ namespace CsrDelft\Orm\Entity;
  * De mogelijke datatypes.
  *
  */
-abstract class T implements PersistentEnum {
+abstract class T implements PersistentEnum
+{
 
 	const String = 'varchar(255)';
 	const Char = 'char(1)';
@@ -25,7 +27,49 @@ abstract class T implements PersistentEnum {
 	const Enumeration = 'enum';
 	const UID = 'varchar(4)';
 
-	public static function getTypeOptions() {
+	/**
+	 * @var string[]
+	 */
+	protected static $mapTypeToDescription = [
+		self::String => 'Tekst (1 zin)',
+		self::Char => 'Karakter (1 teken)',
+		self::Boolean => 'Ja/Nee-waarde',
+		self::Integer => 'Geheel getal',
+		self::Float => 'Kommagetal',
+		self::Date => 'Datum',
+		self::Time => 'Tijd',
+		self::DateTime => 'Datum & tijd',
+		self::Timestamp => 'Tijd (getal)',
+		self::Text => 'Tekst',
+		self::LongText => 'Tekst (lang)',
+		self::Enumeration => 'Voorgedefinieerde waarden',
+		self::UID => 'Lidnummer',
+	];
+
+	/**
+	 * @var string[]
+	 */
+	protected static $mapTypeToChar = [
+		self::String => 's',
+		self::Char => 'c',
+		self::Boolean => 'b',
+		self::Integer => 'i',
+		self::Float => 'f',
+		self::Date => 'd',
+		self::Time => 't',
+		self::DateTime => 'dt',
+		self::Timestamp => 'ts',
+		self::Text => 't',
+		self::LongText => 'lt',
+		self::Enumeration => 'e',
+		self::UID => 'u',
+	];
+
+	/**
+	 * @return string[]
+	 */
+	public static function getTypeOptions()
+	{
 		return [
 			self::String,
 			self::Char,
@@ -43,70 +87,31 @@ abstract class T implements PersistentEnum {
 		];
 	}
 
-	public static function getDescription($option) {
-		switch ($option) {
-			case self::String:
-				return 'Tekst (1 zin)';
-			case self::Char:
-				return 'Karakter (1 teken)';
-			case self::Boolean:
-				return 'Ja/Nee-waarde';
-			case self::Integer:
-				return 'Geheel getal';
-			case self::Float:
-				return 'Kommagetal';
-			case self::Date:
-				return 'Datum';
-			case self::Time:
-				return 'Tijd';
-			case self::DateTime:
-				return 'Datum & tijd';
-			case self::Timestamp:
-				return 'Tijd (getal)';
-			case self::Text:
-				return 'Tekst';
-			case self::LongText:
-				return 'Tekst (lang)';
-			case self::Enumeration:
-				return 'Voorgedefinieerde waarden';
-			case self::UID:
-				return 'Lidnummer';
-			default:
-				throw new \Exception('T onbekend');
+	/**
+	 * @param string $option
+	 * @return string
+	 * @throws \Exception
+	 */
+	public static function getDescription($option)
+	{
+		if (isset(static::$mapTypeToDescription[$option])) {
+			return static::$mapTypeToDescription[$option];
+		} else {
+			throw new \Exception(sprintf('T optie "%s" onbekend.', $option));
 		}
 	}
 
-	public static function getChar($option) {
-		switch ($option) {
-			case self::String:
-				return 's';
-			case self::Char:
-				return 'c';
-			case self::Boolean:
-				return 'b';
-			case self::Integer:
-				return 'i';
-			case self::Float:
-				return 'f';
-			case self::Date:
-				return 'd';
-			case self::Time:
-				return 't';
-			case self::DateTime:
-				return 'dt';
-			case self::Timestamp:
-				return 'ts';
-			case self::Text:
-				return 't';
-			case self::LongText:
-				return 'lt';
-			case self::Enumeration:
-				return 'e';
-			case self::UID:
-				return 'u';
-			default:
-				throw new \Exception('T onbekend');
+	/**
+	 * @param string $option
+	 * @return string
+	 * @throws \Exception
+	 */
+	public static function getChar($option)
+	{
+		if (isset(static::$mapTypeToChar[$option])) {
+			return static::$mapTypeToChar[$option];
+		} else {
+			throw new \Exception(sprintf('T optie "%s" onbekend.', $option));
 		}
 	}
-
 }

@@ -1,6 +1,9 @@
 <?php
 namespace CsrDelft\Orm\Persistence;
 
+/**
+ * @author Gerben Oolbekkink <g.j.w.oolbekkink@gmail.com>
+ */
 class DummyCache {
 
 	/**
@@ -13,6 +16,13 @@ class DummyCache {
 		return true;
 	}
 
+	/**
+	 * Any call returns false.
+	 *
+	 * @param string $name
+	 * @param mixed[] $arguments
+	 * @return bool
+	 */
 	public function __call($name, $arguments) {
 		return false;
 	}

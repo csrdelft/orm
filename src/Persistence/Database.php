@@ -10,7 +10,6 @@ use PDO;
  * Database.php
  *
  * @author P.W.G. Brussee <brussee@live.nl>
- *
  */
 class Database {
 	/**
@@ -33,6 +32,9 @@ class Database {
 	 */
 	private $database;
 
+	/**
+	 * @param PDO $pdo
+	 */
 	public static function init($pdo) {
 		assert(!isset(self::$instance));
 		self::$instance = new Database($pdo);
@@ -48,11 +50,19 @@ class Database {
 		return self::$instance;
 	}
 
+	/**
+	 * Database constructor.
+	 * @param PDO $pdo
+	 */
 	public function __construct(PDO $pdo) {
 		$this->database = $pdo;
 		$this->queryBuilder = new QueryBuilder();
 	}
 
+	/**
+	 * @param Closure $function
+	 * @return mixed
+	 */
 	public static function transaction(Closure $function) {
 		return static::instance()->_transaction($function);
 	}
@@ -92,6 +102,10 @@ class Database {
 	 * @var array
 	 */
 	private static $queries = [];
+
+	/**
+	 * @var array
+	 */
 	private static $trace = [];
 
 	/**
@@ -102,6 +116,9 @@ class Database {
 		return self::$queries;
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getTrace() {
 		return self::$trace;
 	}
@@ -330,6 +347,9 @@ class Database {
 		return $query->rowCount();
 	}
 
+	/**
+	 * @return PDO
+	 */
 	public function getDatabase() {
 		return $this->database;
 	}

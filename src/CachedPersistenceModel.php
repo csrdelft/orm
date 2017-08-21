@@ -18,18 +18,27 @@ use PDOStatement;
  *
  * Note: cache on create is not possible due to cache key being based on PK
  *       and PK may be set after create by child class.
- *
  */
 abstract class CachedPersistenceModel extends PersistenceModel {
-
+	/**
+	 * @var mixed[]
+	 */
 	private $runtime_cache = [];
+
+	/**
+	 * @var \Memcache
+	 */
 	private $memcache;
+
 	/**
 	 * Store prefetch result set as a whole in memcache
 	 * @var boolean
 	 */
 	protected $memcache_prefetch = false;
 
+	/**
+	 * PersistenceModel constructor.
+	 */
 	protected function __construct() {
 		parent::__construct();
 
@@ -46,6 +55,11 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 		return static::ORM . crc32(implode('-', $primary_key_values));
 	}
 
+	/**
+	 * @param string $key
+	 * @param bool $memcache
+	 * @return bool
+	 */
 	protected function isCached($key, $memcache = false) {
 		if (isset($this->runtime_cache[$key])) {
 			return true;
@@ -60,6 +74,11 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 		return false;
 	}
 
+	/**
+	 * @param string $key
+	 * @param bool $memcache
+	 * @return bool|mixed
+	 */
 	protected function getCached($key, $memcache = false) {
 		if (array_key_exists($key, $this->runtime_cache)) {
 			return $this->runtime_cache[$key];
@@ -67,7 +86,7 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 			$cache = $this->memcache->get($key);
 			if ($cache !== false) {
 				$value = unserialize($cache);
-				// unserialize once 
+				// unserialize once
 				$this->setCache($key, $value, false);
 				return $value;
 			}
@@ -77,6 +96,11 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 		return false;
 	}
 
+	/**
+	 * @param string $key
+	 * @param array $value
+	 * @param bool $memcache
+	 */
 	protected function setCache($key, $value, $memcache = false) {
 		$this->runtime_cache[$key] = $value;
 		if ($memcache) {
@@ -84,6 +108,10 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 		}
 	}
 
+	/**
+	 * @param string $key
+	 * @param bool $memcache
+	 */
 	protected function unsetCache($key, $memcache = false) {
 		unset($this->runtime_cache[$key]);
 		if ($memcache) {

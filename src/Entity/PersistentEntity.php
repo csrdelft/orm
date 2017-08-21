@@ -95,7 +95,7 @@ abstract class PersistentEntity implements \JsonSerializable {
 	/**
 	 * Get all attribute names.
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public function getAttributes() {
 		return array_keys(static::$persistent_attributes);

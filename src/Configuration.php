@@ -10,7 +10,6 @@ use PDO;
  * @author G.J.W. Oolbekkink <g.j.w.oolbekkink@gmail.com>
  *
  * Configuration for ORM
- *
  */
 class Configuration {
 

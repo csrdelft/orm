@@ -19,6 +19,9 @@ class OrmMemcache {
 	 */
 	private static $instance;
 
+	/**
+	 * @param string $path
+	 */
 	public static function init($path) {
 		assert(!isset(self::$instance));
 		if (class_exists('Memcache')) {
@@ -41,6 +44,9 @@ class OrmMemcache {
 		return self::$instance;
 	}
 
+	/**
+	 * OrmMemcache constructor.
+	 */
 	private function __construct() {
 		// never called
 	}

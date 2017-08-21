@@ -28,6 +28,10 @@ class DynamicEntityModel extends PersistenceModel {
 		throw new Exception('Use makeModel');
 	}
 
+	/**
+	 * @param string $table_name
+	 * @return static
+	 */
 	public static function makeModel($table_name) {
 		parent::__static();
 		return new static($table_name);
@@ -56,6 +60,9 @@ class DynamicEntityModel extends PersistenceModel {
 		}
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getTableName() {
 		return $this->definition->table_name;
 	}
@@ -69,14 +76,27 @@ class DynamicEntityModel extends PersistenceModel {
 		return array_keys($this->definition->persistent_attributes);
 	}
 
+	/**
+	 * @param string $attribute_name
+	 * @return array
+	 */
 	public function getAttributeDefinition($attribute_name) {
 		return $this->definition->persistent_attributes[$attribute_name];
 	}
 
+	/**
+	 * @return string[]
+	 */
 	public function getPrimaryKey() {
 		return array_values($this->definition->primary_key);
 	}
 
+	/**
+	 * Load saved entity data and create new object.
+	 *
+	 * @param array $primary_key_values
+	 * @return DynamicEntity|false
+	 */
 	protected function retrieveByPrimaryKey(array $primary_key_values) {
 		/** @var DynamicEntity $entity */
 		$entity = parent::retrieveByPrimaryKey($primary_key_values);
@@ -86,13 +106,22 @@ class DynamicEntityModel extends PersistenceModel {
 		return $entity;
 	}
 
+	/**
+	 * @param string[] $criteria
+	 * @param mixed[] $criteria_params
+	 * @param string $group_by
+	 * @param string $order_by
+	 * @param int $limit
+	 * @param int $start
+	 * @return \PDOStatement
+	 */
 	public function find(
 		$criteria = null,
 		array $criteria_params = [],
 		$group_by = null,
 		$order_by = null,
 		$limit = null,
-				$start = 0
+		$start = 0
 	) {
 		$result = parent::find($criteria, $criteria_params, $group_by, $order_by, $limit, $start);
 		if ($result) {

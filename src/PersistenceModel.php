@@ -21,6 +21,9 @@ use PDOStatement;
  */
 abstract class PersistenceModel implements Persistence {
 
+	/**
+	 * Static constructor.
+	 */
 	public static function __static() {
 		/** @var PersistentEntity $orm */
 		$orm = static::ORM;
@@ -62,12 +65,18 @@ abstract class PersistenceModel implements Persistence {
 	 */
 	protected $database;
 
+	/**
+	 * PersistenceModel constructor.
+	 */
 	protected function __construct() {
 		$orm = static::ORM;
 		$this->orm = new $orm();
 		$this->database = Database::instance();
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getTableName() {
 		return $this->orm->getTableName();
 	}
@@ -81,10 +90,17 @@ abstract class PersistenceModel implements Persistence {
 		return $this->orm->getAttributes();
 	}
 
+	/**
+	 * @param string $attribute_name
+	 * @return array
+	 */
 	public function getAttributeDefinition($attribute_name) {
 		return $this->orm->getAttributeDefinition($attribute_name);
 	}
 
+	/**
+	 * @return string[]
+	 */
 	public function getPrimaryKey() {
 		return $this->orm->getPrimaryKey();
 	}

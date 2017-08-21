@@ -11,9 +11,20 @@ namespace CsrDelft\Orm\Entity;
  */
 interface PersistentEnum {
 
+	/**
+	 * @return string[]
+	 */
 	public static function getTypeOptions();
 
+	/**
+	 * @param string $option
+	 * @return string
+	 */
 	public static function getDescription($option);
 
+	/**
+	 * @param string $option
+	 * @return string
+	 */
 	public static function getChar($option);
 }

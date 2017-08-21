@@ -39,6 +39,9 @@ class DatabaseAdmin {
 	 */
 	private $database;
 
+	/**
+	 * @param PDO $pdo
+	 */
 	public static function init($pdo) {
 		assert(!isset(self::$instance));
 		self::$instance = new DatabaseAdmin($pdo);
@@ -54,6 +57,10 @@ class DatabaseAdmin {
 		return self::$instance;
 	}
 
+	/**
+	 * DatabaseAdmin constructor.
+	 * @param PDO $pdo
+	 */
 	public function __construct($pdo) {
 		$this->database = $pdo;
 		$this->queryBuilder = new QueryBuilder();
@@ -81,7 +88,7 @@ class DatabaseAdmin {
 		$properties = $reflection_class->getProperties(ReflectionProperty::IS_STATIC);
 
 		// Reduce $properties to an associative array
-		/** @var ReflectionProperty[] $properties */
+		/** @var mixed[] $properties */
 		$properties = array_reduce(
 			$properties,
 			function ($result, ReflectionProperty $item) {
@@ -253,6 +260,11 @@ class DatabaseAdmin {
 		return $query->fetchColumn(1);
 	}
 
+	/**
+	 * @param string $name
+	 * @param array $attributes
+	 * @param string[] $primary_key
+	 */
 	public function sqlCreateTable($name, array $attributes, array $primary_key) {
 		$sql = $this->queryBuilder->buildCreateTable($name, $attributes, $primary_key);
 		$query = $this->database->prepare($sql);
@@ -262,6 +274,9 @@ class DatabaseAdmin {
 		self::$queries[] = $query->queryString;
 	}
 
+	/**
+	 * @param string $name
+	 */
 	public function sqlDropTable($name) {
 		$sql = $this->queryBuilder->buildDropTable($name);
 		$query = $this->database->prepare($sql);
@@ -278,6 +293,11 @@ class DatabaseAdmin {
 		self::$queries[] = $esc . $query->queryString;
 	}
 
+	/**
+	 * @param string $table
+	 * @param PersistentAttribute $attribute
+	 * @param string $after_attribute
+	 */
 	public function sqlAddAttribute(
 		$table,
 		PersistentAttribute $attribute,
@@ -295,6 +315,11 @@ class DatabaseAdmin {
 		self::$queries[] = $query->queryString;
 	}
 
+	/**
+	 * @param string $table
+	 * @param PersistentAttribute $attribute
+	 * @param string $old_name
+	 */
 	public function sqlChangeAttribute(
 		$table,
 		PersistentAttribute $attribute,
@@ -312,6 +337,10 @@ class DatabaseAdmin {
 		self::$queries[] = $query->queryString;
 	}
 
+	/**
+	 * @param string $table
+	 * @param PersistentAttribute $attribute
+	 */
 	public function sqlDeleteAttribute(
 		$table,
 		PersistentAttribute $attribute

@@ -11,6 +11,16 @@ use CsrDelft\Orm\Entity\PersistentAttribute;
  */
 class QueryBuilder {
 
+	/**
+	 * @param string[] $attributes
+	 * @param string $from
+	 * @param string|null $where
+	 * @param string|null $group_by
+	 * @param string|null $order_by
+	 * @param int|string $limit
+	 * @param int $start
+	 * @return string
+	 */
 	public function buildSelect(
 		array $attributes,
 		$from,
@@ -47,6 +57,11 @@ class QueryBuilder {
 		);
 	}
 
+	/**
+	 * @param string $table
+	 * @param string|null $where
+	 * @return string
+	 */
 	public function buildExists($table, $where = null) {
 		$whereSql = '';
 		if ($where !== null) {
@@ -59,6 +74,12 @@ class QueryBuilder {
 		);
 	}
 
+	/**
+	 * @param string $table
+	 * @param string[] $properties
+	 * @param string[] $insert_params
+	 * @return string
+	 */
 	public function buildInsert($table, $properties, $insert_params) {
 		return sprintf(
 			'INSERT INTO %s (%s) VALUES (%s)',
@@ -68,6 +89,13 @@ class QueryBuilder {
 		);
 	}
 
+	/**
+	 * @param string $table
+	 * @param string[] $attributes
+	 * @param string $where
+	 * @param int $limit
+	 * @return string
+	 */
 	public function buildUpdate($table, $attributes, $where, $limit = 0) {
 		$sql = 'UPDATE ' . $table . ' SET ';
 		$sql .= implode(', ', $attributes);
@@ -79,6 +107,12 @@ class QueryBuilder {
 		return $sql;
 	}
 
+	/**
+	 * @param string $table
+	 * @param string $where
+	 * @param int $limit
+	 * @return string
+	 */
 	public function buildDelete($table, $where, $limit = 0) {
 		$limitSql = '';
 		if ((int)$limit > 0) {
@@ -93,22 +127,33 @@ class QueryBuilder {
 		);
 	}
 
+	/**
+	 * @return string
+	 */
 	public function buildShowTable() {
 		return 'SHOW TABLES';
 	}
 
+	/**
+	 * @param string $name
+	 * @return string
+	 */
 	public function buildDescribeTable($name) {
 		return sprintf('DESCRIBE %s', $name);
 	}
 
+	/**
+	 * @param string $name
+	 * @return string
+	 */
 	public function buildShowCreateTable($name) {
 		return sprintf('SHOW CREATE TABLE %s', $name);
 	}
 
 	/**
-	 * @param $name
+	 * @param string $name
 	 * @param PersistentAttribute[] $attributes
-	 * @param array $primary_key
+	 * @param string[] $primary_key
 	 * @return string
 	 */
 	public function buildCreateTable($name, array $attributes, array $primary_key) {
@@ -128,6 +173,10 @@ class QueryBuilder {
 		);
 	}
 
+	/**
+	 * @param string $name
+	 * @return string
+	 */
 	public function buildDropTable($name) {
 		return sprintf(
 			'DROP TABLE %s',
@@ -135,6 +184,12 @@ class QueryBuilder {
 		);
 	}
 
+	/**
+	 * @param string $table
+	 * @param PersistentAttribute $attribute
+	 * @param string|null $after_attribute
+	 * @return string
+	 */
 	public function buildAddAttribute(
 		$table,
 		PersistentAttribute $attribute,
@@ -153,6 +208,11 @@ class QueryBuilder {
 		);
 	}
 
+	/**
+	 * @param string $table
+	 * @param PersistentAttribute $attribute
+	 * @return string
+	 */
 	public function buildDeleteAttribute(
 		$table,
 		PersistentAttribute $attribute
@@ -164,6 +224,12 @@ class QueryBuilder {
 		);
 	}
 
+	/**
+	 * @param string $table
+	 * @param PersistentAttribute $attribute
+	 * @param string|null $old_name
+	 * @return string
+	 */
 	public function buildChangeAttribute(
 		$table,
 		PersistentAttribute $attribute,
@@ -211,5 +277,4 @@ class QueryBuilder {
 		}
 		return preg_replace($attributes, $params, $query, 1);
 	}
-
 }
