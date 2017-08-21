@@ -18,7 +18,7 @@ abstract class MySqlDatabaseTestCase extends PHPUnit_Extensions_Database_TestCas
 						'host' => 'localhost',
 						'user' => 'travis',
 						'db' => 'orm_test',
-						'pass' => null
+						'pass' => ''
 					]
 				]);
 
