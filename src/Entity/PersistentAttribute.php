@@ -10,6 +10,8 @@ use Exception;
  *
  * Translation of persistent attribute definitions to and from MySQL table structure.
  *
+ * Warning: The fields in this class are based on the `DESCRIBE table;` sql query DO NOT CHANGE.
+ *
  */
 class PersistentAttribute {
 

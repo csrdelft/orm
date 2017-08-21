@@ -49,7 +49,7 @@ class DynamicEntityModel extends PersistenceModel {
 		$persistent_attributes = [];
 		$primary_key = [];
 		foreach (DatabaseAdmin::instance()->sqlDescribeTable($table_name) as $attribute) {
-			$persistent_attributes[$attribute->field] = $attribute->toDefinition();
+			$persistent_attributes[$attribute->field] = $attribute;
 			if ($attribute->key === 'PRI') {
 				$primary_key[] = $attribute->field;
 			}
