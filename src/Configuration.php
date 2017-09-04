@@ -32,7 +32,7 @@ class Configuration {
 
 		$db_conf = $config['db'];
 
-		Persistence\OrmMemcache::init($config['cache_path']);
+		$ormMemcache = Persistence\OrmMemcache::init($config['cache_path']);
 
 		$dsn = 'mysql:host=' . $db_conf['host'] . ';dbname=' . $db_conf['db'];
 		$options = [
@@ -41,8 +41,12 @@ class Configuration {
 		];
 		$pdo = new PDO($dsn, $db_conf['user'], $db_conf['pass'], $options);
 
-		Persistence\Database::init($pdo);
-		Persistence\DatabaseAdmin::init($pdo);
+		$database = Persistence\Database::init($pdo);
+		$databaseAdmin = Persistence\DatabaseAdmin::init($pdo);
+
+		DependencyManager::addDependency($ormMemcache);
+		DependencyManager::addDependency($database);
+		DependencyManager::addDependency($databaseAdmin);
 	}
 
 }

@@ -57,6 +57,12 @@ abstract class DependencyManager {
 		return $instance;
 	}
 
+	public static function addDependency(DependencyManager $dependency) {
+		if (!isset(self::$instance[get_class($dependency)])) {
+			self::$instance[get_class($dependency)] = $dependency;
+		}
+	}
+
 	/**
 	 * @return static
 	 */
