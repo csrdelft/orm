@@ -26,5 +26,4 @@ class DynamicEntityDefinition {
 	 * @var string
 	 */
 	public $table_name;
-
 }

@@ -16,8 +16,6 @@ use PDOStatement;
  *
  * Uses the database to provide persistence.
  * Requires an ORM class constant to be defined in superclass.
- * Requires a static property $instance in superclass.
- *
  */
 abstract class PersistenceModel extends DependencyManager implements Persistence {
 	/**
@@ -29,6 +27,7 @@ abstract class PersistenceModel extends DependencyManager implements Persistence
 	 * Static constructor.
 	 */
 	public static function __static() {
+		assert(static::ORM !== null);
 		/** @var PersistentEntity $orm */
 		$orm = static::ORM;
 		$orm::__static(); // Extend the persistent attributes

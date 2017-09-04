@@ -1,5 +1,4 @@
 <?php
-
 namespace CsrDelft\Orm\Entity;
 
 use function common\pdo_bool;

@@ -1,4 +1,5 @@
 <?php
+use CsrDelft\Orm\CachedPersistenceModel;
 use CsrDelft\Orm\Entity\T;
 
 require_once 'Persistence/MySqlDatabaseTestCase.php';
@@ -15,10 +16,8 @@ class Bike extends \CsrDelft\Orm\Entity\PersistentEntity {
 	protected static $primary_key = ['id'];
 }
 
-class BikeModel extends \CsrDelft\Orm\CachedPersistenceModel {
+class BikeModel extends CachedPersistenceModel {
 	const ORM = Bike::class;
-
-	protected static $instance;
 }
 
 /**
@@ -28,7 +27,7 @@ class BikeModel extends \CsrDelft\Orm\CachedPersistenceModel {
  * @date 31/03/2017
  */
 class CachedPersistenceModelIntegrationTest extends MySqlDatabaseTestCase {
-	/** @var  \CsrDelft\Orm\CachedPersistenceModel */
+	/** @var  CachedPersistenceModel */
 	private $model;
 	/**
 	 * Returns the test dataset.

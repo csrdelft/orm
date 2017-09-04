@@ -8,7 +8,6 @@ namespace CsrDelft\Orm\Entity;
  *
  * Dynamic entities are defined by the table structure instead of the other way around.
  * Conversion: only define the new class and dynamically load the old class definition.
- *
  */
 class DynamicEntity extends PersistentEntity {
 

@@ -76,25 +76,25 @@ class Database extends DependencyManager {
 
 	/**
 	 * Array of SQL statements for debug
-	 * @var array
+	 * @var string[]
 	 */
 	private static $queries = [];
 
 	/**
-	 * @var array
+	 * @var string[]
 	 */
 	private static $trace = [];
 
 	/**
 	 * Get array of SQL statements for debug
-	 * @return array
+	 * @return string[]
 	 */
 	public function getQueries() {
 		return self::$queries;
 	}
 
 	/**
-	 * @return array
+	 * @return string[]
 	 */
 	public function getTrace() {
 		return self::$trace;
@@ -103,7 +103,7 @@ class Database extends DependencyManager {
 	/**
 	 * Trace back where the query originated from
 	 * @param string $query
-	 * @param array $params
+	 * @param string[] $params
 	 */
 	private function addQuery($query, array $params) {
 		$q = $this->queryBuilder->interpolateQuery($query, $params);
@@ -134,10 +134,10 @@ class Database extends DependencyManager {
 	 * Optional named parameters.
 	 *
 	 *
-	 * @param array $attributes
+	 * @param string[] $attributes
 	 * @param string $from
 	 * @param string $where
-	 * @param array $params
+	 * @param string[] $params
 	 * @param string $group_by
 	 * @param string $order_by
 	 * @param int $limit
@@ -174,7 +174,7 @@ class Database extends DependencyManager {
 	 *
 	 * @param string $from
 	 * @param string $where
-	 * @param array $params
+	 * @param string[] $params
 	 * @return boolean
 	 */
 	public function sqlExists(
@@ -194,7 +194,7 @@ class Database extends DependencyManager {
 	 * Optional REPLACE (DELETE & INSERT) if primary key already exists.
 	 *
 	 * @param string $into
-	 * @param array $properties
+	 * @param string[] $properties
 	 * @return string last inserted row id or sequence value
 	 * @throws Exception if number of rows affected !== 1
 	 */
@@ -220,7 +220,7 @@ class Database extends DependencyManager {
 	 * Requires positional parameters.
 	 *
 	 * @param string $into
-	 * @param array $properties =
+	 * @param string[][] $properties =
 	 *        [
 	 *            ["attr_name1", "attr_name2", ...],
 	 *            ["entry1value1", "entry1value2", ...],
@@ -273,9 +273,9 @@ class Database extends DependencyManager {
 	 * Requires named parameters.
 	 *
 	 * @param string $table
-	 * @param array $properties
+	 * @param string[] $properties
 	 * @param string $where
-	 * @param array $where_params
+	 * @param string[] $where_params
 	 * @param int $limit
 	 * @return int number of rows affected
 	 * @throws Exception if duplicate named parameter
@@ -307,7 +307,7 @@ class Database extends DependencyManager {
 	 *
 	 * @param string $from
 	 * @param string $where
-	 * @param array $where_params
+	 * @param string[] $where_params
 	 * @param int $limit
 	 * @return int number of rows affected
 	 */

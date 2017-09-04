@@ -6,16 +6,28 @@ namespace CsrDelft\Orm;
  * @date 04/09/2017
  */
 abstract class DependencyManager {
-	/** @var static[] */
+	/**
+	 * Error constants.
+	 */
+	const ERROR_CIRCULAR_DEPENDENCY = 'Circular dependency detected while loading parameter "%s" from "%s".';
+	const ERROR_UNEXPECTED_AMOUNT_OF_PARAMETERS = 'Unexpected amount of parameters.';
+
+	/**
+	 * List of currently active instances.
+	 *
+	 * @var static[]
+	 */
 	private static $instance = [];
 
 	/**
+	 * Used to keep track of loading instances and detecting circular dependencies.
+	 *
 	 * @var bool[]
 	 */
 	private static $loading = [];
 
 	/**
-	 * Static constructor.
+	 * Static constructor. Can be implemented in base classes.
 	 */
 	public static function __static() {
 		// Empty.
@@ -44,7 +56,7 @@ abstract class DependencyManager {
 			} elseif (isset(self::$instance[$parameterClass->name])) {
 				$parameters[] = self::$instance[$parameterClass->name];
 			} elseif (isset(self::$loading[$parameterClass->name])) {
-				throw new \Exception(sprintf('Circular dependency detected while loading parameter "%s" from "%s".', $parameterClass->name, static::class));
+				throw new \Exception(sprintf(self::ERROR_CIRCULAR_DEPENDENCY, $parameterClass->name, static::class));
 			} elseif ($parameterClass->isSubclassOf(DependencyManager::class)) {
 				$parameterDependency = $parameterClass->name;
 				self::$loading[$parameterDependency] = true;
@@ -53,12 +65,12 @@ abstract class DependencyManager {
 			} elseif (count($arguments) > 0) {
 				$parameters[] = array_pop($arguments);
 			} else {
-				throw new \Exception('Unexpected amount of parameters.');
+				throw new \Exception(self::ERROR_UNEXPECTED_AMOUNT_OF_PARAMETERS);
 			}
 		}
 
 		if (count($arguments) !== 0) {
-			throw new \Exception('Unexpected amount of parameters.');
+			throw new \Exception(self::ERROR_UNEXPECTED_AMOUNT_OF_PARAMETERS);
 		}
 
 		$instance = new static(...$parameters);
@@ -68,6 +80,11 @@ abstract class DependencyManager {
 		return $instance;
 	}
 
+	/**
+	 * Manually add an instance to the DependencyManager.
+	 *
+	 * @param DependencyManager $dependency
+	 */
 	public static function addDependency(DependencyManager $dependency) {
 		if (!isset(self::$instance[get_class($dependency)])) {
 			self::$instance[get_class($dependency)] = $dependency;
@@ -75,6 +92,8 @@ abstract class DependencyManager {
 	}
 
 	/**
+	 * Retrieve an instance of this class.
+	 *
 	 * @return static
 	 */
 	final public static function instance() {

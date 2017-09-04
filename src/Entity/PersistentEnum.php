@@ -7,11 +7,21 @@ namespace CsrDelft\Orm\Entity;
  * @author P.W.G. Brussee <brussee@live.nl>
  *
  * An enumeration has type-options.
- *
  */
 abstract class PersistentEnum {
+	/**
+	 * @var string[]
+	 */
 	protected static $supportedChoices = [];
+
+	/**
+	 * @var string[]
+	 */
 	protected static $mapChoiceToDescription = [];
+
+	/**
+	 * @var string[]
+	 */
 	protected static $mapChoiceToChar = [];
 
 	/**

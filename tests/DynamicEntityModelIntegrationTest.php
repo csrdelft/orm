@@ -45,6 +45,4 @@ final class DynamicEntityModelIntegrationTest extends MySqlDatabaseTestCase {
 
 		$this->assertEquals('Opel', $car->brand);
 	}
-
-
 }

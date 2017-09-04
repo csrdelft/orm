@@ -242,7 +242,7 @@ class QueryBuilder {
 	 * $params are are in the same order as specified in $query
 	 *
 	 * @param string $query The sql query with parameter placeholders
-	 * @param array $params The array of substitution parameters
+	 * @param string[] $params The array of substitution parameters
 	 * @return string The interpolated query
 	 */
 	public function interpolateQuery($query, $params) {

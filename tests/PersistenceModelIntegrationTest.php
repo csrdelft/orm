@@ -21,7 +21,6 @@ class Car extends PersistentEntity {
 
 class CarModel extends PersistenceModel {
 	const ORM = Car::class;
-	protected static $instance;
 }
 
 /**
