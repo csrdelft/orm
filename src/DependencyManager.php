@@ -7,7 +7,12 @@ namespace CsrDelft\Orm;
  */
 abstract class DependencyManager {
 	/** @var static[] */
-	protected static $instance = [];
+	private static $instance = [];
+
+	/**
+	 * @var bool[]
+	 */
+	private static $loading = [];
 
 	/**
 	 * Static constructor.
@@ -38,9 +43,13 @@ abstract class DependencyManager {
 				$parameters[] = array_pop($arguments);
 			} elseif (isset(self::$instance[$parameterClass->name])) {
 				$parameters[] = self::$instance[$parameterClass->name];
+			} elseif (isset(self::$loading[$parameterClass->name])) {
+				throw new \Exception(sprintf('Circular dependency detected while loading parameter "%s" from "%s".', $parameterClass->name, static::class));
 			} elseif ($parameterClass->isSubclassOf(DependencyManager::class)) {
-				$initMethod = $parameterClass->getMethod('init');
-				$parameters[] = $initMethod->invoke($parameterClass);
+				$parameterDependency = $parameterClass->name;
+				self::$loading[$parameterDependency] = true;
+				self::$instance[$parameterDependency] = $parameterDependency::init();
+				$parameters[] = self::$instance[$parameterClass->name];
 			} elseif (count($arguments) > 0) {
 				$parameters[] = array_pop($arguments);
 			} else {
@@ -53,6 +62,8 @@ abstract class DependencyManager {
 		}
 
 		$instance = new static(...$parameters);
+
+		self::$loading = [];
 
 		return $instance;
 	}
