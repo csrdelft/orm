@@ -10,9 +10,7 @@ namespace CsrDelft\Orm\Entity;
  * De mogelijke datatypes.
  *
  */
-abstract class T implements PersistentEnum
-{
-
+abstract class T extends PersistentEnum {
 	const String = 'varchar(255)';
 	const Char = 'char(1)';
 	const Boolean = 'tinyint(1)';
@@ -27,10 +25,26 @@ abstract class T implements PersistentEnum
 	const Enumeration = 'enum';
 	const UID = 'varchar(4)';
 
+	protected static $supportedChoices = [
+		self::String,
+		self::Char,
+		self::Boolean,
+		self::Integer,
+		self::Float,
+		self::Date,
+		self::Time,
+		self::DateTime,
+		self::Timestamp,
+		self::Text,
+		self::LongText,
+		self::Enumeration,
+		self::UID,
+	];
+
 	/**
 	 * @var string[]
 	 */
-	protected static $mapTypeToDescription = [
+	protected static $mapChoiceToDescription = [
 		self::String => 'Tekst (1 zin)',
 		self::Char => 'Karakter (1 teken)',
 		self::Boolean => 'Ja/Nee-waarde',
@@ -49,7 +63,7 @@ abstract class T implements PersistentEnum
 	/**
 	 * @var string[]
 	 */
-	protected static $mapTypeToChar = [
+	protected static $mapChoiceToChar = [
 		self::String => 's',
 		self::Char => 'c',
 		self::Boolean => 'b',
@@ -64,54 +78,4 @@ abstract class T implements PersistentEnum
 		self::Enumeration => 'e',
 		self::UID => 'u',
 	];
-
-	/**
-	 * @return string[]
-	 */
-	public static function getTypeOptions()
-	{
-		return [
-			self::String,
-			self::Char,
-			self::Boolean,
-			self::Integer,
-			self::Float,
-			self::Date,
-			self::Time,
-			self::DateTime,
-			self::Timestamp,
-			self::Text,
-			self::LongText,
-			self::Enumeration,
-			self::UID
-		];
-	}
-
-	/**
-	 * @param string $option
-	 * @return string
-	 * @throws \Exception
-	 */
-	public static function getDescription($option)
-	{
-		if (isset(static::$mapTypeToDescription[$option])) {
-			return static::$mapTypeToDescription[$option];
-		} else {
-			throw new \Exception(sprintf('T optie "%s" onbekend.', $option));
-		}
-	}
-
-	/**
-	 * @param string $option
-	 * @return string
-	 * @throws \Exception
-	 */
-	public static function getChar($option)
-	{
-		if (isset(static::$mapTypeToChar[$option])) {
-			return static::$mapTypeToChar[$option];
-		} else {
-			throw new \Exception(sprintf('T optie "%s" onbekend.', $option));
-		}
-	}
 }
