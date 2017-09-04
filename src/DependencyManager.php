@@ -23,7 +23,7 @@ abstract class DependencyManager {
 	 * @return static
 	 * @throws \Exception
 	 */
-	final public static function init(...$arguments) {
+	public static function init(...$arguments) {
 		assert(!isset(self::$instance[static::class]));
 		static::__static();
 
@@ -53,7 +53,6 @@ abstract class DependencyManager {
 		}
 
 		$instance = new static(...$parameters);
-		self::$instance[static::class] = $instance;
 
 		return $instance;
 	}
@@ -63,7 +62,7 @@ abstract class DependencyManager {
 	 */
 	final public static function instance() {
 		if (!isset(self::$instance[static::class])) {
-			self::init();
+			self::$instance[static::class] = static::init();
 		}
 
 		return self::$instance[static::class];
