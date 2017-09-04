@@ -74,7 +74,7 @@ class DatabaseAdmin extends DependencyManager {
 		$primaryKey = $properties[self::PROPERTY_PRIMARY_KEY];
 
 		if ($this->sqlExistsTable($tableName)) {
-			$databaseAttributes = $this->getDatabaseAttributes($properties);
+			$databaseAttributes = $this->getDatabaseAttributes($tableName);
 
 			$previous_attribute = null;
 			foreach ($properties[self::PROPERTY_PERSISTENT_ATTRIBUTES] as $name => $definition) {
@@ -139,9 +139,9 @@ class DatabaseAdmin extends DependencyManager {
 	public function sqlExistsTable($name) {
 		$sql = $this->queryBuilder->buildExistsTable($name);
 		$query = $this->database->prepare($sql);
-		$count = $query->execute();
+		$query->execute();
 
-		return $count === 1;
+		return $query->fetchColumn() === $name;
 	}
 
 	/**
