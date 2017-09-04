@@ -42,7 +42,7 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	protected function __construct() {
 		parent::__construct();
 
-		$this->memcache = OrmMemcache::instance();
+		$this->memcache = OrmMemcache::instance()->getCache();
 	}
 
 	/**
@@ -98,7 +98,7 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 
 	/**
 	 * @param string $key
-	 * @param array $value
+	 * @param mixed $value
 	 * @param bool $memcache
 	 */
 	protected function setCache($key, $value, $memcache = false) {

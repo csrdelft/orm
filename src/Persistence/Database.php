@@ -3,6 +3,7 @@
 namespace CsrDelft\Orm\Persistence;
 
 use Closure;
+use CsrDelft\Orm\DependencyManager;
 use Exception;
 use PDO;
 
@@ -11,13 +12,7 @@ use PDO;
  *
  * @author P.W.G. Brussee <brussee@live.nl>
  */
-class Database {
-	/**
-	 * Singleton instance
-	 * @var Database
-	 */
-	private static $instance;
-
+class Database extends DependencyManager {
 	/**
 	 * Creates queries
 	 *
@@ -31,24 +26,6 @@ class Database {
 	 * @var PDO
 	 */
 	private $database;
-
-	/**
-	 * @param PDO $pdo
-	 */
-	public static function init($pdo) {
-		assert(!isset(self::$instance));
-		self::$instance = new Database($pdo);
-	}
-
-	/**
-	 * Get singleton Database instance.
-	 *
-	 * @return Database
-	 */
-	public static function instance() {
-		assert(isset(self::$instance));
-		return self::$instance;
-	}
 
 	/**
 	 * Database constructor.

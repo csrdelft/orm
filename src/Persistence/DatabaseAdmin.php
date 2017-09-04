@@ -6,6 +6,7 @@ use CsrDelft\Orm\Entity\PersistentAttribute;
 use CsrDelft\Orm\Entity\PersistentEntity;
 use CsrDelft\Orm\Entity\PersistentEnum;
 use CsrDelft\Orm\Entity\T;
+use CsrDelft\Orm\DependencyManager;
 use Exception;
 use PDO;
 use PDOStatement;
@@ -18,7 +19,7 @@ use ReflectionProperty;
  * @author P.W.G. Brussee <brussee@live.nl>
  * @author G.J.W. Oolbekkink <g.j.w.oolbekkink@gmail.com>
  */
-class DatabaseAdmin {
+class DatabaseAdmin extends DependencyManager {
 	/**
 	 * Property constants.
 	 */
@@ -32,12 +33,6 @@ class DatabaseAdmin {
 	const DATABASE_KEY_PRIMARY = 'PRI';
 
 	/**
-	 * Singleton instance
-	 * @var DatabaseAdmin
-	 */
-	private static $instance;
-
-	/**
 	 * Creates queries
 	 *
 	 * @var QueryBuilder
@@ -48,24 +43,6 @@ class DatabaseAdmin {
 	 * @var PDO
 	 */
 	private $database;
-
-	/**
-	 * @param PDO $pdo
-	 */
-	public static function init($pdo) {
-		assert(!isset(self::$instance));
-		self::$instance = new DatabaseAdmin($pdo);
-	}
-
-	/**
-	 * Get singleton DatabaseAdmin instance.
-	 *
-	 * @return DatabaseAdmin
-	 */
-	public static function instance() {
-		assert(isset(self::$instance));
-		return self::$instance;
-	}
 
 	/**
 	 * DatabaseAdmin constructor.

@@ -4,7 +4,6 @@ namespace CsrDelft\Orm;
 use CsrDelft\Orm\Entity\DynamicEntity;
 use CsrDelft\Orm\Entity\DynamicEntityDefinition;
 use CsrDelft\Orm\Persistence\DatabaseAdmin;
-use Exception;
 use PDO;
 
 /**
@@ -19,14 +18,6 @@ use PDO;
 class DynamicEntityModel extends PersistenceModel {
 
 	const ORM = DynamicEntity::class;
-
-	/**
-	 * Factory pattern instead of singleton.
-	 * @see ::makeModel()
-	 */
-	public static function instance() {
-		throw new Exception('Use makeModel');
-	}
 
 	/**
 	 * @param string $table_name

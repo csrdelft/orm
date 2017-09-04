@@ -19,7 +19,11 @@ use PDOStatement;
  * Requires a static property $instance in superclass.
  *
  */
-abstract class PersistenceModel implements Persistence {
+abstract class PersistenceModel extends DependencyManager implements Persistence {
+	/**
+	 * Must be set in implementing classes.
+	 */
+	const ORM = null;
 
 	/**
 	 * Static constructor.
@@ -31,21 +35,6 @@ abstract class PersistenceModel implements Persistence {
 		if (defined('DB_CHECK') AND DB_CHECK) {
 			DatabaseAdmin::instance()->checkTable($orm);
 		}
-	}
-
-	/**
-	 * This has to be called once before using static methods due to
-	 * static constructor emulation.
-	 *
-	 * @return $this
-	 */
-	public static function instance() {
-		if (!isset(static::$instance)) {
-			// Unfortunately PHP does not support static constructors
-			static::__static(); // This is the next best thing for now
-			static::$instance = new static();
-		}
-		return static::$instance;
 	}
 
 	/**
@@ -69,6 +58,7 @@ abstract class PersistenceModel implements Persistence {
 	 * PersistenceModel constructor.
 	 */
 	protected function __construct() {
+		assert(static::ORM !== null);
 		$orm = static::ORM;
 		$this->orm = new $orm();
 		$this->database = Database::instance();

@@ -1,6 +1,7 @@
 <?php
 namespace CsrDelft\Orm\Persistence;
 
+use CsrDelft\Orm\DependencyManager;
 use Memcache;
 
 /**
@@ -11,44 +12,31 @@ use Memcache;
  *
  * Wrapper for Memcache if available; DummyCache otherwise.
  */
-class OrmMemcache {
+class OrmMemcache extends DependencyManager {
+	/**
+	 * @var DummyCache|Memcache
+	 */
+	protected $cache;
 
 	/**
-	 * Singleton instance
-	 * @var Memcache|DummyCache
+	 * OrmMemcache constructor.
+	 * @param $path
 	 */
-	private static $instance;
-
-	/**
-	 * @param string $path
-	 */
-	public static function init($path) {
-		assert(!isset(self::$instance));
+	protected function __construct($path) {
 		if (class_exists('Memcache')) {
-			self::$instance = new Memcache();
-			if (self::$instance->connect('unix://' . $path . 'csrdelft-cache.socket', 0)) {
+			$this->cache = new Memcache();
+			if ($this->cache->connect('unix://' . $path . 'csrdelft-cache.socket', 0)) {
 				return;
 			}
 		}
 
-		self::$instance = new DummyCache();
+		$this->cache = new DummyCache();
 	}
 
 	/**
-	 * Get singleton CsrMemcache instance.
-	 *
-	 * @return Memcache
+	 * @return DummyCache|Memcache
 	 */
-	public static function instance() {
-		assert(isset(self::$instance), 'Call OrmMemcache::init(...) first.');
-		return self::$instance;
+	public function getCache() {
+		return $this->cache;
 	}
-
-	/**
-	 * OrmMemcache constructor.
-	 */
-	private function __construct() {
-		// never called
-	}
-
 }
