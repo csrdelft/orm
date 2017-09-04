@@ -13,48 +13,42 @@ class QueryBuilder {
 
 	/**
 	 * @param string[] $attributes
-	 * @param string $from
+	 * @param string $table
 	 * @param string|null $where
 	 * @param string|null $group_by
 	 * @param string|null $order_by
-	 * @param int|string $limit
+	 * @param int $limit
 	 * @param int $start
 	 * @return string
 	 */
 	public function buildSelect(
 		array $attributes,
-		$from,
+		$table,
 		$where = null,
 		$group_by = null,
 		$order_by = null,
-		$limit = null,
+		$limit = -1,
 		$start = 0
 	) {
-		$whereSql = '';
+		$sql = sprintf('SELECT %s FROM %s', implode(', ', $attributes), $table);
+
 		if ($where !== null) {
-			$whereSql = ' WHERE ' . $where;
+			$sql .= ' WHERE ' . $where;
 		}
-		$groupBySql = '';
+
 		if ($group_by !== null) {
-			$groupBySql = ' GROUP BY ' . $group_by;
+			$sql .= ' GROUP BY ' . $group_by;
 		}
-		$orderBySql = '';
+
 		if ($order_by !== null) {
-			$orderBySql = ' ORDER BY ' . $order_by;
+			$sql .= ' ORDER BY ' . $order_by;
 		}
-		$limitSql = '';
+
 		if ((int)$limit > 0) {
-			$limitSql = ' LIMIT ' . (int)$start . ', ' . (int)$limit;
+			$sql .= ' LIMIT ' . (int)$start . ', ' . (int)$limit;
 		}
-		return sprintf(
-			'SELECT %s FROM %s%s%s%s%s',
-			implode(', ', $attributes),
-			$from,
-			$whereSql,
-			$groupBySql,
-			$orderBySql,
-			$limitSql
-		);
+
+		return $sql . ';';
 	}
 
 	/**
@@ -63,14 +57,15 @@ class QueryBuilder {
 	 * @return string
 	 */
 	public function buildExists($table, $where = null) {
-		$whereSql = '';
+		$subSql = vsprintf('SELECT 1 FROM %s', $table);
+
 		if ($where !== null) {
-			$whereSql = ' WHERE ' . $where;
+			$subSql .= ' WHERE ' . $where;
 		}
+
 		return sprintf(
-			'SELECT EXISTS (SELECT 1 FROM %s%s)',
-			$table,
-			$whereSql
+			'SELECT EXISTS (%s);',
+			$subSql
 		);
 	}
 
@@ -82,7 +77,7 @@ class QueryBuilder {
 	 */
 	public function buildInsert($table, $properties, $insert_params) {
 		return sprintf(
-			'INSERT INTO %s (%s) VALUES (%s)',
+			'INSERT INTO %s (%s) VALUES (%s);',
 			$table,
 			implode(', ', array_keys($properties)),
 			implode(', ', array_keys($insert_params))
@@ -97,14 +92,13 @@ class QueryBuilder {
 	 * @return string
 	 */
 	public function buildUpdate($table, $attributes, $where, $limit = 0) {
-		$sql = 'UPDATE ' . $table . ' SET ';
-		$sql .= implode(', ', $attributes);
-		$sql .= ' WHERE ' . $where;
+		$sql = sprintf('UPDATE %s SET %s WHERE %s', $table, implode(', ', $attributes), $where);
+
 		if ((int)$limit > 0) {
 			$sql .= ' LIMIT ' . (int)$limit;
 		}
 
-		return $sql;
+		return $sql . ';';
 	}
 
 	/**
@@ -114,24 +108,20 @@ class QueryBuilder {
 	 * @return string
 	 */
 	public function buildDelete($table, $where, $limit = 0) {
-		$limitSql = '';
+		$sql = sprintf('DELETE FROM %s WHERE %s', $table, $where);
+
 		if ((int)$limit > 0) {
-			$limitSql = ' LIMIT ' . (int)$limit;
+			$sql .= ' LIMIT ' . (int)$limit;
 		}
 
-		return sprintf(
-			'DELETE FROM %s WHERE %s%s',
-			$table,
-			$where,
-			$limitSql
-		);
+		return $sql . ';';
 	}
 
 	/**
 	 * @return string
 	 */
 	public function buildShowTable() {
-		return 'SHOW TABLES';
+		return 'SHOW TABLES;';
 	}
 
 	/**
@@ -139,7 +129,7 @@ class QueryBuilder {
 	 * @return string
 	 */
 	public function buildDescribeTable($name) {
-		return sprintf('DESCRIBE %s', $name);
+		return sprintf('DESCRIBE %s;', $name);
 	}
 
 	/**
@@ -147,7 +137,7 @@ class QueryBuilder {
 	 * @return string
 	 */
 	public function buildExistsTable($name) {
-		return sprintf('SHOW TABLES LIKE \'%s\'', $name);
+		return sprintf('SHOW TABLES LIKE \'%s\';', $name);
 	}
 
 	/**
@@ -167,7 +157,7 @@ class QueryBuilder {
 			$attributeSql .= 'PRIMARY KEY (' . implode(', ', $primary_key) . ')';
 		}
 		return sprintf(
-			'CREATE TABLE %s (%s) ENGINE=InnoDB DEFAULT CHARSET=utf8 auto_increment=1',
+			'CREATE TABLE %s (%s) ENGINE=InnoDB DEFAULT CHARSET=utf8 auto_increment=1;',
 			$name,
 			$attributeSql
 		);
@@ -179,7 +169,7 @@ class QueryBuilder {
 	 */
 	public function buildDropTable($name) {
 		return sprintf(
-			'DROP TABLE %s',
+			'DROP TABLE %s;',
 			$name
 		);
 	}
@@ -191,17 +181,14 @@ class QueryBuilder {
 	 * @return string
 	 */
 	public function buildAddAttribute($table, PersistentAttribute $attribute, $after_attribute = null) {
+		$sql = sprintf('ALTER TABLE %s ADD %s', $table, $attribute->toSQL());
+
 		if (is_null($after_attribute)) {
-			$location = 'FIRST';
+			$sql .= ' FIRST';
 		} else {
-			$location = 'AFTER ' . $after_attribute;
+			$sql .= ' AFTER ' . $after_attribute;
 		}
-		return sprintf(
-			'ALTER TABLE %s ADD %s %s',
-			$table,
-			$attribute->toSQL(),
-			$location
-		);
+		return $sql . ';';
 	}
 
 	/**
@@ -211,7 +198,7 @@ class QueryBuilder {
 	 */
 	public function buildDeleteAttribute($table, PersistentAttribute $attribute) {
 		return sprintf(
-			'ALTER TABLE %s DROP %s',
+			'ALTER TABLE %s DROP %s;',
 			$table,
 			$attribute->field
 		);
@@ -229,7 +216,7 @@ class QueryBuilder {
 		}
 
 		return sprintf(
-			'ALTER TABLE %s CHANGE %s %s',
+			'ALTER TABLE %s CHANGE %s %s;',
 			$table,
 			$old_name,
 			$attribute->toSQL()

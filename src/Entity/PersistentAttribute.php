@@ -79,7 +79,8 @@ class PersistentAttribute {
 	 * @return string
 	 */
 	public function toSQL() {
-		$sql = $this->field . ' ' . $this->type;
+		$sql = sprintf('%s %s', $this->field, $this->type);
+
 		if ($this->null === 'YES') {
 			$sql .= ' NULL';
 			if ($this->default === null) {

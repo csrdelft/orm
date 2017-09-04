@@ -51,7 +51,7 @@ final class PersistentAttributeTest extends TestCase {
 		$this->assertEquals('one text NULL DEFAULT NULL auto_increment', $attribute->toSQL());
 
 		$attribute = new PersistentAttribute('one', [T::Enumeration, false, 'MyEnum']);
-		$this->assertEquals("one enum('option1','option2','option3') NOT NULL", $attribute->toSQL());
+		$this->assertEquals('one enum(\'option1\',\'option2\',\'option3\') NOT NULL', $attribute->toSQL());
 	}
 
 	public function testToDefinition() {
@@ -79,21 +79,14 @@ final class PersistentAttributeTest extends TestCase {
 	}
 }
 
-final class MyEnum implements PersistentEnum {
-
+final class MyEnum extends PersistentEnum {
 	const OPT_ONE = 'option1';
 	const OPT_TWO = 'option2';
 	const OPT_THREE = 'option3';
 
-	public static function getTypeOptions() {
-		return [static::OPT_ONE, static::OPT_TWO, static::OPT_THREE];
-	}
-
-	public static function getDescription($option) {
-		// TODO: Implement getDescription() method.
-	}
-
-	public static function getChar($option) {
-		// TODO: Implement getChar() method.
-	}
+	protected static $supportedChoices = [
+		self::OPT_ONE,
+		self::OPT_TWO,
+		self::OPT_THREE,
+	];
 }
