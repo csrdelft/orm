@@ -1,5 +1,4 @@
 <?php
-
 namespace CsrDelft\Orm\Persistence;
 
 use CsrDelft\Orm\Entity\DynamicEntity;
@@ -18,9 +17,20 @@ use ReflectionProperty;
  *
  * @author P.W.G. Brussee <brussee@live.nl>
  * @author G.J.W. Oolbekkink <g.j.w.oolbekkink@gmail.com>
- *
  */
 class DatabaseAdmin {
+	/**
+	 * Property constants.
+	 */
+	const PROPERTY_PERSISTENT_ATTRIBUTES = 'persistent_attributes';
+	const PROPERTY_PRIMARY_KEY = 'primary_key';
+	const PROPERTY_TABLE_NAME = 'table_name';
+
+	/**
+	 * Database constants.
+	 */
+	const DATABASE_KEY_PRIMARY = 'PRI';
+
 	/**
 	 * Singleton instance
 	 * @var DatabaseAdmin
@@ -78,127 +88,35 @@ class DatabaseAdmin {
 		// Do not check DynamicEntities
 		if ($class === DynamicEntity::class) return;
 		if (is_subclass_of($class, DynamicEntity::class)) return;
+		if (!is_subclass_of($class, PersistentEntity::class)) return;
 
-		/** @var PersistentAttribute[] $attributes */
-		$attributes = [];
-		$reflection_class = new ReflectionClass($class);
-		// Only check PersistentEntities
-		if (!$reflection_class->isSubclassOf(PersistentEntity::class)) return;
+		$properties = $this->getStaticProperties($class);
+		$modelAttributes = $this->getModelAttributes($properties);
 
-		$properties = $reflection_class->getProperties(ReflectionProperty::IS_STATIC);
+		$tableName = $properties[self::PROPERTY_TABLE_NAME];
+		$primaryKey = $properties[self::PROPERTY_PRIMARY_KEY];
 
-		// Reduce $properties to an associative array
-		/** @var mixed[] $properties */
-		$properties = array_reduce(
-			$properties,
-			function ($result, ReflectionProperty $item) {
-				$item->setAccessible(true);
-				$result[$item->getName()] = $item->getValue();
-				return $result;
-			},
-			[]
-		);
+		if ($this->sqlExistsTable($tableName)) {
+			$databaseAttributes = $this->getDatabaseAttributes($properties);
 
-		foreach ($properties['persistent_attributes'] as $name => $definition) {
-			$attributes[$name] = new PersistentAttribute($name, $definition);
-			if (in_array($name, $properties['primary_key'])) {
-				$attributes[$name]->key = 'PRI';
-			} else {
-				$attributes[$name]->key = '';
-			}
-		}
-		try {
-			$table_attributes = $this->sqlDescribeTable($properties['table_name']);
-			/** @var PersistentAttribute[] $database_attributes */
-			$database_attributes = [];
-			foreach ($table_attributes as $attribute) {
-				$database_attributes[$attribute->field] = $attribute; // overwrite existing
-			}
-		} catch (Exception $e) {
-			if (\common\ends_with($e->getMessage(), $properties['table_name'] . "' doesn't exist")) {
-				$this->sqlCreateTable($properties['table_name'], $attributes, $properties['primary_key']);
-				return;
-			} else {
-				throw $e; // Rethrow to controller
-			}
-		}
-		// Rename attributes
+			$previous_attribute = null;
+			foreach ($properties[self::PROPERTY_PERSISTENT_ATTRIBUTES] as $name => $definition) {
+				// Add missing persistent attributes
+				if (!isset($databaseAttributes[$name])) {
+					$this->sqlAddAttribute($tableName, $modelAttributes[$name], $previous_attribute);
+				} else {
+					$databaseAttribute = $databaseAttributes[$name];
+					$modelAttribute = $modelAttributes[$name];
 
-		if (property_exists($class, 'rename_attributes')) {
-			$rename = $properties['rename_attributes'];
-			foreach ($rename as $old_name => $new_name) {
-				if (property_exists($class, $new_name)) {
-					$this->sqlChangeAttribute($properties['table_name'], $attributes[$new_name], $old_name);
+					if ($this->shouldChangeAttribute($modelAttribute, $databaseAttribute, $definition)) {
+						$this->sqlChangeAttribute($tableName, $modelAttribute);
+					}
 				}
+				$previous_attribute = $name;
 			}
+			$this->deleteAttributes($databaseAttributes, $properties);
 		} else {
-			$rename = [];
-		}
-		$previous_attribute = null;
-		foreach ($properties['persistent_attributes'] as $name => $definition) {
-			// Add missing persistent attributes
-			if (!isset($database_attributes[$name])) {
-				if (!isset($rename[$name])) {
-					$this->sqlAddAttribute($properties['table_name'], $attributes[$name], $previous_attribute);
-				}
-			} else {
-				// Check existing persistent attributes for differences
-				$diff = false;
-				if ($attributes[$name]->type !== $database_attributes[$name]->type) {
-					if ($definition[0] === T::Enumeration) {
-						/** @var PersistentEnum $enum */
-						$enum = $definition[2];
-						$enumSql = sprintf(
-							'enum(\'%s\')',
-							implode('\',\'', $enum::getTypeOptions())
-						);
-						if ($database_attributes[$name]->type !== $enumSql) {
-							$diff = true;
-						}
-					} else {
-						$diff = true;
-					}
-				}
-				if ($attributes[$name]->null !== $database_attributes[$name]->null) {
-					$diff = true;
-				}
-				// Cast database value if default value is defined
-				if ($attributes[$name]->default !== null) {
-					if ($definition[0] === T::Boolean) {
-						$database_attributes[$name]->default = (boolean)$database_attributes[$name]->default;
-					} elseif ($definition[0] === T::Integer) {
-						$database_attributes[$name]->default = (int)$database_attributes[$name]->default;
-					} elseif ($definition[0] === T::Float) {
-						$database_attributes[$name]->default = (float)$database_attributes[$name]->default;
-					}
-				}
-//				if ($attributes[$name]->default !== $database_attributes[$name]->default) {
-//					$diff = true;
-//				}
-				if ($attributes[$name]->extra !== $database_attributes[$name]->extra) {
-					$diff = true;
-				}
-				// TODO: support other key types: MUL, UNI, etc.
-				if (
-					$attributes[$name]->key !== $database_attributes[$name]->key
-					AND (
-						$attributes[$name]->key === 'PRI'
-						OR $database_attributes[$name]->key === 'PRI'
-					)
-				) {
-					$diff = true;
-				}
-				if ($diff) {
-					$this->sqlChangeAttribute($properties['table_name'], $attributes[$name]);
-				}
-			}
-			$previous_attribute = $name;
-		}
-		// Remove non-persistent attributes
-		foreach ($database_attributes as $name => $attribute) {
-			if (!isset($properties['persistent_attributes'][$name]) AND !isset($rename[$name])) {
-				$this->sqlDeleteAttribute($properties['table_name'], $attribute);
-			}
+			$this->sqlCreateTable($tableName, $modelAttributes, $primaryKey);
 		}
 	}
 
@@ -217,18 +135,6 @@ class DatabaseAdmin {
 	}
 
 	/**
-	 * Get all tables.
-	 *
-	 * @return PDOStatement
-	 */
-	public function sqlShowTables() {
-		$sql = $this->queryBuilder->buildShowTable();
-		$query = $this->database->prepare($sql);
-		$query->execute();
-		return $query;
-	}
-
-	/**
 	 * Get table attributes.
 	 *
 	 * @param string $name
@@ -243,21 +149,22 @@ class DatabaseAdmin {
 		// Leave column names as returned by the database driver.
 		$this->database->setAttribute(PDO::ATTR_CASE, PDO::CASE_NATURAL);
 		/** @noinspection PhpMethodParametersCountMismatchInspection */
-		$query->setFetchMode(PDO::FETCH_CLASS, 'CsrDelft\Orm\Entity\PersistentAttribute');
+		$query->setFetchMode(PDO::FETCH_CLASS, PersistentAttribute::class);
 		return $query;
 	}
 
 	/**
-	 * Get query to (re-)create existing table.
+	 * Check if a table exists.
 	 *
 	 * @param string $name
-	 * @return string SQL query
+	 * @return bool
 	 */
-	public function sqlShowCreateTable($name) {
-		$sql = $this->queryBuilder->buildShowCreateTable($name);
+	public function sqlExistsTable($name) {
+		$sql = $this->queryBuilder->buildExistsTable($name);
 		$query = $this->database->prepare($sql);
-		$query->execute();
-		return $query->fetchColumn(1);
+		$count = $query->execute();
+
+		return $count === 1;
 	}
 
 	/**
@@ -275,39 +182,12 @@ class DatabaseAdmin {
 	}
 
 	/**
-	 * @param string $name
-	 */
-	public function sqlDropTable($name) {
-		$sql = $this->queryBuilder->buildDropTable($name);
-		$query = $this->database->prepare($sql);
-		$esc = '-- ';
-		if (
-			defined('DB_MODIFY')
-			AND defined('DB_DROP')
-			AND DB_MODIFY
-			AND DB_DROP === true
-		) {
-			$query->execute();
-			$esc = '';
-		}
-		self::$queries[] = $esc . $query->queryString;
-	}
-
-	/**
 	 * @param string $table
 	 * @param PersistentAttribute $attribute
 	 * @param string $after_attribute
 	 */
-	public function sqlAddAttribute(
-		$table,
-		PersistentAttribute $attribute,
-		$after_attribute = null
-	) {
-		$sql = $this->queryBuilder->buildAddAttribute(
-			$table,
-			$attribute,
-			$after_attribute
-		);
+	public function sqlAddAttribute($table, PersistentAttribute $attribute, $after_attribute = null) {
+		$sql = $this->queryBuilder->buildAddAttribute($table, $attribute, $after_attribute);
 		$query = $this->database->prepare($sql);
 		if (defined('DB_MODIFY') AND DB_MODIFY) {
 			$query->execute();
@@ -320,16 +200,8 @@ class DatabaseAdmin {
 	 * @param PersistentAttribute $attribute
 	 * @param string $old_name
 	 */
-	public function sqlChangeAttribute(
-		$table,
-		PersistentAttribute $attribute,
-		$old_name = null
-	) {
-		$sql = $this->queryBuilder->buildChangeAttribute(
-			$table,
-				$attribute,
-				$old_name
-		);
+	public function sqlChangeAttribute($table, PersistentAttribute $attribute, $old_name = null) {
+		$sql = $this->queryBuilder->buildChangeAttribute($table, $attribute, $old_name);
 		$query = $this->database->prepare($sql);
 		if (defined('DB_MODIFY') AND DB_MODIFY) {
 			$query->execute();
@@ -341,10 +213,7 @@ class DatabaseAdmin {
 	 * @param string $table
 	 * @param PersistentAttribute $attribute
 	 */
-	public function sqlDeleteAttribute(
-		$table,
-		PersistentAttribute $attribute
-	) {
+	public function sqlDeleteAttribute($table, PersistentAttribute $attribute) {
 		$sql = $this->queryBuilder->buildDeleteAttribute($table, $attribute);
 		$query = $this->database->prepare($sql);
 		$esc = '-- ';
@@ -360,4 +229,122 @@ class DatabaseAdmin {
 		self::$queries[] = $esc . $query->queryString;
 	}
 
+	/**
+	 * @param $class
+	 * @return mixed[]|ReflectionProperty[]
+	 */
+	public function getStaticProperties($class) {
+		$reflection_class = new ReflectionClass($class);
+
+		$properties = $reflection_class->getProperties(ReflectionProperty::IS_STATIC);
+
+		// Reduce $properties to an associative array
+		/** @var mixed[] $properties */
+		$properties = array_reduce(
+			$properties,
+			function ($result, ReflectionProperty $item) {
+				$item->setAccessible(true);
+				$result[$item->getName()] = $item->getValue();
+				return $result;
+			},
+			[]
+		);
+		return $properties;
+	}
+
+	/**
+	 * @param mixed[] $properties
+	 *
+	 * @return PersistentAttribute[]
+	 */
+	public function getModelAttributes($properties) {
+		$attributes = [];
+
+		foreach ($properties[self::PROPERTY_PERSISTENT_ATTRIBUTES] as $name => $definition) {
+			$attributes[$name] = new PersistentAttribute($name, $definition);
+			if (in_array($name, $properties[self::PROPERTY_PRIMARY_KEY])) {
+				$attributes[$name]->key = self::DATABASE_KEY_PRIMARY;
+			} else {
+				$attributes[$name]->key = '';
+			}
+		}
+		return $attributes;
+	}
+
+	/**
+	 * Remove non-persistent attributes
+	 *
+	 * @param PersistentAttribute[] $databaseAttributes
+	 * @param mixed[] $properties
+	 */
+	public function deleteAttributes($databaseAttributes, $properties) {
+		foreach ($databaseAttributes as $name => $attribute) {
+			if (!isset($properties[self::PROPERTY_PERSISTENT_ATTRIBUTES][$name])) {
+				$this->sqlDeleteAttribute($properties[self::PROPERTY_TABLE_NAME], $attribute);
+			}
+		}
+	}
+
+	/**
+	 * @param PersistentAttribute $modelAttribute
+	 * @param PersistentAttribute $databaseAttribute
+	 * @param mixed[] $definition
+	 * @return bool
+	 */
+	public function shouldChangeAttribute($modelAttribute, $databaseAttribute, $definition) {
+		// Check existing persistent attributes for differences
+		if ($modelAttribute->type !== $databaseAttribute->type) {
+			if ($definition[0] === T::Enumeration) {
+				if ($this->isEnumDifferent($databaseAttribute->type, $definition[2])) {
+					return true;
+				}
+			} else {
+				return true;
+			}
+		}
+
+		if ($modelAttribute->null !== $databaseAttribute->null) {
+			return true;
+		}
+
+		if ($modelAttribute->extra !== $databaseAttribute->extra) {
+			return true;
+		}
+		// TODO: support other key types: MUL, UNI, etc.
+		if (
+			$modelAttribute->key !== $databaseAttribute->key
+			AND (
+				$modelAttribute->key === self::DATABASE_KEY_PRIMARY
+				OR $databaseAttribute->key === self::DATABASE_KEY_PRIMARY
+			)
+		) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param string $tableName
+	 * @return PersistentAttribute[]
+	 */
+	public function getDatabaseAttributes($tableName) {
+		$table_attributes = $this->sqlDescribeTable($tableName);
+		$database_attributes = [];
+		foreach ($table_attributes as $attribute) {
+			$database_attributes[$attribute->field] = $attribute;
+		}
+		return $database_attributes;
+	}
+
+	/**
+	 * @param string $databaseEnum
+	 * @param PersistentEnum $enum
+	 * @return bool
+	 */
+	protected function isEnumDifferent($databaseEnum, $enum) {
+		$enumSql = $this->queryBuilder->buildEnum($enum::getTypeOptions());
+
+		return $databaseEnum !== $enumSql;
+	}
 }

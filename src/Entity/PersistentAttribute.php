@@ -107,7 +107,7 @@ class PersistentAttribute {
 	 */
 	public function toDefinition() {
 		$definition = [];
-		if (\common\starts_with($this->type, 'enum')) {
+		if (strpos($this->type, 'enum') === 0) {
 			$start = strpos($this->type, '(') + 1;
 			$length = strpos($this->type, ')') - $start;
 			$values = explode(',', substr($this->type, $start, $length));

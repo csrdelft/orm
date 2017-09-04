@@ -57,13 +57,13 @@ final class QueryBuilderTest extends TestCase {
 	public function testBuildUpdate() {
 		$query_builder = new QueryBuilder();
 		$this->assertEquals(
-			"UPDATE one SET two, three WHERE four = ?",
-			$query_builder->buildUpdate('one', ['two', 'three'], 'four = ?')
+			"UPDATE one SET two = 2, three = 3 WHERE four = ?",
+			$query_builder->buildUpdate('one', ['two = 2', 'three = 3'], 'four = ?')
 		);
 
 		$this->assertEquals(
-			"UPDATE one SET two, three WHERE four = ? LIMIT 10",
-			$query_builder->buildUpdate('one', ['two', 'three'], 'four = ?', 10)
+			"UPDATE one SET two = 2, three = 3 WHERE four = ? LIMIT 10",
+			$query_builder->buildUpdate('one', ['two = 2', 'three = 3'], 'four = ?', 10)
 		);
 	}
 
@@ -101,14 +101,6 @@ final class QueryBuilderTest extends TestCase {
 		$this->assertEquals(
 			"DESCRIBE one",
 			$query_builder->buildDescribeTable('one')
-		);
-	}
-
-	public function testBuildShowCreateTable() {
-		$query_builder = new QueryBuilder();
-		$this->assertEquals(
-			"SHOW CREATE TABLE one",
-			$query_builder->buildShowCreateTable('one')
 		);
 	}
 

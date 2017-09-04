@@ -2,6 +2,7 @@
 
 namespace CsrDelft\Orm\Entity;
 
+use function common\pdo_bool;
 use Exception;
 
 /**
@@ -176,7 +177,7 @@ abstract class PersistentEntity implements \JsonSerializable {
 			$attributes = array_intersect($attributes, $this->attributes_retrieved);
 		}
 		foreach ($attributes as $attribute) {
-			$values[$attribute] = \common\pdo_bool($this->$attribute);
+			$values[$attribute] = pdo_bool($this->$attribute);
 		}
 		if ($primary_key_only) {
 			return array_values($values);

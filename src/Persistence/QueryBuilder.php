@@ -146,8 +146,8 @@ class QueryBuilder {
 	 * @param string $name
 	 * @return string
 	 */
-	public function buildShowCreateTable($name) {
-		return sprintf('SHOW CREATE TABLE %s', $name);
+	public function buildExistsTable($name) {
+		return sprintf('SHOW TABLES LIKE \'%s\'', $name);
 	}
 
 	/**
@@ -190,11 +190,7 @@ class QueryBuilder {
 	 * @param string|null $after_attribute
 	 * @return string
 	 */
-	public function buildAddAttribute(
-		$table,
-		PersistentAttribute $attribute,
-		$after_attribute = null
-	) {
+	public function buildAddAttribute($table, PersistentAttribute $attribute, $after_attribute = null) {
 		if (is_null($after_attribute)) {
 			$location = 'FIRST';
 		} else {
@@ -213,10 +209,7 @@ class QueryBuilder {
 	 * @param PersistentAttribute $attribute
 	 * @return string
 	 */
-	public function buildDeleteAttribute(
-		$table,
-		PersistentAttribute $attribute
-	) {
+	public function buildDeleteAttribute($table, PersistentAttribute $attribute) {
 		return sprintf(
 			'ALTER TABLE %s DROP %s',
 			$table,
@@ -230,11 +223,7 @@ class QueryBuilder {
 	 * @param string|null $old_name
 	 * @return string
 	 */
-	public function buildChangeAttribute(
-		$table,
-		PersistentAttribute $attribute,
-		$old_name = null
-	) {
+	public function buildChangeAttribute($table, PersistentAttribute $attribute, $old_name = null) {
 		if ($old_name === null) {
 			$old_name = $attribute->field;
 		}
@@ -244,6 +233,17 @@ class QueryBuilder {
 			$table,
 			$old_name,
 			$attribute->toSQL()
+		);
+	}
+
+	/**
+	 * @param string[] $options
+	 * @return string
+	 */
+	public function buildEnum($options) {
+		return sprintf(
+			'enum(\'%s\')',
+			implode('\',\'', $options)
 		);
 	}
 
