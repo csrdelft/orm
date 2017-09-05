@@ -155,21 +155,13 @@ This is the default value to use for the order when selecting from the database.
 protected static $default_order = 'num_wheels DESC';
 ```
 
-##### `$instance`
-
-A variable `$instance` must be declared to hold the singleton instance.
-
-```php
-protected static $instance;
-```
-
 #### Functions in a model
 
 The following functions can be used on a model
 
 ### `find($criteria, $criteria_params, ...) : PersistentEntity[]`
 
-Find entitis in the database filtered on criteria. The syntax for this should be familiar if you 
+Find entities in the database filtered on criteria. The syntax for this should be familiar if you 
 ever worked with PDO in PHP. The `$criteria` is the `WHERE` clause of the underlying select statement, you can
 put `?`'s here where variables are. The criteria params are where you fill these variables. Criteria 
 params are automatically filtered and safe for user input.
@@ -208,7 +200,6 @@ require_once 'model/entity/Car.php';
 
 class CarModel extends PersistenceModel {
   const ORM = 'Car';
-  protected static $instance;
   
   public function findByColor($color) {
     return $this->find('color = ?', [$color]);
@@ -269,4 +260,43 @@ Database::transaction(function () use ($car) {
     CarModel::instance()->create($car);
     CarWheelModel::instance()->create($car->getWheels());
 });
+```
+
+## Dependency Injection
+
+The orm does a very simple way of dependency injection. When a instance of a model is created is created
+it tries to lookup any dependencies which extend `DependencyManager` if they are found they are wired into the 
+model and available for use. There can only be one version of a model and this is kept track of in `DependencyManager`.
+
+### Example
+
+```php
+class OwnerModel extends PersistenceModel {
+  const ORM = 'Owner';
+  
+  /** @var CarModel */
+  protected $carModel;
+  
+  protected function __construct(CarModel $carModel) {
+    $this->carModel = $carModel;
+  }
+  
+  public function getCarsForOwner(Owner $owner) {
+    return $this->carModel->find('owner = ?', [$owner->id]);
+  }
+}
+
+class CarModel extends PersistenceModel {
+  const ORM = 'Car';
+  
+  public function findByColor($color) {
+    return $this->find('color = ?', [$color]);
+  }
+}
+```
+
+```php
+$owner = OwnerModel::instance()->find('id = 1');
+
+$cars = OwnerModel::instance()->getCarsForOwner($owner);
 ```

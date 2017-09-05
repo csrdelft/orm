@@ -44,5 +44,7 @@ final class DynamicEntityModelIntegrationTest extends MySqlDatabaseTestCase {
 		$car = $this->model->retrieveByUUID('1@car.csrdelft.nl');
 
 		$this->assertEquals('Opel', $car->brand);
+		$this->assertEquals('car', $car->getTableName());
+		$this->assertEquals(['id'], $car->getPrimaryKey());
 	}
 }

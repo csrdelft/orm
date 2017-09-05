@@ -46,26 +46,28 @@ abstract class DependencyManager {
 
 		$class = new \ReflectionClass(static::class);
 		$constructor = $class->getConstructor();
-
 		$parameters = [];
-		foreach ($constructor->getParameters() as $parameter) {
-			$parameterClass = $parameter->getClass();
 
-			if (is_null($parameterClass)) {
-				$parameters[] = array_pop($arguments);
-			} elseif (isset(self::$instance[$parameterClass->name])) {
-				$parameters[] = self::$instance[$parameterClass->name];
-			} elseif (isset(self::$loading[$parameterClass->name])) {
-				throw new \Exception(sprintf(self::ERROR_CIRCULAR_DEPENDENCY, $parameterClass->name, static::class));
-			} elseif ($parameterClass->isSubclassOf(DependencyManager::class)) {
-				$parameterDependency = $parameterClass->name;
-				self::$loading[$parameterDependency] = true;
-				self::$instance[$parameterDependency] = $parameterDependency::init();
-				$parameters[] = self::$instance[$parameterClass->name];
-			} elseif (count($arguments) > 0) {
-				$parameters[] = array_pop($arguments);
-			} else {
-				throw new \Exception(self::ERROR_UNEXPECTED_AMOUNT_OF_PARAMETERS);
+		if (!is_null($constructor)) {
+			foreach ($constructor->getParameters() as $parameter) {
+				$parameterClass = $parameter->getClass();
+
+				if (is_null($parameterClass)) {
+					$parameters[] = array_pop($arguments);
+				} elseif (isset(self::$instance[$parameterClass->name])) {
+					$parameters[] = self::$instance[$parameterClass->name];
+				} elseif (isset(self::$loading[$parameterClass->name])) {
+					throw new \Exception(sprintf(self::ERROR_CIRCULAR_DEPENDENCY, $parameterClass->name, static::class));
+				} elseif ($parameterClass->isSubclassOf(DependencyManager::class)) {
+					$parameterDependency = $parameterClass->name;
+					self::$loading[$parameterDependency] = true;
+					self::$instance[$parameterDependency] = $parameterDependency::init();
+					$parameters[] = self::$instance[$parameterClass->name];
+				} elseif (count($arguments) > 0) {
+					$parameters[] = array_pop($arguments);
+				} else {
+					throw new \Exception(self::ERROR_UNEXPECTED_AMOUNT_OF_PARAMETERS);
+				}
 			}
 		}
 
