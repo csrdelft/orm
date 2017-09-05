@@ -1,5 +1,4 @@
 <?php
-
 namespace CsrDelft\Orm\Entity;
 
 /**
@@ -8,7 +7,6 @@ namespace CsrDelft\Orm\Entity;
  * @author P.W.G. Brussee <brussee@live.nl>
  *
  * De mogelijke datatypes.
- *
  */
 abstract class T extends PersistentEnum {
 	const String = 'varchar(255)';
@@ -26,19 +24,19 @@ abstract class T extends PersistentEnum {
 	const UID = 'varchar(4)';
 
 	protected static $supportedChoices = [
-		self::String,
-		self::Char,
-		self::Boolean,
-		self::Integer,
-		self::Float,
-		self::Date,
-		self::Time,
-		self::DateTime,
-		self::Timestamp,
-		self::Text,
-		self::LongText,
-		self::Enumeration,
-		self::UID,
+		self::String => self::String,
+		self::Char => self::Char,
+		self::Boolean => self::Boolean,
+		self::Integer => self::Integer,
+		self::Float => self::Float,
+		self::Date => self::Date,
+		self::Time => self::Time,
+		self::DateTime => self::DateTime,
+		self::Timestamp => self::Timestamp,
+		self::Text => self::Text,
+		self::LongText => self::LongText,
+		self::Enumeration => self::Enumeration,
+		self::UID => self::UID,
 	];
 
 	/**

@@ -29,7 +29,7 @@ abstract class PersistentEnum {
 	 */
 	public static function getTypeOptions()
 	{
-		return static::$supportedChoices;
+		return array_values(static::$supportedChoices);
 	}
 
 	/**
@@ -42,7 +42,7 @@ abstract class PersistentEnum {
 		if (isset(static::$mapChoiceToDescription[$option])) {
 			return static::$mapChoiceToDescription[$option];
 		} else {
-			throw new \Exception(sprintf('Enum choice "%s" unknown.', $option));
+			throw new \Exception(sprintf('%s: Enum option "%s" unknown.', static::class, $option));
 		}
 	}
 
@@ -55,8 +55,10 @@ abstract class PersistentEnum {
 	{
 		if (isset(static::$mapChoiceToChar[$option])) {
 			return static::$mapChoiceToChar[$option];
+		} elseif (isset(static::$supportedChoices[$option])) {
+			return ucfirst($option);
 		} else {
-			throw new \Exception(sprintf('Enum choice "%s" unknown.', $option));
+			throw new \Exception(sprintf('%s: Enum option "%s" unknown.', static::class, $option));
 		}
 	}
 }
