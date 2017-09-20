@@ -5,6 +5,11 @@ use PHPUnit\Framework\TestCase;
 
 require_once 'Persistence/MySqlDatabaseTestCase.php';
 
+class OneParameter extends DependencyManager {
+	protected function __construct($parameter) {
+	}
+}
+
 class CircularOne extends DependencyManager {
 	protected function __construct(CircularTwo $circularTwo) {
 	}
@@ -24,6 +29,24 @@ class NoConstructor extends DependencyManager {
 
 }
 
+class ParameterMismatch extends DependencyManager {
+	protected function __construct(EmptyTest $emptyTest) {
+	}
+}
+
+class PreloadDependency extends DependencyManager {
+	/**
+	 * @var EmptyTest
+	 */
+	public $emptyTest;
+
+	protected function __construct(EmptyTest $emptyTest) {
+		$this->emptyTest = $emptyTest;
+	}
+}
+
+class EmptyTest {}
+
 class Normal extends DependencyManager {
 	public $noParameter;
 	public $data;
@@ -35,12 +58,12 @@ class Normal extends DependencyManager {
 }
 
 class Reversed extends DependencyManager {
-	public $noParameter;
+	public $noConstructor;
 	public $data;
 
-	protected function __construct(NoParameter $noParameter, $data) {
+	protected function __construct(NoConstructor $noConstructor, $data) {
 		$this->data = $data;
-		$this->noParameter = $noParameter;
+		$this->noConstructor = $noConstructor;
 	}
 }
 
@@ -65,6 +88,12 @@ class DependencyManagerTest extends TestCase {
 		NoParameter::init('parameter');
 	}
 
+	public function testTooFewParameters() {
+		$this->expectExceptionMessage('Unexpected amount of parameters.');
+		$this->expectException(Exception::class);
+		OneParameter::init();
+	}
+
 	public function testParameterNoConstructor() {
 		$this->expectExceptionMessage('Unexpected amount of parameters.');
 		$this->expectException(Exception::class);
@@ -82,6 +111,20 @@ class DependencyManagerTest extends TestCase {
 		DependencyManager::addDependency(Reversed::init('Hello'));
 
 		$this->assertEquals('Hello', Reversed::instance()->data);
-		$this->assertEquals(NoParameter::instance(), Reversed::instance()->noParameter);
+		$this->assertEquals(NoConstructor::instance(), Reversed::instance()->noConstructor);
+	}
+
+	public function testParameterMismatch() {
+		$this->expectExceptionMessage('Type mismatch when initializing "ParameterMismatch". Expected parameter of type "EmptyTest", got "NoConstructor".');
+		$this->expectException(Exception::class);
+		ParameterMismatch::init(new NoConstructor());
+	}
+
+	public function testPreloadDependency() {
+		$emptyTest = new EmptyTest();
+		DependencyManager::addDependency($emptyTest);
+		$preloadDependency = PreloadDependency::init();
+
+		$this->assertEquals($emptyTest, $preloadDependency->emptyTest);
 	}
 }
