@@ -141,7 +141,7 @@ class DatabaseAdmin extends DependencyManager {
 		$query = $this->database->prepare($sql);
 		$query->execute();
 
-		return $query->fetchColumn() === $name;
+		return strtolower($query->fetchColumn()) === strtolower($name);
 	}
 
 	/**
