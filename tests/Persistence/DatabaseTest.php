@@ -78,7 +78,7 @@ final class DatabaseTest extends MySqlDatabaseTestCase {
 
 
 		$return = $database->_transaction(function() use ($database) {
-			$this->assertTrue($database->getDatabase()->inTransaction(), 'Database is in a transaction');
+			$this->assertTrue($database->getPdo()->inTransaction(), 'Database is in a transaction');
 
 			$database->sqlDelete('guestbook', 'id = ?', [1]);
 
@@ -89,7 +89,7 @@ final class DatabaseTest extends MySqlDatabaseTestCase {
 
 		$this->assertEquals("testValue", $return, 'transaction returns value of function');
 
-		$this->assertFalse($database->getDatabase()->inTransaction(), 'Database is not in a transaction');
+		$this->assertFalse($database->getPdo()->inTransaction(), 'Database is not in a transaction');
 	}
 
 	public function testTransactionRollback() {

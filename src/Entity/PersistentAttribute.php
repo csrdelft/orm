@@ -1,7 +1,7 @@
 <?php
 namespace CsrDelft\Orm\Entity;
 
-use Exception;
+use CsrDelft\Orm\Common\OrmException;
 
 /**
  * PersistentAttribute.php
@@ -109,7 +109,7 @@ class PersistentAttribute {
 	 * @unsupported keys, enum
 	 *
 	 * @return array $definition
-	 * @throws Exception
+	 * @throws OrmException
 	 */
 	public function toDefinition() {
 		$definition = [];
@@ -127,7 +127,7 @@ class PersistentAttribute {
 				AND DB_CHECK
 				AND !in_array($this->type, T::getTypeOptions())
 			) {
-				throw new Exception('Unknown persistent attribute type: ' . $this->type);
+				throw new OrmException('Unknown persistent attribute type: ' . $this->type);
 			}
 			$definition[] = $this->type;
 		}

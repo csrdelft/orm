@@ -69,7 +69,7 @@ final class PersistentAttributeTest extends TestCase {
 	}
 
 	public function testToDefinitionError() {
-		$this->expectException(Exception::class);
+		$this->expectException(\CsrDelft\Orm\Common\OrmException::class);
 
 		define('DB_CHECK', true);
 

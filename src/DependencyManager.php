@@ -1,5 +1,6 @@
 <?php
 namespace CsrDelft\Orm;
+use CsrDelft\Orm\Common\OrmException;
 
 /**
  * Any class extending this class is able to be autoloaded.
@@ -41,7 +42,6 @@ abstract class DependencyManager {
 	 *
 	 * @param mixed[] ...$arguments
 	 * @return static
-	 * @throws \Exception
 	 */
 	public static function init(...$arguments) {
 		assert(!isset(self::$instance[static::class]), sprintf('Class "%s" already initialized.', get_class()));
@@ -87,11 +87,11 @@ abstract class DependencyManager {
 	 *  It will be loaded from the instances or created when it is not yet initialized
 	 *
 	 * - Any other type:
-	 *  It is expected to be in $arguments, if it isn't an Exception is thrown.
+	 *  It is expected to be in $arguments, if it isn't an OrmException is thrown.
 	 *
 	 * @param array $arguments
 	 * @return array
-	 * @throws \Exception
+	 * @throws OrmException
 	 */
 	private static function determineParameters($arguments) {
 		$constructor = (new \ReflectionClass(static::class))->getConstructor();
@@ -105,7 +105,7 @@ abstract class DependencyManager {
 					$parameters[] = self::$instance[$parameterClass->name];
 				} elseif (!is_null($parameterClass) && $parameterClass->isSubclassOf(DependencyManager::class)) {
 					if (isset(self::$loading[$parameterClass->name])) {
-						throw new \Exception(sprintf(self::ERROR_CIRCULAR_DEPENDENCY, $parameterClass->name, static::class));
+						throw new OrmException(sprintf(self::ERROR_CIRCULAR_DEPENDENCY, $parameterClass->name, static::class));
 					}
 
 					$parameters[] = self::loadDependency($parameterClass->name);
@@ -114,13 +114,13 @@ abstract class DependencyManager {
 					self::assertTypeEqualOrSubClass($argument, $parameterClass);
 					$parameters[] = $argument;
 				} else {
-					throw new \Exception(self::ERROR_UNEXPECTED_AMOUNT_OF_PARAMETERS);
+					throw new OrmException(self::ERROR_UNEXPECTED_AMOUNT_OF_PARAMETERS);
 				}
 			}
 		}
 
 		if (count($arguments) !== 0) {
-			throw new \Exception(self::ERROR_UNEXPECTED_AMOUNT_OF_PARAMETERS);
+			throw new OrmException(self::ERROR_UNEXPECTED_AMOUNT_OF_PARAMETERS);
 		}
 
 		self::$loading = [];
@@ -149,7 +149,7 @@ abstract class DependencyManager {
 	/**
 	 * @param mixed $argument
 	 * @param \ReflectionClass|null $class
-	 * @throws \Exception
+	 * @throws OrmException
 	 */
 	private static function assertTypeEqualOrSubClass($argument, $class = null) {
 		if (is_null($class)) {
@@ -157,7 +157,7 @@ abstract class DependencyManager {
 		} elseif (is_a($argument, $class->name)) {
 			// Good.
 		} else {
-			throw new \Exception(sprintf(
+			throw new OrmException(sprintf(
 				self::ERROR_TYPE_MISMATCH,
 				static::class,
 				$class->name,

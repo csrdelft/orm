@@ -1,6 +1,8 @@
 <?php
 namespace CsrDelft\Orm\Entity;
 
+use CsrDelft\Orm\Common\OrmException;
+
 /**
  * PersistentEnum.php
  *
@@ -35,21 +37,21 @@ abstract class PersistentEnum {
 	/**
 	 * @param string $option
 	 * @return string
-	 * @throws \Exception
+	 * @throws OrmException
 	 */
 	public static function getDescription($option)
 	{
 		if (isset(static::$mapChoiceToDescription[$option])) {
 			return static::$mapChoiceToDescription[$option];
 		} else {
-			throw new \Exception(sprintf('%s: Enum option "%s" unknown.', static::class, $option));
+			throw new OrmException(sprintf('%s: Enum option "%s" unknown.', static::class, $option));
 		}
 	}
 
 	/**
 	 * @param string $option
 	 * @return string
-	 * @throws \Exception
+	 * @throws OrmException
 	 */
 	public static function getChar($option)
 	{
@@ -58,7 +60,7 @@ abstract class PersistentEnum {
 		} elseif (isset(static::$supportedChoices[$option])) {
 			return ucfirst($option);
 		} else {
-			throw new \Exception(sprintf('%s: Enum option "%s" unknown.', static::class, $option));
+			throw new OrmException(sprintf('%s: Enum option "%s" unknown.', static::class, $option));
 		}
 	}
 }

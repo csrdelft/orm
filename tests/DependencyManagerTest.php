@@ -1,5 +1,6 @@
 <?php
 
+use CsrDelft\Orm\Common\OrmException;
 use CsrDelft\Orm\DependencyManager;
 use PHPUnit\Framework\TestCase;
 
@@ -77,26 +78,26 @@ class DependencyManagerTest extends TestCase {
 
 	public function testCircularDependency() {
 		$this->expectExceptionMessage('Circular dependency detected while loading parameter "CircularTwo" from "CircularOne".');
-		$this->expectException(Exception::class);
+		$this->expectException(OrmException::class);
 
 		CircularOne::instance();
 	}
 
 	public function testTooManyParameters() {
 		$this->expectExceptionMessage('Unexpected amount of parameters.');
-		$this->expectException(Exception::class);
+		$this->expectException(OrmException::class);
 		NoParameter::init('parameter');
 	}
 
 	public function testTooFewParameters() {
 		$this->expectExceptionMessage('Unexpected amount of parameters.');
-		$this->expectException(Exception::class);
+		$this->expectException(OrmException::class);
 		OneParameter::init();
 	}
 
 	public function testParameterNoConstructor() {
 		$this->expectExceptionMessage('Unexpected amount of parameters.');
-		$this->expectException(Exception::class);
+		$this->expectException(OrmException::class);
 		NoConstructor::init('parameter');
 	}
 
@@ -116,7 +117,7 @@ class DependencyManagerTest extends TestCase {
 
 	public function testParameterMismatch() {
 		$this->expectExceptionMessage('Type mismatch when initializing "ParameterMismatch". Expected parameter of type "EmptyTest", got "NoConstructor".');
-		$this->expectException(Exception::class);
+		$this->expectException(OrmException::class);
 		ParameterMismatch::init(new NoConstructor());
 	}
 

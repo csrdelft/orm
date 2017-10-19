@@ -65,6 +65,12 @@ final class PersistenceModelIntegrationTest extends MySqlDatabaseTestCase {
 
 		$this->model->create($car);
 
+		$car = $this->model->select()
+			->filterBy('num_wheels', 2)
+			->getOne();
+
+		$this->assertEquals('Yamaha', $car->brand);
+
 		$this->assertEquals(3, $this->model->count());
 	}
 

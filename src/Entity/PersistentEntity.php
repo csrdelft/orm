@@ -2,7 +2,7 @@
 namespace CsrDelft\Orm\Entity;
 
 use function common\pdo_bool;
-use Exception;
+use CsrDelft\Orm\Common\OrmException;
 
 /**
  * PersistentEntity.php
@@ -189,7 +189,7 @@ abstract class PersistentEntity implements \JsonSerializable {
 	 * PDO does not cast values automatically (yet).
 	 *
 	 * @param array $attributes Attributes to cast
-	 * @throws Exception
+	 * @throws OrmException
 	 */
 	private function castValues(array $attributes) {
 		foreach ($attributes as $attribute) {
@@ -217,7 +217,7 @@ abstract class PersistentEntity implements \JsonSerializable {
 						: $definition[2]::getTypeOptions()
 				)
 			) {
-				throw new Exception(sprintf(
+				throw new OrmException(sprintf(
 					'%s.%s invalid %s.enum value: "%s"',
 					static::$table_name,
 					$attribute,

@@ -3,6 +3,7 @@
 namespace CsrDelft\Orm\Persistence;
 
 use Closure;
+use CsrDelft\Orm\Common\OrmException;
 use CsrDelft\Orm\DependencyManager;
 use Exception;
 use PDO;
@@ -25,14 +26,14 @@ class Database extends DependencyManager {
 	 *
 	 * @var PDO
 	 */
-	private $database;
+	private $pdo;
 
 	/**
 	 * Database constructor.
 	 * @param PDO $pdo
 	 */
 	public function __construct(PDO $pdo) {
-		$this->database = $pdo;
+		$this->pdo = $pdo;
 		$this->queryBuilder = new QueryBuilder();
 	}
 
@@ -58,7 +59,7 @@ class Database extends DependencyManager {
 	 * @return mixed Value returned by $function
 	 */
 	public function _transaction(Closure $function) {
-		$db = $this->getDatabase();
+		$db = $this->getPdo();
 		if ($db->inTransaction()) {
 			return $function();
 		}
@@ -163,7 +164,7 @@ class Database extends DependencyManager {
 			$limit,
 			$start
 		);
-		$query = $this->database->prepare($sql);
+		$query = $this->pdo->prepare($sql);
 		$query->execute($params);
 		$this->addQuery($query->queryString, $params);
 		return $query;
@@ -183,7 +184,7 @@ class Database extends DependencyManager {
 		array $params = []
 	) {
 		$sql = $this->queryBuilder->buildExists($from, $where);
-		$query = $this->database->prepare($sql);
+		$query = $this->pdo->prepare($sql);
 		$query->execute($params);
 		$this->addQuery($query->queryString, $params);
 		return (boolean)$query->fetchColumn();
@@ -196,7 +197,7 @@ class Database extends DependencyManager {
 	 * @param string $into
 	 * @param string[] $properties
 	 * @return string last inserted row id or sequence value
-	 * @throws Exception if number of rows affected !== 1
+	 * @throws OrmException if number of rows affected !== 1
 	 */
 	public function sqlInsert(
 		$into,
@@ -207,13 +208,13 @@ class Database extends DependencyManager {
 			$insert_params[':I' . $attribute] = $value; // name parameters after attribute
 		}
 		$sql = $this->queryBuilder->buildInsert($into, $properties, $insert_params);
-		$query = $this->database->prepare($sql);
+		$query = $this->pdo->prepare($sql);
 		$query->execute($insert_params);
 		$this->addQuery($query->queryString, $insert_params);
 		if ($query->rowCount() !== 1) {
-			throw new Exception('sqlInsert rowCount=' . $query->rowCount());
+			throw new OrmException('sqlInsert rowCount=' . $query->rowCount());
 		}
-		return $this->database->lastInsertId();
+		return $this->pdo->lastInsertId();
 	}
 
 	/**
@@ -229,7 +230,7 @@ class Database extends DependencyManager {
 	 *        ]
 	 * @param boolean $replace DELETE & INSERT if primary key already exists
 	 * @return int number of rows affected
-	 * @throws Exception if number of values !== number of properties
+	 * @throws OrmException if number of values !== number of properties
 	 */
 	public function sqlInsertMultiple(
 		$into,
@@ -247,7 +248,7 @@ class Database extends DependencyManager {
 		$sql .= ' INTO ' . $into . ' (' . implode(', ', $attributes) . ') VALUES ';
 		foreach ($properties as $i => $props) { // for all entries
 			if (count($props) !== $count) {
-				throw new Exception('Missing property value(s) for entry: ' . $i);
+				throw new OrmException('Missing property value(s) for entry: ' . $i);
 			}
 			if ($i > 0) {
 				$sql .= ', ';
@@ -263,7 +264,7 @@ class Database extends DependencyManager {
 			}
 			$sql .= ')';
 		}
-		$query = $this->database->prepare($sql);
+		$query = $this->pdo->prepare($sql);
 		$query->execute($insert_values);
 		$this->addQuery($query->queryString, $insert_values);
 		return $query->rowCount();
@@ -278,7 +279,7 @@ class Database extends DependencyManager {
 	 * @param string[] $where_params
 	 * @param int $limit
 	 * @return int number of rows affected
-	 * @throws Exception if duplicate named parameter
+	 * @throws OrmException if duplicate named parameter
 	 */
 	public function sqlUpdate(
 		$table,
@@ -291,12 +292,12 @@ class Database extends DependencyManager {
 		foreach ($properties as $attribute => $value) {
 			$attributes[] = $attribute . ' = :U' . $attribute; // name parameters after attribute
 			if (array_key_exists(':U' . $attribute, $where_params)) {
-				throw new Exception('Named parameter already defined: ' . $attribute);
+				throw new OrmException('Named parameter already defined: ' . $attribute);
 			}
 			$where_params[':U' . $attribute] = $value;
 		}
 		$sql = $this->queryBuilder->buildUpdate($table, $attributes, $where, $limit);
-		$query = $this->database->prepare($sql);
+		$query = $this->pdo->prepare($sql);
 		$query->execute($where_params);
 		$this->addQuery($query->queryString, $where_params);
 		return $query->rowCount();
@@ -318,7 +319,7 @@ class Database extends DependencyManager {
 		$limit = null
 	) {
 		$sql = $this->queryBuilder->buildDelete($from, $where, $limit);
-		$query = $this->database->prepare($sql);
+		$query = $this->pdo->prepare($sql);
 		$query->execute($where_params);
 		$this->addQuery($query->queryString, $where_params);
 		return $query->rowCount();
@@ -327,8 +328,8 @@ class Database extends DependencyManager {
 	/**
 	 * @return PDO
 	 */
-	public function getDatabase() {
-		return $this->database;
+	public function getPdo() {
+		return $this->pdo;
 	}
 
 }

@@ -7,7 +7,6 @@ use CsrDelft\Orm\Entity\PersistentEntity;
 use CsrDelft\Orm\Entity\PersistentEnum;
 use CsrDelft\Orm\Entity\T;
 use CsrDelft\Orm\DependencyManager;
-use Exception;
 use PDO;
 use PDOStatement;
 use ReflectionClass;
@@ -59,7 +58,6 @@ class DatabaseAdmin extends DependencyManager {
 	 * @unsupported INDEX check; FOREIGN KEY check;
 	 *
 	 * @param PersistentEntity $class
-	 * @throws Exception
 	 */
 	public function checkTable($class) {
 		// Do not check DynamicEntities

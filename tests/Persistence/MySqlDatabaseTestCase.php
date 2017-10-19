@@ -22,7 +22,7 @@ abstract class MySqlDatabaseTestCase extends PHPUnit_Extensions_Database_TestCas
 					]
 				]);
 
-				self::$pdo = Database::instance()->getDatabase();
+				self::$pdo = Database::instance()->getPdo();
 			}
 			$this->conn = $this->createDefaultDBConnection(self::$pdo, ':memory:');
 		}
