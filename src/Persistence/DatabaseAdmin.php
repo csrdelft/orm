@@ -139,9 +139,13 @@ class DatabaseAdmin extends DependencyManager {
 	public function sqlExistsTable($name) {
 		$sql = $this->queryBuilder->buildExistsTable($name);
 		$query = $this->database->prepare($sql);
+		// Force column names to lower case.
+		$this->database->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
 		$query->execute();
+		// Leave column names as returned by the database driver.
+		$this->database->setAttribute(PDO::ATTR_CASE, PDO::CASE_NATURAL);
 
-		return strtolower($query->fetchColumn()) === strtolower($name);
+		return $query->fetchColumn() === strtolower($name);
 	}
 
 	/**
