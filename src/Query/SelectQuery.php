@@ -174,6 +174,38 @@ class SelectQuery {
 	}
 
 	/**
+	 * Get an (unfiltered) count of the query.
+	 *
+	 * @return int Number of records
+	 */
+	public function countUnfiltered() {
+		$result = $this->database->sqlSelect(
+			['COUNT(*)'],
+			$this->model->getTableName(),
+			'',
+			[]
+		);
+
+		return (int)$result->fetchColumn();
+	}
+
+	/**
+	 * Get a count count of the query.
+	 *
+	 * @return int Number of records
+	 */
+	public function count() {
+		$result = $this->database->sqlSelect(
+			['COUNT(*)'],
+			$this->model->getTableName(),
+			implode(self::SQL_AND, $this->criteria),
+			$this->criteria_params
+		);
+
+		return (int)$result->fetchColumn();
+	}
+
+	/**
 	 * @return PersistentEntity[]|\PDOStatement
 	 */
 	public function execute() {
@@ -193,6 +225,21 @@ class SelectQuery {
 		$result->setFetchMode(PDO::FETCH_CLASS, $model::ORM, [true]);
 
 		return $result;
+	}
+
+	/**
+	 * Create a copy of this query.
+	 *
+	 * @return SelectQuery
+	 */
+	public function copy() {
+		$query = new SelectQuery($this->model, $this->database);
+		$query->attributes = $this->attributes;
+		$query->limit = $this->limit;
+		$query->criteria = $this->criteria;
+		$query->criteria_params = $this->criteria_params;
+
+		return $query;
 	}
 
 	/**
