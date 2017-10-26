@@ -155,6 +155,9 @@ class SelectQuery {
 		return $this;
 	}
 
+	/**
+	 * @return PersistentEntity[]
+	 */
 	public function getAll() {
 		return $this->execute()->fetchAll();
 	}
@@ -181,9 +184,7 @@ class SelectQuery {
 	public function countUnfiltered() {
 		$result = $this->database->sqlSelect(
 			['COUNT(*)'],
-			$this->model->getTableName(),
-			'',
-			[]
+			$this->model->getTableName()
 		);
 
 		return (int)$result->fetchColumn();
@@ -198,7 +199,7 @@ class SelectQuery {
 		$result = $this->database->sqlSelect(
 			['COUNT(*)'],
 			$this->model->getTableName(),
-			implode(self::SQL_AND, $this->criteria),
+			$this->getCriteriaString(),
 			$this->criteria_params
 		);
 
@@ -212,11 +213,12 @@ class SelectQuery {
 		$result = $this->database->sqlSelect(
 			$this->attributes,
 			$this->model->getTableName(),
-			implode(self::SQL_AND, $this->criteria),
+			$this->getCriteriaString(),
 			$this->criteria_params,
 			null,
 			null,
-			$this->limit
+			$this->limit,
+			$this->offset
 		);
 
 		$model = $this->model;
@@ -271,5 +273,16 @@ class SelectQuery {
 		}
 
 		return sprintf('%s %s', $field, $operator);
+	}
+
+	/**
+	 * @return string|null
+	 */
+	private function getCriteriaString() {
+		if (count($this->criteria) === 0) {
+			return null;
+		} else {
+			return implode(self::SQL_AND, $this->criteria);
+		}
 	}
 }
