@@ -47,8 +47,6 @@ below. An entity must only contain logic about itself, not logic about other cla
 or about other instances of the same entity. This should be in the Model (or the controller which is
 not part of this library).
 
-Entities are placed in the folder `model/entity/` and are named `EntityName.php`.
-
 #### Variables in an entity
 
 For each attribute of an entity there must be a public variable. These will be used by the model
