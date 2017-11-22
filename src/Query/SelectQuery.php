@@ -21,33 +21,8 @@ class SelectQuery {
 	const ERROR_SELECT_NOT_POSSIBLE = 'Selecting field "%s" in model "%s" not possible.';
 
 	/**
-	 * Select type constants.
-	 */
-	const TYPE_EXACT = 'exact';
-	const TYPE_IEXACT = 'iexact';
-	const TYPE_CONTAINS = 'contains';
-	const TYPE_ICONTAINS = 'icontains';
-	const TYPE_STARTSWITH = 'startswith';
-	const TYPE_ISTARTSWITH = 'istartswith';
-	const TYPE_ENDSWITH = 'endswith';
-	const TYPE_IENDSWITH = 'iendswith';
-	const TYPE_LT = 'lt';
-	const TYPE_LTE = 'lte';
-	const TYPE_GT = 'gt';
-	const TYPE_GTE = 'gte';
-
-	/**
 	 * Sql operator constants.
 	 */
-	const COLLATE_CASE_SENSITIVE = 'COLLATE \'utf8_bin\' ';
-	const OPERATOR_ENDSWITH = 'LIKE \'%\'';
-	const OPERATOR_STARTSWITH = 'LIKE ? || \'%\'';
-	const OPERATOR_CONTAINS = 'LIKE \'%\' || ? || \'%\'';
-	const OPERATOR_EXACT = '= ?';
-	const OPERATOR_LT = '< ?';
-	const OPERATOR_LTE = '<= ?';
-	const OPERATOR_GT = '> ?';
-	const OPETAROR_GTE = '>= ?';
 	const SQL_AND = ' AND ';
 
 	/** @var PersistenceModel */
@@ -68,6 +43,9 @@ class SelectQuery {
 	/** @var Database */
 	protected $database;
 
+	/** @var string[] */
+	protected $order;
+
 	/** @var int */
 	protected $limit;
 
@@ -87,6 +65,7 @@ class SelectQuery {
 		$this->limit = -1;
 		$this->criteria = [];
 		$this->criteria_params = [];
+		$this->order = [];
 	}
 
 	/**
@@ -143,7 +122,7 @@ class SelectQuery {
 		$matches = explode('__', $field_type);
 
 		$field = $matches[0];
-		$type = isset($matches[1]) ? $matches[1] : self::TYPE_IEXACT;
+		$type = isset($matches[1]) ? new SelectMode($matches[1]) : new SelectMode(SelectMode::TYPE_IEXACT);
 
 		if (in_array($field, $attributes)) {
 			$this->criteria[] = $this->getCriteriaSql($field, $type);
@@ -167,6 +146,8 @@ class SelectQuery {
 	 * @throws OrmException
 	 */
 	public function getOne() {
+		$this->limit(1);
+
 		$entity = $this->execute()->fetch();
 
 		if ($entity === false) {
@@ -216,7 +197,7 @@ class SelectQuery {
 			$this->getCriteriaString(),
 			$this->criteria_params,
 			null,
-			null,
+			$this->getOrderString(),
 			$this->limit,
 			$this->offset
 		);
@@ -245,34 +226,21 @@ class SelectQuery {
 	}
 
 	/**
-	 * @param $field
-	 * @param string $type
+	 * @param string $column
+	 * @param OrderDirection $direction
+	 */
+	public function addOrderBy($column, OrderDirection $direction) {
+		$this->order[] = $column . ' ' . $direction->getChoice();
+	}
+
+	/**
+	 * @param string $field
+	 * @param SelectMode $type
 	 * @return string
 	 * @throws OrmException
 	 */
-	private function getCriteriaSql($field, $type) {
-		$mapTypeToOperator = [
-			self::TYPE_EXACT => self::COLLATE_CASE_SENSITIVE . self::OPERATOR_EXACT,
-			self::TYPE_IEXACT => self::OPERATOR_EXACT,
-			self::TYPE_CONTAINS => self::COLLATE_CASE_SENSITIVE . self::OPERATOR_CONTAINS,
-			self::TYPE_ICONTAINS => self::OPERATOR_CONTAINS,
-			self::TYPE_STARTSWITH => self::COLLATE_CASE_SENSITIVE . self::OPERATOR_STARTSWITH,
-			self::TYPE_ISTARTSWITH => self::OPERATOR_STARTSWITH,
-			self::TYPE_ENDSWITH => self::COLLATE_CASE_SENSITIVE . self::OPERATOR_ENDSWITH,
-			self::TYPE_IENDSWITH => self::OPERATOR_ENDSWITH,
-			self::TYPE_LT => self::OPERATOR_LT,
-			self::TYPE_LTE => self::OPERATOR_LTE,
-			self::TYPE_GT => self::OPERATOR_GT,
-			self::TYPE_GTE => self::OPETAROR_GTE,
-		];
-
-		if (isset($mapTypeToOperator[$type])) {
-			$operator = $mapTypeToOperator[$type];
-		} else {
-			throw new OrmException(sprintf(self::ERROR_OPERATOR_DOES_NOT_EXIST, $type));
-		}
-
-		return sprintf('%s %s', $field, $operator);
+	private function getCriteriaSql($field, SelectMode $type) {
+		return sprintf('%s %s', $field, $type->getOperator());
 	}
 
 	/**
@@ -283,6 +251,14 @@ class SelectQuery {
 			return null;
 		} else {
 			return implode(self::SQL_AND, $this->criteria);
+		}
+	}
+
+	private function getOrderString() {
+		if (count($this->order) === 0) {
+			return null;
+		} else {
+			return implode(', ', $this->order);
 		}
 	}
 }

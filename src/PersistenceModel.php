@@ -161,9 +161,24 @@ abstract class PersistenceModel extends DependencyManager implements Persistence
 	 *
 	 * @return SelectQuery
 	 */
-	public function select() {
-		return new SelectQuery($this, $this->database);//$this->database->sqlSelect($columns, $this->getTableName(), $criteria, $criteria_params);
+	public function query() {
+		return new SelectQuery($this, $this->database);
 	}
+
+	/**
+	 * Select existing entities with optional criteria.
+	 *
+	 * Allows for selecting specific sums, averages and counts
+	 *
+	 * @param array $columns SELECT
+	 * @param string $criteria WHERE
+	 * @param array $criteria_params optional named parameters
+	 * @return PDOStatement
+	 */
+	public function select(array $columns, $criteria = null, array $criteria_params = []) {
+		return $this->database->sqlSelect($columns, $this->getTableName(), $criteria, $criteria_params);
+	}
+
 
 	/**
 	 * Check if entity exists.
