@@ -2,15 +2,20 @@
   "name": "csrdelft/orm",
   "type": "library",
   "description": "The creatively named object-relational mapping library for csrdelft.nl",
-  "homepage": "https://github.com/csrdelft/orm",
+  "homepage": "https://csrdelft.github.io/orm",
   "authors": [
+    {
+      "name": "PubCie der C.S.R. Delft",
+      "email": "pubcie@csrdelft.nl",
+      "homepage": "https://csrdelft.nl"
+    },
     {
       "name": "Gerben Oolbekkink",
       "email": "g.j.w.oolbekkink@gmail.com",
       "role": "Developer"
     }
   ],
-  "license": "Unknown",
+  "license": "MIT",
   "require": {
     "php": ">=5.6.0",
     "phpunit/dbunit": "^2.0"
