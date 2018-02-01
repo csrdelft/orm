@@ -121,7 +121,7 @@ class QueryBuilder {
 	}
 
 	/**
-	 * @return string
+	 * @return SqlQuery
 	 */
 	public function buildShowTable(): SqlQuery {
 		return new SqlQuery('SHOW TABLES;');
@@ -132,7 +132,7 @@ class QueryBuilder {
 	 * @return SqlQuery
 	 */
 	public function buildDescribeTable(TableName $name): SqlQuery {
-		return new SqlQuery(sprintf('DESCRIBE %s;', $name));
+		return new SqlQuery(sprintf('DESCRIBE %s;', $name->getTableName()));
 	}
 
 	/**
@@ -173,7 +173,7 @@ class QueryBuilder {
 	public function buildDropTable(TableName $name): SqlQuery {
 		return new SqlQuery(sprintf(
 			'DROP TABLE %s;',
-			$name
+			$name->getTableName()
 		));
 	}
 
@@ -202,7 +202,7 @@ class QueryBuilder {
 	public function buildDeleteAttribute(TableName $table, PersistentAttribute $attribute): SqlQuery {
 		return new SqlQuery(sprintf(
 			'ALTER TABLE %s DROP %s;',
-			$table,
+			$table->getTableName(),
 			$attribute->field
 		));
 	}

@@ -36,7 +36,7 @@ class OrmMemcache extends DependencyManager {
 	/**
 	 * @return DummyCache|Memcache
 	 */
-	public function getCache(): mixed {
+	public function getCache() {
 		return $this->cache;
 	}
 }

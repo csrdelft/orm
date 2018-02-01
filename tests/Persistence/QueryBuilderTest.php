@@ -1,5 +1,6 @@
 <?php
 
+use CsrDelft\Orm\Common\Object\SqlQuery;
 use CsrDelft\Orm\Common\Object\TableName;
 use CsrDelft\Orm\Entity\PersistentAttribute;
 use CsrDelft\Orm\Entity\T;
@@ -94,7 +95,7 @@ final class QueryBuilderTest extends TestCase {
 		$query_builder = new QueryBuilder();
 		$this->assertEquals(
 			"SHOW TABLES;",
-			$query_builder->buildShowTable()
+			$query_builder->buildShowTable()->getQuery()
 		);
 	}
 
@@ -136,12 +137,12 @@ final class QueryBuilderTest extends TestCase {
 		$attribute = new PersistentAttribute('two', [T::Integer]);
 		$this->assertEquals(
 			"ALTER TABLE one ADD two int(11) NOT NULL FIRST;",
-			$query_builder->buildAddAttribute(new TableName('one'), $attribute)
+			$query_builder->buildAddAttribute(new TableName('one'), $attribute)->getQuery()
 		);
 
 		$this->assertEquals(
 			"ALTER TABLE one ADD two int(11) NOT NULL AFTER three;",
-			$query_builder->buildAddAttribute(new TableName('one'), $attribute, 'three')
+			$query_builder->buildAddAttribute(new TableName('one'), $attribute, 'three')->getQuery()
 		);
 	}
 

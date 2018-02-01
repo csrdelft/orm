@@ -26,4 +26,12 @@ abstract class StringObject {
 	public function getString() {
 		return $this->value;
 	}
+
+	public function equals($other): bool {
+		if ($other instanceof static) {
+			return $other->value === $this->value;
+		} else {
+			return false;
+		}
+	}
 }
