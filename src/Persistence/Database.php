@@ -3,10 +3,12 @@
 namespace CsrDelft\Orm\Persistence;
 
 use Closure;
+use CsrDelft\Orm\Common\Object\TableName;
 use CsrDelft\Orm\Common\OrmException;
 use CsrDelft\Orm\DependencyManager;
 use Exception;
 use PDO;
+use PDOStatement;
 
 /**
  * Database.php
@@ -90,14 +92,14 @@ class Database extends DependencyManager {
 	 * Get array of SQL statements for debug
 	 * @return string[]
 	 */
-	public function getQueries() {
+	public function getQueries() : array {
 		return self::$queries;
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function getTrace() {
+	public function getTrace() : array {
 		return self::$trace;
 	}
 
@@ -106,7 +108,7 @@ class Database extends DependencyManager {
 	 * @param string $query
 	 * @param string[] $params
 	 */
-	private function addQuery($query, array $params) {
+	private function addQuery(string $query, array $params) : void {
 		$q = $this->queryBuilder->interpolateQuery($query, $params);
 		self::$queries[] = $q;
 
@@ -143,21 +145,21 @@ class Database extends DependencyManager {
 	 * @param string $order_by
 	 * @param int $limit
 	 * @param int $start
-	 * @return \PDOStatement
+	 * @return PDOStatement
 	 */
 	public function sqlSelect(
 		array $attributes,
-		$from,
-		$where = null,
+		string $from,
+		string $where = null,
 		array $params = [],
-		$group_by = null,
-		$order_by = null,
-		$limit = null,
-		$start = 0
-	) {
+		string $group_by = null,
+		string $order_by = null,
+		int $limit = -1,
+		int $start = 0
+	): PDOStatement {
 		$sql = $this->queryBuilder->buildSelect(
 			$attributes,
-			$from,
+			new TableName($from),
 			$where,
 			$group_by,
 			$order_by,
@@ -179,11 +181,11 @@ class Database extends DependencyManager {
 	 * @return boolean
 	 */
 	public function sqlExists(
-		$from,
-		$where = null,
+		string $from,
+		string $where = null,
 		array $params = []
-	) {
-		$sql = $this->queryBuilder->buildExists($from, $where);
+	): bool {
+		$sql = $this->queryBuilder->buildExists(new TableName($from), $where);
 		$query = $this->pdo->prepare($sql);
 		$query->execute($params);
 		$this->addQuery($query->queryString, $params);
@@ -200,9 +202,9 @@ class Database extends DependencyManager {
 	 * @throws OrmException if number of rows affected !== 1
 	 */
 	public function sqlInsert(
-		$into,
+		string $into,
 		array $properties
-	) {
+	): string {
 		$insert_params = [];
 		foreach ($properties as $attribute => $value) {
 			$insert_params[':I' . $attribute] = $value; // name parameters after attribute
@@ -233,10 +235,10 @@ class Database extends DependencyManager {
 	 * @throws OrmException if number of values !== number of properties
 	 */
 	public function sqlInsertMultiple(
-		$into,
+		string $into,
 		array $properties,
-		$replace = false
-	) {
+		bool $replace = false
+	): int {
 		if ($replace) {
 			$sql = 'REPLACE';
 		} else {
@@ -282,12 +284,12 @@ class Database extends DependencyManager {
 	 * @throws OrmException if duplicate named parameter
 	 */
 	public function sqlUpdate(
-		$table,
+		string $table,
 		array $properties,
-		$where,
+		string $where,
 		array $where_params = [],
-		$limit = null
-	) {
+		int $limit = -1
+	): int {
 		$attributes = [];
 		foreach ($properties as $attribute => $value) {
 			$attributes[] = $attribute . ' = :U' . $attribute; // name parameters after attribute
@@ -313,12 +315,12 @@ class Database extends DependencyManager {
 	 * @return int number of rows affected
 	 */
 	public function sqlDelete(
-		$from,
-		$where,
+		string $from,
+		string $where,
 		array $where_params,
-		$limit = null
-	) {
-		$sql = $this->queryBuilder->buildDelete($from, $where, $limit);
+		int $limit = -1
+	): int {
+		$sql = $this->queryBuilder->buildDelete(new TableName($from), $where, $limit);
 		$query = $this->pdo->prepare($sql);
 		$query->execute($where_params);
 		$this->addQuery($query->queryString, $where_params);
@@ -328,7 +330,7 @@ class Database extends DependencyManager {
 	/**
 	 * @return PDO
 	 */
-	public function getPdo() {
+	public function getPdo(): PDO {
 		return $this->pdo;
 	}
 

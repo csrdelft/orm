@@ -25,14 +25,14 @@ class OrderDirection extends Enum {
 	/**
 	 * @return OrderDirection
 	 */
-	public static function ASC() {
+	public static function ASC(): OrderDirection {
 		return new static(self::CHOICE_ASC);
 	}
 
 	/**
 	 * @return OrderDirection
 	 */
-	public static function DESC() {
+	public static function DESC(): OrderDirection {
 		return new static(self::CHOICE_DESC);
 	}
 }

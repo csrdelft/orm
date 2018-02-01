@@ -1,7 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace CsrDelft\Orm\Persistence;
 
+use CsrDelft\Orm\Common\Object\SqlQuery;
+use CsrDelft\Orm\Common\Object\TableName;
 use CsrDelft\Orm\Entity\PersistentAttribute;
 
 /**
@@ -13,7 +16,7 @@ class QueryBuilder {
 
 	/**
 	 * @param string[] $attributes
-	 * @param string $table
+	 * @param TableName $table
 	 * @param string|null $where
 	 * @param string|null $group_by
 	 * @param string|null $order_by
@@ -23,14 +26,14 @@ class QueryBuilder {
 	 */
 	public function buildSelect(
 		array $attributes,
-		$table,
-		$where = null,
-		$group_by = null,
-		$order_by = null,
-		$limit = -1,
-		$start = 0
-	) {
-		$sql = sprintf('SELECT %s FROM %s', implode(', ', $attributes), $table);
+		TableName $table,
+		string $where = null,
+		string $group_by = null,
+		string $order_by = null,
+		int $limit = -1,
+		int $start = 0
+	): string {
+		$sql = sprintf('SELECT %s FROM %s', implode(', ', $attributes), $table->getTableName());
 
 		if ($where !== null) {
 			$sql .= ' WHERE ' . $where;
@@ -52,12 +55,12 @@ class QueryBuilder {
 	}
 
 	/**
-	 * @param string $table
+	 * @param TableName $table
 	 * @param string|null $where
 	 * @return string
 	 */
-	public function buildExists($table, $where = null) {
-		$subSql = vsprintf('SELECT 1 FROM %s', $table);
+	public function buildExists(TableName $table, string $where = null): string {
+		$subSql = vsprintf('SELECT 1 FROM %s', $table->getTableName());
 
 		if ($where !== null) {
 			$subSql .= ' WHERE ' . $where;
@@ -75,7 +78,7 @@ class QueryBuilder {
 	 * @param string[] $insert_params
 	 * @return string
 	 */
-	public function buildInsert($table, $properties, $insert_params) {
+	public function buildInsert(string $table, array $properties, array $insert_params): string {
 		return sprintf(
 			'INSERT INTO %s (%s) VALUES (%s);',
 			$table,
@@ -91,7 +94,7 @@ class QueryBuilder {
 	 * @param int $limit
 	 * @return string
 	 */
-	public function buildUpdate($table, $attributes, $where, $limit = 0) {
+	public function buildUpdate(string $table, array $attributes, string $where, int $limit = 0): string {
 		$sql = sprintf('UPDATE %s SET %s WHERE %s', $table, implode(', ', $attributes), $where);
 
 		if ((int)$limit > 0) {
@@ -102,13 +105,13 @@ class QueryBuilder {
 	}
 
 	/**
-	 * @param string $table
+	 * @param TableName $table
 	 * @param string $where
 	 * @param int $limit
 	 * @return string
 	 */
-	public function buildDelete($table, $where, $limit = 0) {
-		$sql = sprintf('DELETE FROM %s WHERE %s', $table, $where);
+	public function buildDelete(TableName $table, string $where, int $limit = 0): string {
+		$sql = sprintf('DELETE FROM %s WHERE %s', $table->getTableName(), $where);
 
 		if ((int)$limit > 0) {
 			$sql .= ' LIMIT ' . (int)$limit;
@@ -120,33 +123,33 @@ class QueryBuilder {
 	/**
 	 * @return string
 	 */
-	public function buildShowTable() {
-		return 'SHOW TABLES;';
+	public function buildShowTable(): SqlQuery {
+		return new SqlQuery('SHOW TABLES;');
+	}
+
+	/**
+	 * @param TableName $name
+	 * @return SqlQuery
+	 */
+	public function buildDescribeTable(TableName $name): SqlQuery {
+		return new SqlQuery(sprintf('DESCRIBE %s;', $name));
 	}
 
 	/**
 	 * @param string $name
 	 * @return string
 	 */
-	public function buildDescribeTable($name) {
-		return sprintf('DESCRIBE %s;', $name);
-	}
-
-	/**
-	 * @param string $name
-	 * @return string
-	 */
-	public function buildExistsTable($name) {
+	public function buildExistsTable(string $name): string {
 		return sprintf('SHOW TABLES LIKE \'%s\';', $name);
 	}
 
 	/**
-	 * @param string $name
+	 * @param TableName $name
 	 * @param PersistentAttribute[] $attributes
 	 * @param string[] $primary_key
 	 * @return string
 	 */
-	public function buildCreateTable($name, array $attributes, array $primary_key) {
+	public function buildCreateTable(TableName $name, array $attributes, array $primary_key): string {
 		$attributeSql = '';
 		foreach ($attributes as $attribute) {
 			$attributeSql .= $attribute->toSQL() . ', ';
@@ -158,50 +161,50 @@ class QueryBuilder {
 		}
 		return sprintf(
 			'CREATE TABLE %s (%s) ENGINE=InnoDB DEFAULT CHARSET=utf8 auto_increment=1;',
-			$name,
+			$name->getTableName(),
 			$attributeSql
 		);
 	}
 
 	/**
-	 * @param string $name
-	 * @return string
+	 * @param TableName $name
+	 * @return SqlQuery
 	 */
-	public function buildDropTable($name) {
-		return sprintf(
+	public function buildDropTable(TableName $name): SqlQuery {
+		return new SqlQuery(sprintf(
 			'DROP TABLE %s;',
 			$name
-		);
+		));
 	}
 
 	/**
-	 * @param string $table
+	 * @param TableName $table
 	 * @param PersistentAttribute $attribute
 	 * @param string|null $after_attribute
-	 * @return string
+	 * @return SqlQuery
 	 */
-	public function buildAddAttribute($table, PersistentAttribute $attribute, $after_attribute = null) {
-		$sql = sprintf('ALTER TABLE %s ADD %s', $table, $attribute->toSQL());
+	public function buildAddAttribute(TableName $table, PersistentAttribute $attribute, $after_attribute = null): SqlQuery {
+		$sql = sprintf('ALTER TABLE %s ADD %s', $table->getTableName(), $attribute->toSQL());
 
 		if (is_null($after_attribute)) {
 			$sql .= ' FIRST';
 		} else {
 			$sql .= ' AFTER ' . $after_attribute;
 		}
-		return $sql . ';';
+		return new SqlQuery($sql . ';');
 	}
 
 	/**
-	 * @param string $table
+	 * @param TableName $table
 	 * @param PersistentAttribute $attribute
-	 * @return string
+	 * @return SqlQuery
 	 */
-	public function buildDeleteAttribute($table, PersistentAttribute $attribute) {
-		return sprintf(
+	public function buildDeleteAttribute(TableName $table, PersistentAttribute $attribute): SqlQuery {
+		return new SqlQuery(sprintf(
 			'ALTER TABLE %s DROP %s;',
 			$table,
 			$attribute->field
-		);
+		));
 	}
 
 	/**
@@ -245,7 +248,7 @@ class QueryBuilder {
 	 * @param string[] $params The array of substitution parameters
 	 * @return string The interpolated query
 	 */
-	public function interpolateQuery($query, $params) {
+	public function interpolateQuery(string $query, array $params): string {
 		$attributes = [];
 		// build a regular expression for each parameter
 		foreach ($params as $attribute => $value) {

@@ -1,6 +1,7 @@
 <?php
 namespace CsrDelft\Orm\Persistence;
 
+use CsrDelft\Orm\Common\Object\TableName;
 use CsrDelft\Orm\Entity\DynamicEntity;
 use CsrDelft\Orm\Entity\PersistentAttribute;
 use CsrDelft\Orm\Entity\PersistentEntity;
@@ -59,7 +60,7 @@ class DatabaseAdmin extends DependencyManager {
 	 *
 	 * @param PersistentEntity $class
 	 */
-	public function checkTable($class) {
+	public function checkTable($class): void {
 		// Do not check DynamicEntities
 		if ($class === DynamicEntity::class) return;
 		if (is_subclass_of($class, DynamicEntity::class)) return;
@@ -105,7 +106,7 @@ class DatabaseAdmin extends DependencyManager {
 	 * Get array of SQL statements for file.sql
 	 * @return array
 	 */
-	public function getQueries() {
+	public function getQueries(): array {
 		return self::$queries;
 	}
 
@@ -115,9 +116,9 @@ class DatabaseAdmin extends DependencyManager {
 	 * @param string $name
 	 * @return PDOStatement|PersistentAttribute[]
 	 */
-	public function sqlDescribeTable($name) {
-		$sql = $this->queryBuilder->buildDescribeTable($name);
-		$query = $this->database->prepare($sql);
+	public function sqlDescribeTable($name): PDOStatement {
+		$sql = $this->queryBuilder->buildDescribeTable(new TableName($name));
+		$query = $this->database->prepare($sql->getQuery());
 		// Force column names to lower case.
 		$this->database->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
 		$query->execute();
@@ -134,7 +135,7 @@ class DatabaseAdmin extends DependencyManager {
 	 * @param string $name
 	 * @return bool
 	 */
-	public function sqlExistsTable($name) {
+	public function sqlExistsTable(string $name): bool {
 		$sql = $this->queryBuilder->buildExistsTable($name);
 		$query = $this->database->prepare($sql);
 		// Force column names to lower case.
@@ -151,8 +152,8 @@ class DatabaseAdmin extends DependencyManager {
 	 * @param array $attributes
 	 * @param string[] $primary_key
 	 */
-	public function sqlCreateTable($name, array $attributes, array $primary_key) {
-		$sql = $this->queryBuilder->buildCreateTable($name, $attributes, $primary_key);
+	public function sqlCreateTable(string $name, array $attributes, array $primary_key) {
+		$sql = $this->queryBuilder->buildCreateTable(new TableName($name), $attributes, $primary_key);
 		$query = $this->database->prepare($sql);
 		if (defined('DB_MODIFY') AND DB_MODIFY) {
 			$query->execute();
@@ -165,8 +166,8 @@ class DatabaseAdmin extends DependencyManager {
 	 * @param PersistentAttribute $attribute
 	 * @param string $after_attribute
 	 */
-	public function sqlAddAttribute($table, PersistentAttribute $attribute, $after_attribute = null) {
-		$sql = $this->queryBuilder->buildAddAttribute($table, $attribute, $after_attribute);
+	public function sqlAddAttribute(string $table, PersistentAttribute $attribute, string $after_attribute = null): void {
+		$sql = $this->queryBuilder->buildAddAttribute(new TableName($table), $attribute, $after_attribute);
 		$query = $this->database->prepare($sql);
 		if (defined('DB_MODIFY') AND DB_MODIFY) {
 			$query->execute();
@@ -179,7 +180,7 @@ class DatabaseAdmin extends DependencyManager {
 	 * @param PersistentAttribute $attribute
 	 * @param string $old_name
 	 */
-	public function sqlChangeAttribute($table, PersistentAttribute $attribute, $old_name = null) {
+	public function sqlChangeAttribute(string $table, PersistentAttribute $attribute, string $old_name = null): void {
 		$sql = $this->queryBuilder->buildChangeAttribute($table, $attribute, $old_name);
 		$query = $this->database->prepare($sql);
 		if (defined('DB_MODIFY') AND DB_MODIFY) {
@@ -192,9 +193,9 @@ class DatabaseAdmin extends DependencyManager {
 	 * @param string $table
 	 * @param PersistentAttribute $attribute
 	 */
-	public function sqlDeleteAttribute($table, PersistentAttribute $attribute) {
-		$sql = $this->queryBuilder->buildDeleteAttribute($table, $attribute);
-		$query = $this->database->prepare($sql);
+	public function sqlDeleteAttribute(string $table, PersistentAttribute $attribute): void {
+		$sql = $this->queryBuilder->buildDeleteAttribute(new TableName($table), $attribute);
+		$query = $this->database->prepare($sql->getQuery());
 		$esc = '-- ';
 		if (
 			defined('DB_MODIFY')
@@ -210,9 +211,9 @@ class DatabaseAdmin extends DependencyManager {
 
 	/**
 	 * @param $class
-	 * @return mixed[]|ReflectionProperty[]
+	 * @return mixed[]
 	 */
-	public function getStaticProperties($class) {
+	public function getStaticProperties($class): array {
 		$reflection_class = new ReflectionClass($class);
 
 		$properties = $reflection_class->getProperties(ReflectionProperty::IS_STATIC);
@@ -236,7 +237,7 @@ class DatabaseAdmin extends DependencyManager {
 	 *
 	 * @return PersistentAttribute[]
 	 */
-	public function getModelAttributes($properties) {
+	public function getModelAttributes(array $properties): array {
 		$attributes = [];
 
 		foreach ($properties[self::PROPERTY_PERSISTENT_ATTRIBUTES] as $name => $definition) {
@@ -256,7 +257,7 @@ class DatabaseAdmin extends DependencyManager {
 	 * @param PersistentAttribute[] $databaseAttributes
 	 * @param mixed[] $properties
 	 */
-	public function deleteAttributes($databaseAttributes, $properties) {
+	public function deleteAttributes(array $databaseAttributes, array $properties): void {
 		foreach ($databaseAttributes as $name => $attribute) {
 			if (!isset($properties[self::PROPERTY_PERSISTENT_ATTRIBUTES][$name])) {
 				$this->sqlDeleteAttribute($properties[self::PROPERTY_TABLE_NAME], $attribute);
@@ -270,7 +271,7 @@ class DatabaseAdmin extends DependencyManager {
 	 * @param mixed[] $definition
 	 * @return bool
 	 */
-	public function shouldChangeAttribute($modelAttribute, $databaseAttribute, $definition) {
+	public function shouldChangeAttribute(PersistentAttribute $modelAttribute, PersistentAttribute $databaseAttribute, array $definition): bool {
 		// Check existing persistent attributes for differences
 		if ($modelAttribute->type !== $databaseAttribute->type) {
 			if ($definition[0] === T::Enumeration) {
@@ -307,7 +308,7 @@ class DatabaseAdmin extends DependencyManager {
 	 * @param string $tableName
 	 * @return PersistentAttribute[]
 	 */
-	public function getDatabaseAttributes($tableName) {
+	public function getDatabaseAttributes(string $tableName): array {
 		$table_attributes = $this->sqlDescribeTable($tableName);
 		$database_attributes = [];
 		foreach ($table_attributes as $attribute) {
@@ -321,7 +322,7 @@ class DatabaseAdmin extends DependencyManager {
 	 * @param PersistentEnum $enum
 	 * @return bool
 	 */
-	protected function isEnumDifferent($databaseEnum, $enum) {
+	protected function isEnumDifferent(string $databaseEnum, PersistentEnum $enum): bool {
 		$enumSql = $this->queryBuilder->buildEnum($enum::getTypeOptions());
 
 		return $databaseEnum !== $enumSql;

@@ -111,7 +111,7 @@ class DynamicEntityModel extends PersistenceModel {
 		array $criteria_params = [],
 		$group_by = null,
 		$order_by = null,
-		$limit = null,
+		$limit = -1,
 		$start = 0
 	) {
 		$result = parent::find($criteria, $criteria_params, $group_by, $order_by, $limit, $start);

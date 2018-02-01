@@ -1,4 +1,6 @@
 <?php
+
+use CsrDelft\Orm\Common\Object\TableName;
 use CsrDelft\Orm\Entity\PersistentAttribute;
 use CsrDelft\Orm\Entity\T;
 use CsrDelft\Orm\Persistence\QueryBuilder;
@@ -12,32 +14,32 @@ final class QueryBuilderTest extends TestCase {
 		$query_builder = new QueryBuilder();
 		$this->assertEquals(
 			"SELECT one FROM two;",
-			$query_builder->buildSelect(['one'], 'two')
+			$query_builder->buildSelect(['one'], new TableName('two'))
 		);
 
 		$this->assertEquals(
 			"SELECT one, two FROM three WHERE one = ?;",
-			$query_builder->buildSelect(['one', 'two'], 'three', 'one = ?')
+			$query_builder->buildSelect(['one', 'two'], new TableName('three'), 'one = ?')
 		);
 
 		$this->assertEquals(
 			"SELECT one FROM two GROUP BY three;",
-			$query_builder->buildSelect(['one'], 'two', null, 'three')
+			$query_builder->buildSelect(['one'], new TableName('two'), null, 'three')
 		);
 
 		$this->assertEquals(
 			"SELECT one FROM two ORDER BY three;",
-			$query_builder->buildSelect(['one'], 'two', null, null, 'three')
+			$query_builder->buildSelect(['one'], new TableName('two'), null, null, 'three')
 		);
 
 		$this->assertEquals(
 			"SELECT one FROM two LIMIT 0, 1;",
-			$query_builder->buildSelect(['one'], 'two', null, null, null, 1)
+			$query_builder->buildSelect(['one'], new TableName('two'), null, null, null, 1)
 		);
 
 		$this->assertEquals(
 			"SELECT one FROM two LIMIT 5, 1;",
-			$query_builder->buildSelect(['one'], 'two', null, null, null, 1, 5)
+			$query_builder->buildSelect(['one'], new TableName('two'), null, null, null, 1, 5)
 		);
 	}
 
@@ -45,12 +47,12 @@ final class QueryBuilderTest extends TestCase {
 		$query_builder = new QueryBuilder();
 		$this->assertEquals(
 			"SELECT EXISTS (SELECT 1 FROM one);",
-			$query_builder->buildExists('one')
+			$query_builder->buildExists(new TableName('one'))
 		);
 
 		$this->assertEquals(
 			"SELECT EXISTS (SELECT 1 FROM one WHERE two = ?);",
-			$query_builder->buildExists('one', 'two = ?')
+			$query_builder->buildExists(new TableName('one'), 'two = ?')
 		);
 	}
 
@@ -79,12 +81,12 @@ final class QueryBuilderTest extends TestCase {
 		$query_builder = new QueryBuilder();
 		$this->assertEquals(
 			"DELETE FROM one WHERE two = ?;",
-			$query_builder->buildDelete('one', 'two = ?')
+			$query_builder->buildDelete(new TableName('one'), 'two = ?')
 		);
 
 		$this->assertEquals(
 			"DELETE FROM one WHERE two = ? LIMIT 10;",
-			$query_builder->buildDelete('one', 'two = ?', 10)
+			$query_builder->buildDelete(new TableName('one'), 'two = ?', 10)
 		);
 	}
 
@@ -100,7 +102,7 @@ final class QueryBuilderTest extends TestCase {
 		$query_builder = new QueryBuilder();
 		$this->assertEquals(
 			"DESCRIBE one;",
-			$query_builder->buildDescribeTable('one')
+			$query_builder->buildDescribeTable(new TableName('one'))->getQuery()
 		);
 	}
 
@@ -111,12 +113,12 @@ final class QueryBuilderTest extends TestCase {
 
 		$this->assertEquals(
 			"CREATE TABLE one (two int(11) NOT NULL, three text NULL DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8 auto_increment=1;",
-			$query_builder->buildCreateTable('one', [$attribute_two, $attribute_three], [])
+			$query_builder->buildCreateTable(new TableName('one'), [$attribute_two, $attribute_three], [])
 		);
 
 		$this->assertEquals(
 			"CREATE TABLE one (two int(11) NOT NULL, three text NULL DEFAULT NULL, PRIMARY KEY (two)) ENGINE=InnoDB DEFAULT CHARSET=utf8 auto_increment=1;",
-			$query_builder->buildCreateTable('one', [$attribute_two, $attribute_three], ['two'])
+			$query_builder->buildCreateTable(new TableName('one'), [$attribute_two, $attribute_three], ['two'])
 		);
 
 	}
@@ -125,7 +127,7 @@ final class QueryBuilderTest extends TestCase {
 		$query_builder = new QueryBuilder();
 		$this->assertEquals(
 			"DROP TABLE one;",
-			$query_builder->buildDropTable('one')
+			$query_builder->buildDropTable(new TableName('one'))->getQuery()
 		);
 	}
 
@@ -134,12 +136,12 @@ final class QueryBuilderTest extends TestCase {
 		$attribute = new PersistentAttribute('two', [T::Integer]);
 		$this->assertEquals(
 			"ALTER TABLE one ADD two int(11) NOT NULL FIRST;",
-			$query_builder->buildAddAttribute('one', $attribute)
+			$query_builder->buildAddAttribute(new TableName('one'), $attribute)
 		);
 
 		$this->assertEquals(
 			"ALTER TABLE one ADD two int(11) NOT NULL AFTER three;",
-			$query_builder->buildAddAttribute('one', $attribute, 'three')
+			$query_builder->buildAddAttribute(new TableName('one'), $attribute, 'three')
 		);
 	}
 
@@ -148,7 +150,7 @@ final class QueryBuilderTest extends TestCase {
 		$attribute = new PersistentAttribute('two', [T::Integer]);
 		$this->assertEquals(
 			"ALTER TABLE one DROP two;",
-			$query_builder->buildDeleteAttribute('one', $attribute)
+			$query_builder->buildDeleteAttribute(new TableName('one'), $attribute)->getQuery()
 		);
 	}
 

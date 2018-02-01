@@ -63,6 +63,7 @@ class SelectQuery {
 		$this->queryBuilder = new QueryBuilder();
 		$this->attributes = ['*'];
 		$this->limit = -1;
+		$this->offset = 0;
 		$this->criteria = [];
 		$this->criteria_params = [];
 		$this->order = [];
@@ -116,13 +117,13 @@ class SelectQuery {
 	 * @return $this
 	 * @throws OrmException
 	 */
-	public function filterBy($field_type, $value) {
+	public function filterBy(string $field_type, $value) {
 		$attributes = $this->model->getAttributes();
 
 		$matches = explode('__', $field_type);
 
 		$field = $matches[0];
-		$type = isset($matches[1]) ? new SelectMode($matches[1]) : new SelectMode(SelectMode::TYPE_IEXACT);
+		$type = isset($matches[1]) ? new SelectMode($matches[1]) : new SelectMode(SelectMode::TYPE_DEFAULT);
 
 		if (in_array($field, $attributes)) {
 			$this->criteria[] = $this->getCriteriaSql($field, $type);

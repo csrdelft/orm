@@ -112,7 +112,7 @@ abstract class PersistenceModel extends DependencyManager implements Persistence
 		array $criteria_params = [],
 		$group_by = null,
 		$order_by = null,
-		$limit = null,
+		$limit = -1,
 		$start = 0
 	) {
 		if ($order_by == null) {

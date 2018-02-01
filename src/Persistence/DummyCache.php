@@ -12,7 +12,7 @@ class DummyCache {
 	 * @param array| ...$_ unused
 	 * @return bool
 	 */
-	public function add(...$_) {
+	public function add(...$_): bool {
 		return true;
 	}
 
@@ -23,7 +23,7 @@ class DummyCache {
 	 * @param mixed[] $arguments
 	 * @return bool
 	 */
-	public function __call($name, $arguments) {
+	public function __call(string $name, $arguments): bool {
 		return false;
 	}
 }

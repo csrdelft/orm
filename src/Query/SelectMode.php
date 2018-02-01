@@ -10,6 +10,11 @@ use CsrDelft\Orm\Common\Enum;
  */
 class SelectMode extends Enum {
 	/**
+	 * Default type constant.
+	 */
+	const TYPE_DEFAULT = self::TYPE_IEXACT;
+
+	/**
 	 * Select type constants.
 	 */
 	const TYPE_EXACT = 'exact';
