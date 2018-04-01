@@ -371,4 +371,21 @@ abstract class PersistenceModel extends DependencyManager implements Persistence
 		);
 	}
 
+	/**
+	 * Updates the model if it exists,
+	 * otherwise creates it.
+	 * @param PersistentEntity $entity
+	 * @return boolean whether a new row was created
+	 */
+	public function updateOrCreate(PersistentEntity $entity) {
+		if ($this->update($entity) != 0) {
+			//Row already exists
+			return false;
+		} else {
+			//Row does not yet exist, we create it
+			$this->create($entity);
+			return true;
+		}
+	}
+
 }
