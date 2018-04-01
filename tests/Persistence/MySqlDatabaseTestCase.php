@@ -1,8 +1,15 @@
 <?php
 use CsrDelft\Orm\Configuration;
 use CsrDelft\Orm\Persistence\Database;
+use PHPUnit\DbUnit\TestCaseTrait;
+use PHPUnit\Framework\TestCase;
 
-abstract class MySqlDatabaseTestCase extends PHPUnit_Extensions_Database_TestCase {
+abstract class MySqlDatabaseTestCase extends TestCase {
+    use TestCaseTrait {
+        setUp as setUpDb;
+        tearDown as tearDownDb;
+    }
+
 	// only instantiate pdo once for test clean-up/fixture load
 	static private $pdo = null;
 
@@ -30,9 +37,7 @@ abstract class MySqlDatabaseTestCase extends PHPUnit_Extensions_Database_TestCas
 		return $this->conn;
 	}
 
-	public function setUp() {
-
-
+	protected function setUp() {
 		$conn = $this->getConnection();
 		$pdo = $conn->getConnection();
 
@@ -59,10 +64,10 @@ abstract class MySqlDatabaseTestCase extends PHPUnit_Extensions_Database_TestCas
 			$pdo->exec($create);
 		}
 
-		parent::setUp();
+		$this->setUpDb(); // Trait calls parent
 	}
 
-	public function tearDown() {
+	protected function tearDown() {
 		$allTables =
 			$this->getDataSet()->getTableNames();
 		foreach ($allTables as $table) {
@@ -72,6 +77,6 @@ abstract class MySqlDatabaseTestCase extends PHPUnit_Extensions_Database_TestCas
 			$pdo->exec("DROP TABLE IF EXISTS `$table`;");
 		}
 
-		parent::tearDown();
+		$this->tearDownDb(); // Trait calls parent
 	}
 }

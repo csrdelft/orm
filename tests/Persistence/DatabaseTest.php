@@ -9,11 +9,10 @@ class MyException extends Exception {}
  * @covers CsrDelft\Orm\Persistence\Database
  */
 final class DatabaseTest extends MySqlDatabaseTestCase {
-
 	/**
 	 * Returns the test dataset.
 	 *
-	 * @return PHPUnit_Extensions_Database_DataSet_IDataSet
+	 * @return \PHPUnit\DbUnit\DataSet\IDataSet
 	 */
 	protected function getDataSet() {
 		return $this->createFlatXMLDataSet('tests/testDataset.xml');
