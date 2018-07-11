@@ -9,7 +9,7 @@ class Car extends PersistentEntity {
 	public $id;
 	public $num_wheels;
 	public $brand;
-
+	public $json;
 	protected static $persistent_attributes = [
 		'id' => [T::Integer, false, 'auto_increment'],
 		'num_wheels' => [T::Integer],
