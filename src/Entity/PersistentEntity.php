@@ -177,6 +177,10 @@ abstract class PersistentEntity implements \JsonSerializable {
 		}
 		foreach ($attributes as $attribute) {
 			$values[$attribute] = pdo_bool($this->$attribute);
+			if ($this->getAttributeDefinition($attribute)[0]==T::JSON) {
+				$serializer = new \Zumba\JsonSerializer\JsonSerializer();
+				$values[$attribute] = $serializer->serialize($this->$attribute);
+			}
 		}
 		if ($primary_key_only) {
 			return array_values($values);
@@ -202,7 +206,10 @@ abstract class PersistentEntity implements \JsonSerializable {
 				$this->$attribute = (int)$this->$attribute;
 			} elseif ($definition[0] === T::Float) {
 				$this->$attribute = (float)$this->$attribute;
-			} else {
+			} elseif ($definition[0] === T::JSON) {
+				$serializer = new \Zumba\JsonSerializer\JsonSerializer();
+				$this->$attribute = $serializer->unserialize($this->$attribute);
+			}else {
 				$this->$attribute = (string)$this->$attribute;
 			}
 			// If $definition comes from PersistentAttribute->toDefinition, $definition[2] is an array if the definition is an enum

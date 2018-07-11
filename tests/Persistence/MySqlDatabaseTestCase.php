@@ -23,7 +23,7 @@ abstract class MySqlDatabaseTestCase extends TestCase {
 					'cache_path' => '.',
 					'db' => [
 						'host' => '127.0.0.1',
-						'user' => 'travis',
+						'user' => 'root',
 						'db' => 'orm_test',
 						'pass' => ''
 					]
@@ -53,6 +53,8 @@ abstract class MySqlDatabaseTestCase extends TestCase {
 			foreach ($meta->getColumns() as $col) {
 				if ($col == 'id') {
 					$cols[] = "`$col` INT NOT NULL auto_increment";
+				} else if ($col === 'json'){
+					$cols[] = "`$col` TEXT";
 				} else {
 					$cols[] = "`$col` VARCHAR(200)";
 				}

@@ -22,6 +22,7 @@ abstract class T extends PersistentEnum {
 	const LongText = 'longtext';
 	const Enumeration = 'enum';
 	const UID = 'varchar(4)';
+	const JSON = 'json';
 
 	protected static $supportedChoices = [
 		self::String => self::String,
@@ -37,6 +38,7 @@ abstract class T extends PersistentEnum {
 		self::LongText => self::LongText,
 		self::Enumeration => self::Enumeration,
 		self::UID => self::UID,
+		self::JSON => self::JSON
 	];
 
 	/**
@@ -56,6 +58,7 @@ abstract class T extends PersistentEnum {
 		self::LongText => 'Tekst (lang)',
 		self::Enumeration => 'Voorgedefinieerde waarden',
 		self::UID => 'Lidnummer',
+		self::JSON => 'JSON'
 	];
 
 	/**
@@ -75,5 +78,6 @@ abstract class T extends PersistentEnum {
 		self::LongText => 'lt',
 		self::Enumeration => 'e',
 		self::UID => 'u',
+		self::JSON => 'j'
 	];
 }
