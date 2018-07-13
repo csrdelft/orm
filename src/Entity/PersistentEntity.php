@@ -2,6 +2,7 @@
 namespace CsrDelft\Orm\Entity;
 
 use function common\pdo_bool;
+use CsrDelft\Orm\JsonSerializer\SafeJsonSerializer;
 use Exception;
 
 /**
@@ -177,8 +178,9 @@ abstract class PersistentEntity implements \JsonSerializable {
 		}
 		foreach ($attributes as $attribute) {
 			$values[$attribute] = pdo_bool($this->$attribute);
-			if ($this->getAttributeDefinition($attribute)[0]==T::JSON) {
-				$serializer = new \Zumba\JsonSerializer\JsonSerializer();
+			$attributeDef = $this->getAttributeDefinition($attribute);
+			if ($attributeDef[0]==T::JSON) {
+				$serializer = new SafeJsonSerializer($attributeDef[2]);
 				$values[$attribute] = $serializer->serialize($this->$attribute);
 			}
 		}
@@ -207,7 +209,7 @@ abstract class PersistentEntity implements \JsonSerializable {
 			} elseif ($definition[0] === T::Float) {
 				$this->$attribute = (float)$this->$attribute;
 			} elseif ($definition[0] === T::JSON) {
-				$serializer = new \Zumba\JsonSerializer\JsonSerializer();
+				$serializer = new SafeJsonSerializer($definition[2]);
 				$this->$attribute = $serializer->unserialize($this->$attribute);
 			}else {
 				$this->$attribute = (string)$this->$attribute;
