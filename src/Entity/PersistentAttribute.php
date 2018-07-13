@@ -65,6 +65,7 @@ class PersistentAttribute {
 			$this->type = $definition[0];
 			if ($this->type == T::JSON) {
 				$this->type = T::Text;
+				$this->extra = '';
 			}
 			$this->default = null;
 			if (isset($definition[1]) AND $definition[1]) {
