@@ -13,5 +13,6 @@ class SafeJsonSerializerException extends JsonSerializerException {
 	 * @param string $string
 	 */
 	public function __construct($string) {
+		parent::__construct($string);
 	}
 }
