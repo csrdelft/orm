@@ -14,7 +14,7 @@ class Car extends PersistentEntity {
 		'id' => [T::Integer, false, 'auto_increment'],
 		'num_wheels' => [T::Integer],
 		'brand' => [T::String],
-		'json' => [T::JSON]
+		'json' => [T::JSON, true, [TestClass::class]]
 	];
 	protected static $table_name = 'car';
 	protected static $primary_key = ['id'];
