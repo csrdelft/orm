@@ -70,6 +70,10 @@ class PersistentAttribute {
 				$this->null = 'NO';
 			}
 			$this->extra = (isset($definition[2]) ? $definition[2] : '');
+			if ($this->type == T::JSON) {
+				$this->type = T::Text;
+				$this->extra = '';
+			}
 			if ($this->type === T::Enumeration) {
 				$class = $this->extra;
 				$this->type = "enum('" . implode("','", $class::getTypeOptions()) . "')";

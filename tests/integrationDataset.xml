@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
 <dataset>
-    <car id="1" num_wheels="4" brand="Opel"/>
-    <car id="2" num_wheels="3" brand="Delorean"/>
+    <car id="1" num_wheels="4" brand="Opel" json="[]" />
+    <car id="2" num_wheels="3" brand="Delorean" json="[]" />
 </dataset>

@@ -9,11 +9,12 @@ class Car extends PersistentEntity {
 	public $id;
 	public $num_wheels;
 	public $brand;
-
+	public $json;
 	protected static $persistent_attributes = [
 		'id' => [T::Integer, false, 'auto_increment'],
 		'num_wheels' => [T::Integer],
-		'brand' => [T::String]
+		'brand' => [T::String],
+		'json' => [T::JSON, true, [TestClass::class]]
 	];
 	protected static $table_name = 'car';
 	protected static $primary_key = ['id'];
@@ -23,6 +24,9 @@ class CarModel extends PersistenceModel {
 	const ORM = Car::class;
 }
 
+class TestClass {
+	public $info;
+}
 /**
  * PersistenceModelTest.php
  *
@@ -62,10 +66,21 @@ final class PersistenceModelIntegrationTest extends MySqlDatabaseTestCase {
 		$car = new Car();
 		$car->num_wheels = 2;
 		$car->brand = "Yamaha";
-
 		$this->model->create($car);
 
 		$this->assertEquals(3, $this->model->count());
+	}
+
+	public function testJson() {
+		$car = new Car();
+		$car->json = new TestClass();
+		$car->json->info = "test";
+
+		$samecar = new Car();
+		$samecar->id = $this->model->create($car);
+		$this->model->retrieve($samecar);
+
+		$this->assertEquals($samecar->json->info, "test");
 	}
 
 	public function testRetrieve() {

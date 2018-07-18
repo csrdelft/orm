@@ -2,6 +2,7 @@
 namespace CsrDelft\Orm\Entity;
 
 use function common\pdo_bool;
+use CsrDelft\Orm\JsonSerializer\SafeJsonSerializer;
 use Exception;
 
 /**
@@ -177,6 +178,11 @@ abstract class PersistentEntity implements \JsonSerializable {
 		}
 		foreach ($attributes as $attribute) {
 			$values[$attribute] = pdo_bool($this->$attribute);
+			$attributeDef = $this->getAttributeDefinition($attribute);
+			if ($attributeDef[0]==T::JSON) {
+				$serializer = new SafeJsonSerializer($attributeDef[2]);
+				$values[$attribute] = $serializer->serialize($this->$attribute);
+			}
 		}
 		if ($primary_key_only) {
 			return array_values($values);
@@ -202,7 +208,10 @@ abstract class PersistentEntity implements \JsonSerializable {
 				$this->$attribute = (int)$this->$attribute;
 			} elseif ($definition[0] === T::Float) {
 				$this->$attribute = (float)$this->$attribute;
-			} else {
+			} elseif ($definition[0] === T::JSON) {
+				$serializer = new SafeJsonSerializer($definition[2]);
+				$this->$attribute = $serializer->unserialize($this->$attribute);
+			}else {
 				$this->$attribute = (string)$this->$attribute;
 			}
 			// If $definition comes from PersistentAttribute->toDefinition, $definition[2] is an array if the definition is an enum

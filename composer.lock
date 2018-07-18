@@ -4,8 +4,63 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "3ce4ca53bc0500a73be0d73c27dec961",
-    "packages": [],
+    "content-hash": "e50f7613ef44102abc78e98b15562847",
+    "packages": [
+        {
+            "name": "zumba/json-serializer",
+            "version": "2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/zumba/json-serializer.git",
+                "reference": "b7415a88841f4493eddfba390456b25fe22e286a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/zumba/json-serializer/zipball/b7415a88841f4493eddfba390456b25fe22e286a",
+                "reference": "b7415a88841f4493eddfba390456b25fe22e286a",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.8.*"
+            },
+            "suggest": {
+                "jeremeamia/superclosure": "Allow to serialize PHP closures"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Zumba\\": "src/",
+                    "Zumba\\JsonSerializer\\Test\\": "tests/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Juan Basso",
+                    "email": "juan.basso@zumba.com"
+                },
+                {
+                    "name": "Zumba Fitness, LLC",
+                    "email": "engineering@zumba.com"
+                }
+            ],
+            "description": "Serialize PHP variables, including objects, in JSON format. Support to unserialize it too.",
+            "homepage": "http://tech.zumba.com",
+            "keywords": [
+                "json",
+                "serialize",
+                "serializer"
+            ],
+            "time": "2018-02-07T18:14:13+00:00"
+        }
+    ],
     "packages-dev": [
         {
             "name": "codacy/coverage",
@@ -13,12 +68,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/codacy/php-codacy-coverage.git",
-                "reference": "4988cd098db4d578681bfd3176071931ad475150"
+                "reference": "629d1fd597f91fb072bd822830059fd5145ce49a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codacy/php-codacy-coverage/zipball/4988cd098db4d578681bfd3176071931ad475150",
-                "reference": "4988cd098db4d578681bfd3176071931ad475150",
+                "url": "https://api.github.com/repos/codacy/php-codacy-coverage/zipball/629d1fd597f91fb072bd822830059fd5145ce49a",
+                "reference": "629d1fd597f91fb072bd822830059fd5145ce49a",
                 "shasum": ""
             },
             "require": {
@@ -50,7 +105,7 @@
             ],
             "description": "Sends PHP test coverage information to Codacy.",
             "homepage": "https://github.com/codacy/php-codacy-coverage",
-            "time": "2018-03-22T16:43:39+00:00"
+            "time": "2018-04-30T16:23:12+00:00"
         },
         {
             "name": "doctrine/instantiator",
