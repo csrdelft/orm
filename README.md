@@ -246,7 +246,25 @@ if (DB_CHECK) {
     }
 }
 ```
+## JSON fields
 
+By using T::JSON, a database field can be mapped to an array or object. On save, data is serialized
+to JSON and can later be deserialized. In the example the $reviews property is a JSON field.
+
+```php
+$model = CarModel::instance();
+$car = $model->find()[0];
+
+$review = new CarReview();
+$review->userId = '1801';
+$review->reviewText = 'Very good car!';
+
+$car->reviews = [$review];
+$model->update($car);
+```
+
+To prevent remote code execution only allowed classes can be (de)deserialized. In the third element of the  attribute defintion 
+the list of allowed classes should be specified. Also null can be passed to allow all classes.
 ## Database transactions
 
 To wrap multiple database calls in a transaction you can use `Database::transaction(Closure)`.
