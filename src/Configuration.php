@@ -25,6 +25,7 @@ class Configuration {
 	 *     'pass' => 'myPass'
 	 *   ]
 	 * ];
+	 * @throws \Exception
 	 */
 	public static function load(array $config) {
 		assert(key_exists("cache_path", $config), "Cache path not set.");
@@ -36,7 +37,7 @@ class Configuration {
 
 		$dsn = 'mysql:host=' . $db_conf['host'] . ';dbname=' . $db_conf['db'];
 		$options = [
-			PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8'",
+			PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8MB4'",
 			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
 		];
 		$pdo = new PDO($dsn, $db_conf['user'], $db_conf['pass'], $options);

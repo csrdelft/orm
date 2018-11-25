@@ -10,6 +10,7 @@ namespace CsrDelft\Orm\Entity;
  */
 abstract class T extends PersistentEnum {
 	const String = 'varchar(255)';
+	const StringKey = 'varchar(191)';
 	const Char = 'char(1)';
 	const Boolean = 'tinyint(1)';
 	const Integer = 'int(11)';
@@ -18,7 +19,7 @@ abstract class T extends PersistentEnum {
 	const Time = 'time';
 	const DateTime = 'datetime';
 	const Timestamp = 'timestamp';
-	const Text = 'text';
+	const Text = 'mediumtext';
 	const LongText = 'longtext';
 	const Enumeration = 'enum';
 	const UID = 'varchar(4)';
@@ -26,6 +27,7 @@ abstract class T extends PersistentEnum {
 
 	protected static $supportedChoices = [
 		self::String => self::String,
+		self::StringKey => self::StringKey,
 		self::Char => self::Char,
 		self::Boolean => self::Boolean,
 		self::Integer => self::Integer,
@@ -46,6 +48,7 @@ abstract class T extends PersistentEnum {
 	 */
 	protected static $mapChoiceToDescription = [
 		self::String => 'Tekst (1 zin)',
+		self::StringKey => 'Tekst (1 zin) gebruikt als primary/foreign/unqiue key',
 		self::Char => 'Karakter (1 teken)',
 		self::Boolean => 'Ja/Nee-waarde',
 		self::Integer => 'Geheel getal',
@@ -66,6 +69,7 @@ abstract class T extends PersistentEnum {
 	 */
 	protected static $mapChoiceToChar = [
 		self::String => 's',
+		self::StringKey => 'k',
 		self::Char => 'c',
 		self::Boolean => 'b',
 		self::Integer => 'i',
