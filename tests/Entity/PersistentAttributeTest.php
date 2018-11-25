@@ -48,7 +48,7 @@ final class PersistentAttributeTest extends TestCase {
 		$this->assertEquals('one int(11) NOT NULL DEFAULT "11"', $attribute->toSQL());
 
 		$attribute = new PersistentAttribute('one', [T::Text, true, 'auto_increment']);
-		$this->assertEquals('one text NULL DEFAULT NULL auto_increment', $attribute->toSQL());
+		$this->assertEquals('one mediumtext NULL DEFAULT NULL auto_increment', $attribute->toSQL());
 
 		$attribute = new PersistentAttribute('one', [T::Enumeration, false, 'MyEnum']);
 		$this->assertEquals('one enum(\'option1\',\'option2\',\'option3\') NOT NULL', $attribute->toSQL());

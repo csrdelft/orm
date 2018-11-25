@@ -110,12 +110,12 @@ final class QueryBuilderTest extends TestCase {
 		$attribute_three = new PersistentAttribute('three', [T::Text, true]);
 
 		$this->assertEquals(
-			"CREATE TABLE one (two int(11) NOT NULL, three text NULL DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8 auto_increment=1;",
+			"CREATE TABLE one (two int(11) NOT NULL, three mediumtext NULL DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8 auto_increment=1;",
 			$query_builder->buildCreateTable('one', [$attribute_two, $attribute_three], [])
 		);
 
 		$this->assertEquals(
-			"CREATE TABLE one (two int(11) NOT NULL, three text NULL DEFAULT NULL, PRIMARY KEY (two)) ENGINE=InnoDB DEFAULT CHARSET=utf8 auto_increment=1;",
+			"CREATE TABLE one (two int(11) NOT NULL, three mediumtext NULL DEFAULT NULL, PRIMARY KEY (two)) ENGINE=InnoDB DEFAULT CHARSET=utf8 auto_increment=1;",
 			$query_builder->buildCreateTable('one', [$attribute_two, $attribute_three], ['two'])
 		);
 
