@@ -14,7 +14,7 @@ class Car extends PersistentEntity {
 		'id' => [T::Integer, false, 'auto_increment'],
 		'num_wheels' => [T::Integer],
 		'brand' => [T::String],
-		'json' => [T::JSON, true, [TestClass::class]]
+		'json' => [T::JSON, true, [TestJsonClass::class]]
 	];
 	protected static $table_name = 'car';
 	protected static $primary_key = ['id'];
@@ -24,7 +24,7 @@ class CarModel extends PersistenceModel {
 	const ORM = Car::class;
 }
 
-class TestClass {
+class TestJsonClass {
 	public $info;
 }
 /**
@@ -40,7 +40,7 @@ final class PersistenceModelIntegrationTest extends MySqlDatabaseTestCase {
 	 */
 	private $model;
 	/**
-	 * Returns the test dataset.
+	 * Returns the test data set.
 	 *
 	 * @return \PHPUnit\DbUnit\DataSet\IDataSet
 	 */
@@ -73,14 +73,14 @@ final class PersistenceModelIntegrationTest extends MySqlDatabaseTestCase {
 
 	public function testJson() {
 		$car = new Car();
-		$car->json = new TestClass();
+		$car->json = new TestJsonClass();
 		$car->json->info = "test";
 
-		$samecar = new Car();
-		$samecar->id = $this->model->create($car);
-		$this->model->retrieve($samecar);
+		$sameCar = new Car();
+		$sameCar->id = $this->model->create($car);
+		$this->model->retrieve($sameCar);
 
-		$this->assertEquals($samecar->json->info, "test");
+		$this->assertEquals($sameCar->json->info, "test");
 	}
 
 	public function testRetrieve() {
@@ -105,9 +105,9 @@ final class PersistenceModelIntegrationTest extends MySqlDatabaseTestCase {
 
 		$this->model->update($car);
 
-		$newcar = $this->model->find('id = 1')->fetch();
+		$newCar = $this->model->find('id = 1')->fetch();
 
-		$this->assertEquals('Mercedes', $newcar->brand);
+		$this->assertEquals('Mercedes', $newCar->brand);
 	}
 
 	public function testDelete() {

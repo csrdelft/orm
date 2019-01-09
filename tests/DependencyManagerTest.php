@@ -82,24 +82,36 @@ class DependencyManagerTest extends TestCase {
 		CircularOne::instance();
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testTooManyParameters() {
 		$this->expectExceptionMessage('Unexpected amount of parameters.');
 		$this->expectException(Exception::class);
 		NoParameter::init('parameter');
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testTooFewParameters() {
 		$this->expectExceptionMessage('Unexpected amount of parameters.');
 		$this->expectException(Exception::class);
 		OneParameter::init();
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testParameterNoConstructor() {
 		$this->expectExceptionMessage('Unexpected amount of parameters.');
 		$this->expectException(Exception::class);
 		NoConstructor::init('parameter');
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testDependency() {
 		DependencyManager::addDependency(Normal::init('Hello'));
 
@@ -107,6 +119,9 @@ class DependencyManagerTest extends TestCase {
 		$this->assertEquals(NoParameter::instance(), Normal::instance()->noParameter);
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testReversedParameter() {
 		DependencyManager::addDependency(Reversed::init('Hello'));
 
@@ -114,12 +129,18 @@ class DependencyManagerTest extends TestCase {
 		$this->assertEquals(NoConstructor::instance(), Reversed::instance()->noConstructor);
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testParameterMismatch() {
 		$this->expectExceptionMessage('Type mismatch when initializing "ParameterMismatch". Expected parameter of type "EmptyTest", got "NoConstructor".');
 		$this->expectException(Exception::class);
 		ParameterMismatch::init(new NoConstructor());
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testPreloadDependency() {
 		$emptyTest = new EmptyTest();
 		DependencyManager::addDependency($emptyTest);

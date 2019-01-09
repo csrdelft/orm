@@ -24,6 +24,9 @@ final class DatabaseTest extends MySqlDatabaseTestCase {
 		$this->assertEquals(2, count($database->sqlSelect(['*'], 'guestbook')->fetchAll()));
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testSqlInsert() {
 		$database = new Database($this->getConnection()->getConnection());
 		$dataset = $this->getConnection()->createQueryTable('guestbook', 'SELECT user FROM guestbook');
@@ -52,6 +55,9 @@ final class DatabaseTest extends MySqlDatabaseTestCase {
 		);
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testSqlUpdate() {
 		$database = new Database($this->getConnection()->getConnection());
 		$dataset = $this->getConnection()->createQueryTable('guestbook', 'SELECT user FROM guestbook WHERE id = 1');
@@ -70,6 +76,9 @@ final class DatabaseTest extends MySqlDatabaseTestCase {
 		$this->assertEquals(1, $dataset->getRowCount());
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testTransaction() {
 		$database = new Database($this->getConnection()->getConnection());
 
@@ -91,6 +100,9 @@ final class DatabaseTest extends MySqlDatabaseTestCase {
 		$this->assertFalse($database->getDatabase()->inTransaction(), 'Database is not in a transaction');
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testTransactionRollback() {
 		$database = new Database($this->getConnection()->getConnection());
 

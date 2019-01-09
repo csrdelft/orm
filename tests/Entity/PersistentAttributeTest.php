@@ -54,6 +54,9 @@ final class PersistentAttributeTest extends TestCase {
 		$this->assertEquals('one enum(\'option1\',\'option2\',\'option3\') NOT NULL', $attribute->toSQL());
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testToDefinition() {
 		$definition = [T::Integer, false];
 		$attribute = new PersistentAttribute('one', $definition);
@@ -68,6 +71,9 @@ final class PersistentAttributeTest extends TestCase {
 		$this->assertEquals($definition, $attribute->toDefinition());
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testToDefinitionError() {
 		$this->expectException(Exception::class);
 
