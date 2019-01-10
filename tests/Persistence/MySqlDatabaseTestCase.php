@@ -1,6 +1,9 @@
-<?php
+<?php /** @noinspection SqlNoDataSourceInspection */
+
 use CsrDelft\Orm\Configuration;
+use CsrDelft\Orm\Exception\CsrOrmException;
 use CsrDelft\Orm\Persistence\Database;
+use PHPUnit\DbUnit\Database\DefaultConnection;
 use PHPUnit\DbUnit\TestCaseTrait;
 use PHPUnit\Framework\TestCase;
 
@@ -17,8 +20,8 @@ abstract class MySqlDatabaseTestCase extends TestCase {
 	private $conn = null;
 
 	/**
-	 * @return \PHPUnit\DbUnit\Database\DefaultConnection|null
-	 * @throws \CsrDelft\Orm\Exception\CsrOrmException
+	 * @return DefaultConnection|null
+	 * @throws CsrOrmException
 	 */
 	final public function getConnection() {
 		if ($this->conn === null) {
@@ -42,7 +45,7 @@ abstract class MySqlDatabaseTestCase extends TestCase {
 	}
 
 	/**
-	 * @throws \CsrDelft\Orm\Exception\CsrOrmException
+	 * @throws CsrOrmException
 	 */
 	protected function setUp() {
 		$conn = $this->getConnection();
@@ -79,7 +82,7 @@ abstract class MySqlDatabaseTestCase extends TestCase {
 	}
 
 	/**
-	 * @throws \CsrDelft\Orm\Exception\CsrOrmException
+	 * @throws CsrOrmException
 	 */
 	protected function tearDown() {
 		$allTables =

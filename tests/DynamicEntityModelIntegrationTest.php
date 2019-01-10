@@ -21,7 +21,7 @@ final class DynamicEntityModelIntegrationTest extends MySqlDatabaseTestCase {
 	 * @return \PHPUnit\DbUnit\DataSet\IDataSet
 	 */
 	protected function getDataSet() {
-		return $this->createFlatXMLDataSet('tests/integrationDataset.xml');
+		return $this->createFlatXMLDataSet(__DIR__ . '/resources/integrationDataset.xml');
 	}
 
 	public function setUp() {

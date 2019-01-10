@@ -1,6 +1,7 @@
 <?php
 namespace CsrDelft\Orm;
 
+use CsrDelft\Orm\Exception\CsrOrmException;
 use PDO;
 
 
@@ -25,7 +26,7 @@ class Configuration {
 	 *     'pass' => 'myPass'
 	 *   ]
 	 * ];
-	 * @throws \Exception
+	 * @throws CsrOrmException
 	 */
 	public static function load(array $config) {
 		assert(key_exists("cache_path", $config), "Cache path not set.");

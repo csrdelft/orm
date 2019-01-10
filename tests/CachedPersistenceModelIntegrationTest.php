@@ -1,10 +1,15 @@
-<?php
+<?php /** @noinspection SqlNoDataSourceInspection */
+/** @noinspection SqlResolve */
+
 use CsrDelft\Orm\CachedPersistenceModel;
+use CsrDelft\Orm\Entity\PersistentEntity;
 use CsrDelft\Orm\Entity\T;
+use CsrDelft\Orm\Exception\CsrOrmException;
+use PHPUnit\DbUnit\DataSet\IDataSet;
 
 require_once 'Persistence/MySqlDatabaseTestCase.php';
 
-class Bike extends \CsrDelft\Orm\Entity\PersistentEntity {
+class Bike extends PersistentEntity {
 	public $id;
 	public $brand;
 
@@ -32,10 +37,10 @@ class CachedPersistenceModelIntegrationTest extends MySqlDatabaseTestCase {
 	/**
 	 * Returns the test dataset.
 	 *
-	 * @return \PHPUnit\DbUnit\DataSet\IDataSet
+	 * @return IDataSet
 	 */
 	protected function getDataSet() {
-		return $this->createFlatXMLDataSet('tests/CachedPersistenceModelIntegrationTest.xml');
+		return $this->createFlatXMLDataSet(__DIR__ . '/resources/CachedPersistenceModelIntegrationTest.xml');
 	}
 
 	public function setUp() {
@@ -43,6 +48,9 @@ class CachedPersistenceModelIntegrationTest extends MySqlDatabaseTestCase {
 		$this->model = BikeModel::instance();
 	}
 
+	/**
+	 * @throws CsrOrmException
+	 */
 	public function testPrefetch() {
 		$bikes = $this->model->prefetch();
 		// CachedPersistenceModel assumes nobody else touches the db in this request

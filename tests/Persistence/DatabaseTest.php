@@ -15,7 +15,7 @@ final class DatabaseTest extends MySqlDatabaseTestCase {
 	 * @return \PHPUnit\DbUnit\DataSet\IDataSet
 	 */
 	protected function getDataSet() {
-		return $this->createFlatXMLDataSet('tests/testDataset.xml');
+		return $this->createFlatXMLDataSet(__DIR__ . '/../resources/DatabaseTest.xml');
 	}
 
 	public function testSqlSelect() {

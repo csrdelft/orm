@@ -23,8 +23,10 @@
   "license": "MIT",
   "require": {
     "php": ">=7.0.27",
-    "zumba/json-serializer": "^2.2"
-  },
+    "zumba/json-serializer": "^2.2",
+		"ext-pdo": "*",
+		"ext-json": "*"
+	},
   "require-dev": {
     "phpunit/dbunit": "^4.0",
     "phpunit/phpunit": "^7.0",
