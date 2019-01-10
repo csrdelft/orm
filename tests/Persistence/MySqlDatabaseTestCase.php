@@ -16,6 +16,10 @@ abstract class MySqlDatabaseTestCase extends TestCase {
 	// only instantiate PHPUnit_Extensions_Database_DB_IDatabaseConnection once per test
 	private $conn = null;
 
+	/**
+	 * @return \PHPUnit\DbUnit\Database\DefaultConnection|null
+	 * @throws \CsrDelft\Orm\Exception\CsrOrmException
+	 */
 	final public function getConnection() {
 		if ($this->conn === null) {
 			if (self::$pdo == null) {
@@ -37,6 +41,9 @@ abstract class MySqlDatabaseTestCase extends TestCase {
 		return $this->conn;
 	}
 
+	/**
+	 * @throws \CsrDelft\Orm\Exception\CsrOrmException
+	 */
 	protected function setUp() {
 		$conn = $this->getConnection();
 		$pdo = $conn->getConnection();
@@ -55,6 +62,8 @@ abstract class MySqlDatabaseTestCase extends TestCase {
 					$cols[] = "`$col` INT NOT NULL auto_increment";
 				} else if ($col === 'json'){
 					$cols[] = "`$col` TEXT";
+				} else if (strpos($col, 'num_') === 0) {
+					$cols[] = "`$col` INT";
 				} else {
 					$cols[] = "`$col` VARCHAR(200)";
 				}
@@ -69,6 +78,9 @@ abstract class MySqlDatabaseTestCase extends TestCase {
 		$this->setUpDb(); // Trait calls parent
 	}
 
+	/**
+	 * @throws \CsrDelft\Orm\Exception\CsrOrmException
+	 */
 	protected function tearDown() {
 		$allTables =
 			$this->getDataSet()->getTableNames();

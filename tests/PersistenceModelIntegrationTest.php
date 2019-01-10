@@ -60,6 +60,7 @@ final class PersistenceModelIntegrationTest extends MySqlDatabaseTestCase {
 	public function testFind() {
 		$car = $this->model->find('num_wheels = 4')->fetch();
 		$this->assertEquals('Opel', $car->brand);
+		$this->assertInternalType('int', $car->num_wheels);
 	}
 
 	public function testCreate() {
