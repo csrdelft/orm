@@ -28,7 +28,7 @@ trait PersistentEntityComputedAttributeTrait {
 	 */
 	public function __get($name) {
 		if (isset(static::$computed_attributes[$name])) {
-			return call_user_func_array([static::class, 'get' . ucfirst($this->toCamelCase($name))], []);
+			return $this->{'get' . ucfirst($this->toCamelCase($name))}();
 		} else {
 			throw new CsrOrmException('Attribute not found: ' . $name);
 		}
