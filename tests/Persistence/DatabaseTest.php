@@ -1,4 +1,6 @@
-<?php
+<?php /** @noinspection SqlNoDataSourceInspection */
+
+use CsrDelft\Orm\Exception\CsrOrmException;
 use CsrDelft\Orm\Persistence\Database;
 
 require_once 'MySqlDatabaseTestCase.php';
@@ -18,6 +20,9 @@ final class DatabaseTest extends MySqlDatabaseTestCase {
 		return $this->createFlatXMLDataSet(__DIR__ . '/../resources/DatabaseTest.xml');
 	}
 
+	/**
+	 * @throws CsrOrmException
+	 */
 	public function testSqlSelect() {
 		$database = new Database($this->getConnection()->getConnection());
 
@@ -41,6 +46,9 @@ final class DatabaseTest extends MySqlDatabaseTestCase {
 		$this->assertEquals(['user' => 'John Doe'], $dataset->getRow($dataset->getRowCount() - 1));
 	}
 
+	/**
+	 * @throws CsrOrmException
+	 */
 	public function testSqlExists() {
 		$database = new Database($this->getConnection()->getConnection());
 
@@ -67,6 +75,35 @@ final class DatabaseTest extends MySqlDatabaseTestCase {
 		$this->assertEquals(['user' => 'pete'], $dataset->getRow(0));
 	}
 
+	/**
+	 * @throws CsrOrmException
+	 * @throws Exception
+	 */
+	public function testInsertMultiple() {
+		$database = new Database($this->getConnection()->getConnection());
+		$dataset = $this->getConnection()->createQueryTable('guestbook', 'SELECT user FROM guestbook');
+
+		$database->sqlInsertMultiple('guestbook', [['user', 'id'], ['pete', 3], ['jan', 4]]);
+
+		$this->assertEquals(4, $dataset->getRowCount());
+	}
+
+	/**
+	 * @throws CsrOrmException
+	 * @throws Exception
+	 */
+	public function testInsertMultipleReplace() {
+		$database = new Database($this->getConnection()->getConnection());
+		$dataset = $this->getConnection()->createQueryTable('guestbook', 'SELECT user FROM guestbook');
+
+		$database->sqlInsertMultiple('guestbook', [['user', 'id'], ['pete', 1], ['jan', 4]], true);
+
+		$this->assertEquals(3, $dataset->getRowCount());
+	}
+
+	/**
+	 * @throws CsrOrmException
+	 */
 	public function testSqlDelete() {
 		$database = new Database($this->getConnection()->getConnection());
 		$dataset = $this->getConnection()->createQueryTable('guestbook', 'SELECT * FROM guestbook');
@@ -115,7 +152,7 @@ final class DatabaseTest extends MySqlDatabaseTestCase {
 				throw new MyException("testException");
 			});
 			$this->fail("Exception expected");
-		} catch (MyException $ex) {
+		} /** @noinspection PhpRedundantCatchClauseInspection */ catch (MyException $ex) {
 			$this->assertEquals("testException", $ex->getMessage(), 'Exception is rethrown');
 		}
 

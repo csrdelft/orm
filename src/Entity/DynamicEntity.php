@@ -69,40 +69,4 @@ class DynamicEntity extends PersistentEntity {
 	public function getPrimaryKey() {
 		return array_values($this->definition->primary_key);
 	}
-
-	/**
-	 * @param string $attribute
-	 * @param mixed $value
-	 */
-	public function __set($attribute, $value) {
-		$this->$attribute = $value;
-	}
-
-	/**
-	 * @param string $attribute
-	 * @return mixed
-	 */
-	public function __get($attribute) {
-		if (property_exists(get_class($this), $attribute)) {
-			return $this->$attribute;
-		}
-		return null;
-	}
-
-	/**
-	 * @param string $attribute
-	 * @return bool
-	 */
-	public function __isset($attribute) {
-		return $this->__get($attribute) !== null;
-	}
-
-	/**
-	 * @param string $attribute
-	 */
-	public function __unset($attribute) {
-		if ($this->__isset($attribute)) {
-			unset($this->$attribute);
-		}
-	}
 }

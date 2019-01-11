@@ -47,10 +47,7 @@ class PersistentEntityComputedAttributeTest extends TestCase {
 	public function testWrongComputedAttribute() {
 		$entity = new MyComputedAttributeEntity();
 
-		$this->expectExceptionMessage('Attribute not found: wrong_attribute');
-		$this->expectException(\CsrDelft\Orm\Exception\CsrOrmException::class);
-
-		$entity->wrong_attribute;
+		$this->assertEquals(null, $entity->wrong_attribute);
 	}
 
 	public function testGetComputedAttributes() {

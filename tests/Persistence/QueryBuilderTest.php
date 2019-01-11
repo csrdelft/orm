@@ -192,5 +192,10 @@ final class QueryBuilderTest extends TestCase {
 		);
 	}
 
+	public function testBuildEnum() {
+		$query_builder = new QueryBuilder();
+
+		$this->assertEquals("enum('a','b')", $query_builder->buildEnum(['a', 'b']));
+	}
 
 }
