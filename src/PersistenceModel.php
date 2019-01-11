@@ -128,7 +128,7 @@ abstract class PersistenceModel extends DependencyManager implements Persistence
 				$limit,
 				$start
 			);
-			$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, []);
+			$result->setFetchMode(PDO::FETCH_CLASS, static::ORM, [true]);
 			return $result;
 		} catch (PDOException $ex) {
 			throw $ex;
