@@ -24,13 +24,12 @@ trait PersistentEntityComputedAttributeTrait {
 	/**
 	 * @param $name
 	 * @return mixed
-	 * @throws CsrOrmException
 	 */
 	public function __get($name) {
 		if (isset(static::$computed_attributes[$name])) {
 			return $this->{'get' . ucfirst($this->toCamelCase($name))}();
 		} else {
-			throw new CsrOrmException('Attribute not found: ' . $name);
+			return null;
 		}
 	}
 
