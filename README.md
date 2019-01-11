@@ -95,6 +95,21 @@ An array with the full primary key.
 protected static $primary_key = ['id'];
 ```
 
+
+##### `$computed_attributes`
+
+An array of computed attributes. This maps these attributes to a function and adds them to `jsonSerialize`
+
+```php
+protected static $computed_attributes = [
+  'my_val' => [T::Integer],
+]
+
+protected function getMyVal() {
+  return 42;
+}
+```
+
 #### Example
 
 **`model/entities/Car.php`**
