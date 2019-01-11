@@ -84,7 +84,7 @@ protected static $persistent_attributes = [
   'id' => [T::Integer, false, 'auto_increment'],
   'num_wheels' => [T::Integer],
   'color' => [T::Enumeration, false, 'ColorEnum']
-);
+];
 ```
 
 ##### `$primary_key`
@@ -103,7 +103,7 @@ An array of computed attributes. This maps these attributes to a function and ad
 ```php
 protected static $computed_attributes = [
   'my_val' => [T::Integer],
-]
+];
 
 protected function getMyVal() {
   return 42;
