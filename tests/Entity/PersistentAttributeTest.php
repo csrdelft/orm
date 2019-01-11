@@ -69,6 +69,9 @@ final class PersistentAttributeTest extends TestCase {
 		$definition = [T::Text, true, 'auto_increment'];
 		$attribute = new PersistentAttribute('one', $definition);
 		$this->assertEquals($definition, $attribute->toDefinition());
+
+		$attribute = new PersistentAttribute('one', [T::Enumeration, true, MyEnum::class]);
+		$this->assertEquals([T::Enumeration, true, ['option1', 'option2', 'option3']], $attribute->toDefinition());
 	}
 
 	/**

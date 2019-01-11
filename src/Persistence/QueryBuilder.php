@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection SqlNoDataSourceInspection */
 
 namespace CsrDelft\Orm\Persistence;
 
@@ -57,7 +57,7 @@ class QueryBuilder {
 	 * @return string
 	 */
 	public function buildExists($table, $where = null) {
-		$subSql = vsprintf('SELECT 1 FROM %s', $table);
+		$subSql = sprintf('SELECT 1 FROM %s', $table);
 
 		if ($where !== null) {
 			$subSql .= ' WHERE ' . $where;

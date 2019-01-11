@@ -124,7 +124,7 @@ class PersistentAttribute {
 			foreach ($values as $i => $value) {
 				$values[$i] = str_replace("'", "", $value);
 			}
-			return [T::Enumeration, false, $values];
+			return [T::Enumeration, $this->null === 'YES', $values];
 		} else {
 			if (
 				defined('DB_CHECK')

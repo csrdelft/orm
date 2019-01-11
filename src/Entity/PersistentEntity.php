@@ -2,6 +2,7 @@
 namespace CsrDelft\Orm\Entity;
 
 use function common\pdo_bool;
+use function common\short_class;
 use CsrDelft\Orm\JsonSerializer\SafeJsonSerializer;
 use Exception;
 
@@ -15,14 +16,11 @@ use Exception;
  * @see PersistenceModel::retrieveAttributes for a usage example of sparse and foreign keys.
  */
 abstract class PersistentEntity implements \JsonSerializable {
-
-	/**
-	 * Array of persistent attributes, mapped to column names in the database. Each persistent attribute must have a
-	 * public attribute the data can be saved in.
-	 *
-	 * @var array
-	 */
-	protected static $persistent_attributes = [];
+	use PersistentEntityPrimaryKeyTrait;
+	use PersistentEntityComputedAttributeTrait {
+		jsonSerialize as computedJsonSerialize;
+	}
+	use PersistentEntityPersistentAttributesTrait;
 
 	/**
 	 * Table name the entity is saved in.
@@ -30,37 +28,6 @@ abstract class PersistentEntity implements \JsonSerializable {
 	 * @var string
 	 */
 	protected static $table_name = null;
-
-	/**
-	 * Primary key for the table, can be any number of columns.
-	 *
-	 * @var array
-	 */
-	protected static $primary_key = [];
-
-	/**
-	 * Static constructor is called (by inheritance) once and only from PersistenceModel.
-	 *
-	 * Optional: run conversion code before checkTables() here
-	 */
-	public static function __static() {
-		// Extend the persistent attributes with all parent persistent attributes
-		$class = get_called_class();
-		while ($class = get_parent_class($class)) {
-			$parent = get_class_vars($class);
-			if (isset($parent['persistent_attributes'])) {
-				static::$persistent_attributes =
-					$parent['persistent_attributes'] + static::$persistent_attributes;
-			}
-		}
-	}
-
-	/**
-	 * The names of attributes that have been retrieved for this instance.
-	 * Used to discern unset values as these are invalid.
-	 * @var array|null Only set on sparse retrieval!
-	 */
-	private $attributes_retrieved;
 
 	/**
 	 * Constructor is called late (after attributes are set)
@@ -74,7 +41,6 @@ abstract class PersistentEntity implements \JsonSerializable {
 		$cast = false,
 		array $attributes_retrieved = null
 	) {
-		$this->attributes_retrieved = $attributes_retrieved;
 		if ($attributes_retrieved == null) {
 			// Cast all attributes
 			$attributes_retrieved = $this->getAttributes();
@@ -94,33 +60,6 @@ abstract class PersistentEntity implements \JsonSerializable {
 	}
 
 	/**
-	 * Get all attribute names.
-	 *
-	 * @return string[]
-	 */
-	public function getAttributes() {
-		return array_keys(static::$persistent_attributes);
-	}
-
-	/**
-	 * @param $attribute_name
-	 * @return array
-	 */
-	public function getAttributeDefinition($attribute_name) {
-		return static::$persistent_attributes[$attribute_name];
-	}
-
-	/**
-	 * Get primary key of entity.
-	 *
-	 * @return string[]
-	 */
-	public function getPrimaryKey() {
-		return array_values(static::$primary_key);
-	}
-
-
-	/**
 	 * Get universal Id for entity.
 	 *
 	 * Warning: assumes unique PersistentEntity names.
@@ -131,7 +70,7 @@ abstract class PersistentEntity implements \JsonSerializable {
 		return strtolower(sprintf(
 			'%s@%s.csrdelft.nl',
 			implode('.', $this->getValues(true)),
-			\common\short_class($this)
+			short_class($this)
 		));
 	}
 
@@ -143,7 +82,7 @@ abstract class PersistentEntity implements \JsonSerializable {
 	public function jsonSerialize() {
 		$array = get_object_vars($this);
 		$array['UUID'] = $this->getUUID();
-		return $array;
+		return array_merge($array, $this->computedJsonSerialize());
 	}
 
 	/**
@@ -151,10 +90,6 @@ abstract class PersistentEntity implements \JsonSerializable {
 	 * @param array $attributes
 	 */
 	public function onAttributesRetrieved(array $attributes) {
-		if (isset($this->attributes_retrieved)) {
-			// Bookkeeping only in case of sparse retrieval
-			$this->attributes_retrieved = array_merge($this->attributes_retrieved, $attributes);
-		}
 		$this->castValues($attributes); // PDO does not cast values automatically (yet)
 	}
 
@@ -171,10 +106,6 @@ abstract class PersistentEntity implements \JsonSerializable {
 			$attributes = $this->getPrimaryKey();
 		} else {
 			$attributes = $this->getAttributes();
-		}
-		// Do not return sparse attribute values as these are invalid
-		if (isset($this->attributes_retrieved)) {
-			$attributes = array_intersect($attributes, $this->attributes_retrieved);
 		}
 		foreach ($attributes as $attribute) {
 			$values[$attribute] = pdo_bool($this->$attribute);

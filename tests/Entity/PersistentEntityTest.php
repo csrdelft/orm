@@ -59,7 +59,6 @@ final class PersistentEntityTest extends TestCase {
 			'id' => 3,
 			'name' => 'thing',
 			'access' => false,
-			'attributes_retrieved' => null
 		], $entity->jsonSerialize());
 	}
 }

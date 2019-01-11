@@ -209,6 +209,7 @@ class DatabaseAdmin extends DependencyManager {
 	/**
 	 * @param $class
 	 * @return mixed[]|ReflectionProperty[]
+	 * @throws \ReflectionException
 	 */
 	public function getStaticProperties($class) {
 		$reflection_class = new ReflectionClass($class);
