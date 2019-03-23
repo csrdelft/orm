@@ -1,12 +1,15 @@
 # .travis.yml
-dist: precise
 language: php
 php:
   - '7.1'
-  - nightly
+  - '7.2'
 
 services:
   - mysql
+
+addons:
+  sonarcloud:
+    organization: "csrdelft"
 
 cache:
   directories:
@@ -16,6 +19,10 @@ before_install:
   - mysql -e 'CREATE DATABASE orm_test;'
 
 install: composer install --dev
+
+script:
+  - php vendor/bin/phpunit
+  - sonar-scanner
 
 after_script:
   - php vendor/bin/codacycoverage clover
