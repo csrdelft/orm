@@ -1,5 +1,5 @@
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/109c2ffa39c846559a9bb8441a5b8dc2)](https://www.codacy.com/app/C-S-R-Delft/orm?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=csrdelft/orm&amp;utm_campaign=Badge_Grade)
-[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/109c2ffa39c846559a9bb8441a5b8dc2)](https://www.codacy.com/app/C-S-R-Delft/orm?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=csrdelft/orm&amp;utm_campaign=Badge_Coverage)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=csrdelft_orm&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=csrdelft_orm)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=csrdelft_orm&metric=coverage)](https://sonarcloud.io/dashboard?id=csrdelft_orm)
 [![Build Status](https://travis-ci.org/csrdelft/orm.svg?branch=master)](https://travis-ci.org/csrdelft/orm)
 
 # C.S.R. Delft ORM
