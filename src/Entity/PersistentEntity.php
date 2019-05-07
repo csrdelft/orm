@@ -110,7 +110,7 @@ abstract class PersistentEntity implements \JsonSerializable {
 		foreach ($attributes as $attribute) {
 			$values[$attribute] = pdo_bool($this->$attribute);
 			$attributeDef = $this->getAttributeDefinition($attribute);
-			if ($attributeDef[0]==T::JSON) {
+			if ($attributeDef[0]==T::JSON && $attribute->$attribute !== null) {
 				$serializer = new SafeJsonSerializer($attributeDef[2]);
 				$values[$attribute] = $serializer->serialize($this->$attribute);
 			}

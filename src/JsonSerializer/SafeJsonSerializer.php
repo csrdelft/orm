@@ -1,21 +1,17 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: sander
- * Date: 13-7-18
- * Time: 11:08
- */
 
 namespace CsrDelft\Orm\JsonSerializer;
 
 use ReflectionClass;
-use Zumba\JsonSerializer\Exception\JsonSerializerException;
+use Zumba\JsonSerializer\JsonSerializer;
 
 /**
  * JsonSerializer that only allows serializing and deserializing of classes that are explicitly allowed.
  * @package CsrDelft\Orm\JsonSerializer
+ * @author Sander
+ * @since 13-07-2018
  */
-class SafeJsonSerializer extends \Zumba\JsonSerializer\JsonSerializer {
+class SafeJsonSerializer extends JsonSerializer {
 
 	/**
 	 * Array of allowed classes

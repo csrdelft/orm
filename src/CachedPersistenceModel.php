@@ -211,7 +211,9 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 					$start
 			);
 		}
-		$cached = $this->cacheResult($result, false);
+		if ($result !== false) {
+			$cached = $this->cacheResult($result, false);
+		}
 		if ($result instanceof PDOStatement) {
 			$this->setCache($key, $cached, $this->memcache_prefetch);
 		}

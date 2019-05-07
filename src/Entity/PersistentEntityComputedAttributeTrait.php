@@ -2,8 +2,6 @@
 
 namespace CsrDelft\Orm\Entity;
 
-use CsrDelft\Orm\Exception\CsrOrmException;
-
 /**
  * Maps attributes to getters.
  *
