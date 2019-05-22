@@ -181,7 +181,7 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	 * @param string $order_by ORDER BY
 	 * @param int $limit max amount of results
 	 * @param int $start results from index
-	 * @return array
+	 * @return array|boolean
 	 */
 	public function prefetch(
 		$criteria = null,
@@ -211,9 +211,12 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 					$start
 			);
 		}
-		if ($result !== false) {
-			$cached = $this->cacheResult($result, false);
+
+		if ($result === false) {
+			return $result;
 		}
+
+		$cached = $this->cacheResult($result, false);
 		if ($result instanceof PDOStatement) {
 			$this->setCache($key, $cached, $this->memcache_prefetch);
 		}
