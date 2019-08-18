@@ -276,9 +276,7 @@ abstract class CachedPersistenceModel extends PersistenceModel {
 	 * @return string last insert id
 	 */
 	public function create(PersistentEntity $entity) {
-		if ($this->memcache_prefetch) {
-			$this->flushCache(true);
-		}
+		$this->flushCache($this->memcache_prefetch);
 		return parent::create($entity);
 	}
 
