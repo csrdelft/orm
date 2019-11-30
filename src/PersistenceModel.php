@@ -56,7 +56,7 @@ abstract class PersistenceModel extends DependencyManager implements Persistence
 	/**
 	 * PersistenceModel constructor.
 	 */
-	protected function __construct() {
+	public function __construct() {
 		assert(static::ORM !== null);
 		$orm = static::ORM;
 		$this->orm = new $orm();

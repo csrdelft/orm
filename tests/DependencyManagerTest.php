@@ -6,22 +6,22 @@ use PHPUnit\Framework\TestCase;
 require_once 'Persistence/MySqlDatabaseTestCase.php';
 
 class OneParameter extends DependencyManager {
-	protected function __construct($parameter) {
+	public function __construct($parameter) {
 	}
 }
 
 class CircularOne extends DependencyManager {
-	protected function __construct(CircularTwo $circularTwo) {
+	public function __construct(CircularTwo $circularTwo) {
 	}
 }
 
 class CircularTwo extends DependencyManager {
-	protected function __construct(CircularOne $circularOne) {
+	public function __construct(CircularOne $circularOne) {
 	}
 }
 
 class NoParameter extends DependencyManager {
-	protected function __construct() {
+	public function __construct() {
 	}
 }
 
@@ -30,7 +30,7 @@ class NoConstructor extends DependencyManager {
 }
 
 class ParameterMismatch extends DependencyManager {
-	protected function __construct(EmptyTest $emptyTest) {
+	public function __construct(EmptyTest $emptyTest) {
 	}
 }
 
@@ -40,7 +40,7 @@ class PreloadDependency extends DependencyManager {
 	 */
 	public $emptyTest;
 
-	protected function __construct(EmptyTest $emptyTest) {
+	public function __construct(EmptyTest $emptyTest) {
 		$this->emptyTest = $emptyTest;
 	}
 }
@@ -51,7 +51,7 @@ class Normal extends DependencyManager {
 	public $noParameter;
 	public $data;
 
-	protected function __construct($data, NoParameter $noParameter) {
+	public function __construct($data, NoParameter $noParameter) {
 		$this->data = $data;
 		$this->noParameter = $noParameter;
 	}
@@ -61,7 +61,7 @@ class Reversed extends DependencyManager {
 	public $noConstructor;
 	public $data;
 
-	protected function __construct(NoConstructor $noConstructor, $data) {
+	public function __construct(NoConstructor $noConstructor, $data) {
 		$this->data = $data;
 		$this->noConstructor = $noConstructor;
 	}

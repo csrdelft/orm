@@ -5,7 +5,7 @@
 # C.S.R. Delft ORM
 
 A simple object-relational mapper for PHP. We currently use this library in production
-on [csrdelft.nl](https://csrdelft.nl). 
+on [csrdelft.nl](https://csrdelft.nl).
 
 ## Installation
 
@@ -41,7 +41,7 @@ overview of the basic things you need to know in order to get started.
 
 An entity is an object containing data, like for instance a car, person, etc.
 
-When you want to save an entity to the database, you'll have to extend the class 
+When you want to save an entity to the database, you'll have to extend the class
 `PersistentEntity`. An entity must contain a few variables, which are discussed
 below. An entity must only contain logic about itself, not logic about other classes
 or about other instances of the same entity. This should be in the Model (or the controller which is
@@ -76,7 +76,7 @@ A Type is an array, with the following values.
 
 * 0: Type from `T` (`PersistentAttributeType.enum`)
 * 1: Is this variable nullable?
-* 2: If 0 is `T::Enumeration`, the enum class (extends `PersistentEnum`). Else 'extra', 
+* 2: If 0 is `T::Enumeration`, the enum class (extends `PersistentEnum`). Else 'extra',
 for instance `auto_increment` or comment.
 
 ```php
@@ -140,8 +140,8 @@ class Car extends PersistentEntity {
 
 ### Model
 
-A model has to extend the `PersistenceModel` class. A model is the owner of a 
-specific entity. A model can be accessed everywhere with the public static 
+A model has to extend the `PersistenceModel` class. A model is the owner of a
+specific entity. A model can be accessed everywhere with the public static
 `instance()` method. This should however be avoided where possible.
 
 Models should be placed in `model/`.
@@ -176,9 +176,9 @@ The following functions can be used on a model
 
 ### `find($criteria, $criteria_params, ...) : PersistentEntity[]`
 
-Find entities in the database filtered on criteria. The syntax for this should be familiar if you 
+Find entities in the database filtered on criteria. The syntax for this should be familiar if you
 ever worked with PDO in PHP. The `$criteria` is the `WHERE` clause of the underlying select statement, you can
-put `?`'s here where variables are. The criteria params are where you fill these variables. Criteria 
+put `?`'s here where variables are. The criteria params are where you fill these variables. Criteria
 params are automatically filtered and safe for user input.
 
 ```php
@@ -192,7 +192,7 @@ Count the number of entities which pass the criteria, same as `find(..)`. Create
 
 ### `exists($entity) : boolean`
 
-Check whether or not an entity exists in the database. 
+Check whether or not an entity exists in the database.
 
 ### `create($entity) : string`
 
@@ -215,7 +215,7 @@ require_once 'model/entity/Car.php';
 
 class CarModel extends PersistenceModel {
   const ORM = 'Car';
-  
+
   public function findByColor($color) {
     return $this->find('color = ?', [$color]);
   }
@@ -278,7 +278,7 @@ $car->reviews = [$review];
 $model->update($car);
 ```
 
-To prevent remote code execution only allowed classes can be (de)deserialized. In the third element of the  attribute defintion 
+To prevent remote code execution only allowed classes can be (de)deserialized. In the third element of the  attribute defintion
 the list of allowed classes should be specified. Also null can be passed to allow all classes.
 ## Database transactions
 
@@ -298,7 +298,7 @@ Database::transaction(function () use ($car) {
 ## Dependency Injection
 
 The orm does a very simple way of dependency injection. When a instance of a model is created is created
-it tries to lookup any dependencies which extend `DependencyManager` if they are found they are wired into the 
+it tries to lookup any dependencies which extend `DependencyManager` if they are found they are wired into the
 model and available for use. There can only be one version of a model and this is kept track of in `DependencyManager`.
 
 ### Example
@@ -306,14 +306,14 @@ model and available for use. There can only be one version of a model and this i
 ```php
 class OwnerModel extends PersistenceModel {
   const ORM = 'Owner';
-  
+
   /** @var CarModel */
   protected $carModel;
-  
-  protected function __construct(CarModel $carModel) {
+
+  public function __construct(CarModel $carModel) {
     $this->carModel = $carModel;
   }
-  
+
   public function getCarsForOwner(Owner $owner) {
     return $this->carModel->find('owner = ?', [$owner->id]);
   }
@@ -321,7 +321,7 @@ class OwnerModel extends PersistenceModel {
 
 class CarModel extends PersistenceModel {
   const ORM = 'Car';
-  
+
   public function findByColor($color) {
     return $this->find('color = ?', [$color]);
   }

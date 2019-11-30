@@ -22,7 +22,7 @@ class OrmMemcache extends DependencyManager {
 	 * OrmMemcache constructor.
 	 * @param $path
 	 */
-	protected function __construct($path) {
+	public function __construct($path) {
 		if (class_exists('Memcache')) {
 			$this->cache = new Memcache();
 			if ($this->cache->connect('unix://' . $path . 'csrdelft-cache.socket', 0)) {
