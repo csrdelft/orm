@@ -297,7 +297,19 @@ Database::transaction(function () use ($car) {
 
 ## Dependency Injection
 
-The orm does a very simple way of dependency injection. When a instance of a model is created is created
+You can provide your own `ContainerInterface` to `DependencyManager`, this container will be used for everything. You still need to provide the container with instances of `Database`, `DatabaseAdmin` and `OrmMemcache`.
+
+```php
+$container = $kernel->getContainer();
+
+DependencyManager::setContainer($container);
+
+$container->set(OrmMemcache::class, new OrmMemcache($cachePath));
+$container->set(Database::class, new Database($pdo));
+$container->set(DatabaseAdmin::class, new DatabaseAdmin($pdo));
+```
+
+It is also possible to leverage the dependency injection provided by the orm. The orm does a very simple way of dependency injection. When a instance of a model is created is created
 it tries to lookup any dependencies which extend `DependencyManager` if they are found they are wired into the
 model and available for use. There can only be one version of a model and this is kept track of in `DependencyManager`.
 
