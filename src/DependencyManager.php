@@ -2,6 +2,7 @@
 namespace CsrDelft\Orm;
 
 use CsrDelft\Orm\Exception\CsrOrmException;
+use Psr\Container\ContainerInterface;
 
 /**
  * Any class extending this class is able to be autoloaded.
@@ -32,10 +33,19 @@ abstract class DependencyManager {
 	private static $loading = [];
 
 	/**
+	 * @var ContainerInterface|null
+	 */
+	protected static $container = null;
+
+	/**
 	 * Static constructor. Can be implemented in base classes.
 	 */
 	public static function __static() {
 		// Empty.
+	}
+
+	public static function setContainer(ContainerInterface $container) {
+		static::$container = $container;
 	}
 
 	/**
@@ -71,6 +81,10 @@ abstract class DependencyManager {
 	 * @return static
 	 */
 	final public static function instance() {
+		if (static::$container && static::$container->has(static::class)) {
+			return static::$container->get(static::class);
+		}
+
 		if (!isset(self::$instance[static::class])) {
 			self::$instance[static::class] = static::init();
 		}
