@@ -34,7 +34,7 @@ class Configuration {
 
 		$db_conf = $config['db'];
 
-		$ormMemcache = Persistence\OrmMemcache::init($config['cache_path']);
+		$ormMemcache = Persistence\OrmMemcache::init($config['cache_path'], $config['cache_port'] ?? 0);
 
 		$dsn = 'mysql:host=' . $db_conf['host'] . ';dbname=' . $db_conf['db'];
 		$options = [
