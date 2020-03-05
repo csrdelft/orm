@@ -16,12 +16,13 @@ composer require csrdelft/orm
 ```
 
 Before the ORM can be used the cache and database must be initialized. The memcache needs
-a writable path and the database and database admin need a host, database, username and
+a unix socket or host and port and the database and database admin need a host, database, username and
 password. After this any model has access to the database.
 
 ```php
 CsrDelft\Orm\Configuration::load([
-  'cache_path' => '/path/to/data/dir',
+  'cache_path' => '/path/to/data/dir/cache.socket', // Host or unix socket
+  'cache_port' => 11211, // Optional if cache_path is a host
   'db' => [
     'host' => 'localhost',
     'db' => 'myDatabase',
